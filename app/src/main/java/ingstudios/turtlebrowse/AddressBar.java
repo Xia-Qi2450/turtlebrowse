@@ -11,14 +11,18 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import org.cef.CefClient;
 import org.cef.browser.*;
 
 public class AddressBar extends JPanel {
-    TextField addressField;
+    private TextField addressField;
+    private MainWindow parent;
 
-    public AddressBar(CefClient client, CefBrowser browser, String startUrl, BrowserState browserFocused) {
+    public AddressBar(CefClient client, MainWindow parent, String startUrl) {
+        this.parent = parent;
+
         this.setLayout(new java.awt.BorderLayout());
 
         JFXPanel addressBarPanel = new JFXPanel();
@@ -33,51 +37,66 @@ public class AddressBar extends JPanel {
             Button backButton = new Button("<");
             backButton.setOnAction(event -> {
                 System.out.println("Back button clicked.");
+                CefBrowser browser = this.parent.getBrowserInstance();
                 if (browser.canGoBack()) browser.goBack();
             });
 
             Button forwardButton = new Button(">");
             forwardButton.setOnAction(event -> {
                 System.out.println("Forward button clicked.");
+                CefBrowser browser = this.parent.getBrowserInstance();
                 if (browser.canGoForward()) browser.goForward();
             });
 
             Button reloadButton = new Button("↻");
             reloadButton.setOnAction(event -> {
                 System.out.println("Reload button clicked.");
+                CefBrowser browser = this.parent.getBrowserInstance();
                 browser.reload();
             });
 
-            this.addressField = new TextField(startUrl);
-            this.addressField.setOnAction(event -> {
-                String enteredUrl = this.addressField.getText();
+            addressField = new TextField(startUrl);
+            addressField.setOnAction(event -> {
+                CefBrowser browser = parent.getBrowserInstance();
+
+                String enteredUrl = addressField.getText();
 
                 System.out.print("Entered URL:");
                 System.out.println(enteredUrl);
 
-                browser.loadURL(enteredUrl);
+                if (browser != null) browser.loadURL(enteredUrl);
+                else System.out.println("Browser is null.");
             });
 
-            this.addressField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue) {
-                    if (!browserFocused.getBrowserFocus()) return;
-                    browserFocused.setBrowserFocus(false);
-                    java.awt.KeyboardFocusManager.getCurrentKeyboardFocusManager().clearGlobalFocusOwner();
-                    Platform.runLater(() -> this.addressField.requestFocus());
-                }
+            addressField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                parent.isUiFocused.set(newValue);
             });
 
-            root.getChildren().addAll(backButton, forwardButton, reloadButton, this.addressField);
+            addressField.setOnMousePressed(event -> {
+                parent.isUiFocused.set(true);
+            });
+
+            addressField.setOnMouseClicked(event -> {
+                addressField.requestFocus();
+                addressField.selectAll();
+
+                SwingUtilities.invokeLater(() -> {
+                    CefBrowser browser = this.parent.getBrowserInstance();
+                    if (browser != null) browser.setFocus(false);
+                });
+            });
+
+            root.getChildren().addAll(backButton, forwardButton, reloadButton, addressField);
 
             backButton.prefWidthProperty().bind(backButton.heightProperty());
             forwardButton.prefWidthProperty().bind(forwardButton.heightProperty());
             reloadButton.prefWidthProperty().bind(reloadButton.heightProperty());
 
-            HBox.setHgrow(this.addressField, Priority.ALWAYS);
-            this.addressField.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(addressField, Priority.ALWAYS);
+            addressField.setMaxWidth(Double.MAX_VALUE);
 
             root.setOnMouseClicked(event -> {
-                this.addressField.requestFocus();
+                addressField.requestFocus();
             });
 
             Scene addressBarScene = new Scene(root);
@@ -90,6 +109,17 @@ public class AddressBar extends JPanel {
     }
 
     public void updateUrl(String newUrl) {
-        this.addressField.setText(newUrl);
+        addressField.setText(newUrl);
+    }
+
+    public void focusAddressField() {
+        addressField.requestFocus();
+        addressField.selectAll();
+
+        SwingUtilities.invokeLater(() -> {
+            CefBrowser browser = parent.getBrowserInstance();
+            if (browser != null) browser.setFocus(false);
+            parent.isUiFocused.set(false);
+        });
     }
 }

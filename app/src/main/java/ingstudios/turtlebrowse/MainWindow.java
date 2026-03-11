@@ -9,6 +9,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -24,24 +25,33 @@ import org.cef.browser.CefFrame;
 import org.cef.browser.CefMessageRouter;
 import org.cef.handler.CefDisplayHandlerAdapter;
 import org.cef.handler.CefFocusHandlerAdapter;
+import org.cef.handler.CefLifeSpanHandlerAdapter;
 
+import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import me.friwi.jcefmaven.*;
 
 public class MainWindow extends JFrame {
-    final String START_URL = "https://google.com";
-    final boolean USE_OSR = false;
+    private final String START_URL = "https://google.com";
+    private final boolean USE_OSR = false;
 
-    CefApp cefApp;
-    CefClient cefClient;
-    CefMessageRouter cefMessageRouter;
-    CefBrowser cefBrowser;
-    CefSettings cefSettings;
-    Component browserUi;
-    JPanel root;
-    BrowserState browserFocused = new BrowserState(true);
+    private CefApp cefApp;
+    private CefClient cefClient;
+    private CefMessageRouter cefMessageRouter;
+    private CefSettings cefSettings;
+    private CefBrowser currentBrowser;
+    private ArrayList<CefBrowser> openedBrowserTabs = new ArrayList<>();
+    private JPanel root;
+    private JPanel browserContainer;
+    private AddressBar addressBar;
+    private TabBar tabBar;
+    public final BooleanProperty isUiFocused = new SimpleBooleanProperty(false);
 
     public MainWindow() {
         super("Turtlebrowse");
+
+        Platform.startup(() -> {});
 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -55,7 +65,10 @@ public class MainWindow extends JFrame {
         setSize(1200, 800);
         setLocationRelativeTo(null);
 
-        //root.add(new JLabel("Hello Turtlebrowse"), BorderLayout.CENTER);
+        browserContainer = new JPanel(new BorderLayout());
+
+        // Address bar
+        addressBar = new AddressBar(cefClient, this, START_URL);
 
         // CEF browser setup
         try {
@@ -68,37 +81,45 @@ public class MainWindow extends JFrame {
         cefMessageRouter = CefMessageRouter.create();
         cefClient.addMessageRouter(cefMessageRouter);
 
-        cefBrowser = cefClient.createBrowser(START_URL, USE_OSR, false);
-        browserUi = cefBrowser.getUIComponent();
+        // Tab bar
+        tabBar = new TabBar(cefClient, openedBrowserTabs, this);
 
         cefClient.addFocusHandler(new CefFocusHandlerAdapter() {
             @Override
             public void onGotFocus(CefBrowser browser) {
-                if (browserFocused.getBrowserFocus()) return;
-                browserFocused.setBrowserFocus(true);
-                KeyboardFocusManager.getCurrentKeyboardFocusManager().clearFocusOwner();
-                browser.setFocus(true);
+                if (isUiFocused.get()) {
+                    browser.setFocus(false);
+                    return;
+                }
+
+                SwingUtilities.invokeLater(() -> {
+                    if (!isUiFocused.get()) {
+                        KeyboardFocusManager.getCurrentKeyboardFocusManager().clearFocusOwner();
+                        browser.setFocus(true);
+                    } else {
+                        browser.setFocus(false);
+                    }
+                });
             }
 
             @Override
             public void onTakeFocus(CefBrowser browser, boolean next) {
-                browserFocused.setBrowserFocus(false);
+                if (!isUiFocused.get()) {
+                    browser.setFocus(false);
+                    return;
+                }
+                
+                isUiFocused.set(false);
             }
             
             @Override
             public boolean onSetFocus(CefBrowser browser, FocusSource source) {
-                if (!browserFocused.getBrowserFocus()) {
-                    return true;
+                if (isUiFocused.get()) {
+                    System.out.println("Blocked browser focus attempt while UI is active.");
                 }
                 return false;
             }
         });
-
-        // Address bar
-        final AddressBar addressBar = new AddressBar(cefClient, cefBrowser, START_URL, browserFocused);
-
-        // Tab bar
-        final TabBar tabBar = new TabBar();
 
         // Top panel (address + tab)
         final JPanel topPanel = new JPanel(new BorderLayout());
@@ -106,11 +127,17 @@ public class MainWindow extends JFrame {
         topPanel.add(addressBar, BorderLayout.SOUTH);
 
         root.add(topPanel, BorderLayout.NORTH);
-        root.add(browserUi, BorderLayout.CENTER);
+        root.add(browserContainer, BorderLayout.CENTER);
+
+        createTab(START_URL);
 
         cefClient.addDisplayHandler(new CefDisplayHandlerAdapter() {
             @Override
             public void onTitleChange(CefBrowser browser, String title) {
+                Platform.runLater(() -> {
+                    tabBar.setTabTitle(browser, title);
+                });
+                
                 SwingUtilities.invokeLater(() -> {
                     updateWindowTitle(title);
                 });
@@ -121,6 +148,17 @@ public class MainWindow extends JFrame {
                 System.out.print("Navigated to:");
                 System.out.println(url);
                 addressBar.updateUrl(url);
+            }
+        });
+
+        cefClient.addLifeSpanHandler(new CefLifeSpanHandlerAdapter() {
+            @Override
+            public boolean onBeforePopup(CefBrowser browser, CefFrame frame, String targetUrl, String targetFrameName) {
+                SwingUtilities.invokeLater(() -> {
+                    createTab(targetUrl);
+                });
+
+                return true;
             }
         });
 
@@ -135,6 +173,7 @@ public class MainWindow extends JFrame {
 
     private CefApp creatCefApp() {
         CefAppBuilder builder = new CefAppBuilder();
+        builder.addJcefArgs("--enable-media-stream", "--enable-gpu");
 
         cefSettings = builder.getCefSettings();
 
@@ -192,18 +231,51 @@ public class MainWindow extends JFrame {
         this.setTitle(pageTitle + " - Turtlebrowse");
     }
 
-    /*
-    private void setIconImage() {
-        // Set icon image in the future
+    private void createTab(String url) {
+        CefBrowser browser = cefClient.createBrowser(url, USE_OSR, false);
+        openedBrowserTabs.add(browser);
+
+        Platform.runLater(() -> {
+            tabBar.addTabToUI(browser);
+        });
+
+        SwingUtilities.invokeLater(() -> {
+            showBrowser(browser);
+        });
     }
-    */
+
+    public void showBrowser(CefBrowser browser) {
+        currentBrowser = browser;
+        Component ui = browser.getUIComponent();
+
+        ui.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent event) {
+                isUiFocused.set(false);
+                ui.requestFocus();
+                browser.setFocus(true);
+            }
+        });
+        
+        browserContainer.removeAll();
+        browserContainer.add(ui, BorderLayout.CENTER);
+        
+        browserContainer.revalidate();
+        browserContainer.repaint();
+
+        browser.setFocus(true);
+    }
+
+    public CefBrowser getBrowserInstance() {
+        return currentBrowser;
+    }
 
     @Override
     public void dispose() {
         System.out.println("Closing...");
 
-        if (cefBrowser != null) {
-            cefBrowser.close(true);
+        for (CefBrowser browser : openedBrowserTabs) {
+            if (browser != null) browser.close(true);
         }
 
         if (cefApp != null) {
