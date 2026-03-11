@@ -16,3 +16,5 @@ app/jcef-bundle/
 app/bin/
 
 .vscode
+
+jecf-bundle/
