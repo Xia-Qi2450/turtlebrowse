@@ -3,7 +3,7 @@ plugins {
 
     id("org.openjfx.javafxplugin") version "0.1.0"
 
-    id("io.github.goooler.shadow") version "8.1.7"
+    //id("io.github.goooler.shadow") version "8.1.7"
 }
 
 repositories {
@@ -38,8 +38,11 @@ javafx {
 
 application {
     // Define the main class for the application.
-    mainClass = "ingstudios.turtlebrowse.Main"
+    mainClass.set("ingstudios.turtlebrowse.Main")
 }
+
+/*
+val mainClassName: String by extra("ingstudios.turtlebrowse.Main")
 
 tasks.shadowJar {
     manifest {
@@ -74,6 +77,7 @@ tasks.register<Exec>("jpackage") {
         "--install-dir", "ingStudios\\Turtlebrowse"
     )
 }
+*/
 
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.

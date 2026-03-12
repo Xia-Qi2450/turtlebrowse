@@ -35,6 +35,15 @@ public class TabBar extends JPanel {
         root.setSpacing(10);
         root.setPadding(new Insets(10));
 
+        final Button createTabButton = new Button("+");
+        createTabButton.setPrefHeight(90);
+        createTabButton.setOnAction(event -> {
+            SwingUtilities.invokeLater(() -> {
+                parent.createTab(parent.START_URL);
+            });
+        });
+        root.getChildren().add(createTabButton);
+
         Platform.runLater(() -> {
             for (CefBrowser browser : tabs) {
                 addTabToUI(browser);
@@ -52,11 +61,25 @@ public class TabBar extends JPanel {
     }
 
     public void addTabToUI(CefBrowser browser) {
-        Button tabButton = new Button("Loading...");
+        Button closeButton = new Button("X");
+
+        Button tabButton = new Button("Loading...", closeButton);
         tabButton.setPrefWidth(150);
+        tabButton.setPrefHeight(90);
         tabButton.setOnAction(event -> {
             SwingUtilities.invokeLater(() -> {
                 parent.showBrowser(browser);
+            });
+        });
+
+        closeButton.setOnAction(event -> {
+            Platform.runLater(() -> {
+                root.getChildren().remove(tabButton);
+            });
+
+            SwingUtilities.invokeLater(() -> {
+                tabMap.remove(browser);
+                parent.closeTab(browser);
             });
         });
 

@@ -33,7 +33,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import me.friwi.jcefmaven.*;
 
 public class MainWindow extends JFrame {
-    private final String START_URL = "https://google.com";
+    public final String START_URL = "https://google.com";
     private final boolean USE_OSR = false;
 
     private CefApp cefApp;
@@ -231,7 +231,7 @@ public class MainWindow extends JFrame {
         this.setTitle(pageTitle + " - Turtlebrowse");
     }
 
-    private void createTab(String url) {
+    public void createTab(String url) {
         CefBrowser browser = cefClient.createBrowser(url, USE_OSR, false);
         openedBrowserTabs.add(browser);
 
@@ -244,18 +244,50 @@ public class MainWindow extends JFrame {
         });
     }
 
+    public void closeTab(CefBrowser browser) {
+        int indexToClose = openedBrowserTabs.indexOf(browser);
+        if (indexToClose == -1) return;
+        
+        openedBrowserTabs.remove(browser);
+
+        if (browser == currentBrowser) {
+            if (openedBrowserTabs.isEmpty()) {
+                System.out.println("Tab is empty.");
+                currentBrowser = null;
+                dispose();
+            } else {
+                System.out.println("Tab is not empty, reverting to last tab.");
+
+                int nextIndex = openedBrowserTabs.size() - 1;
+                CefBrowser nextBrowser = openedBrowserTabs.get(nextIndex);
+                System.out.println(openedBrowserTabs.get(nextIndex));
+
+                SwingUtilities.invokeLater(() -> {
+                    showBrowser(nextBrowser);
+                    browser.close(true);
+                });
+
+                Platform.runLater(() -> {
+                    addressBar.updateUrl(nextBrowser.getURL());
+                });
+            }
+        }
+    }
+
     public void showBrowser(CefBrowser browser) {
         currentBrowser = browser;
         Component ui = browser.getUIComponent();
 
-        ui.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mousePressed(java.awt.event.MouseEvent event) {
-                isUiFocused.set(false);
-                ui.requestFocus();
-                browser.setFocus(true);
-            }
-        });
+        if (ui.getMouseListeners().length == 0) {
+            ui.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mousePressed(java.awt.event.MouseEvent event) {
+                    isUiFocused.set(false);
+                    ui.requestFocusInWindow();
+                    browser.setFocus(true);
+                }
+            });
+        }
         
         browserContainer.removeAll();
         browserContainer.add(ui, BorderLayout.CENTER);
