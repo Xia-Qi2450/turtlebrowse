@@ -12,14 +12,16 @@ import org.cef.browser.CefBrowser;
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 
 public class TabBar extends JPanel {
-    private final Map<CefBrowser, Button> tabMap = new HashMap<>();
+    private final Map<CefBrowser, HBox> tabMap = new HashMap<>();
     private final HBox root = new HBox();
     private MainWindow parent;
 
@@ -28,15 +30,16 @@ public class TabBar extends JPanel {
 
         this.setLayout(new java.awt.BorderLayout());
 
-        JFXPanel tabPanel = new JFXPanel();
+        final JFXPanel tabPanel = new JFXPanel();
         tabPanel.setPreferredSize(new java.awt.Dimension(1200, 50));
 
+        root.setFillHeight(true);
+        root.setStyle("-fx-spacing: 10px; -fx-padding: 10px; -fx-background-color: #FCFAED; -fx-fill: #1B1C14; -fx-text-fill: #1B1C14;");
         root.setAlignment(Pos.CENTER_LEFT);
-        root.setSpacing(10);
-        root.setPadding(new Insets(10));
 
         final Button createTabButton = new Button("+");
-        createTabButton.setPrefHeight(90);
+        createTabButton.setStyle("-fx-background-color: #F0EEE1; -fx-border-radius: 25px; -fx-background-radius: 25px; -fx-padding: 10px;");
+        createTabButton.setMaxHeight(Double.MAX_VALUE);
         createTabButton.setOnAction(event -> {
             SwingUtilities.invokeLater(() -> {
                 parent.createTab(parent.START_URL);
@@ -50,7 +53,7 @@ public class TabBar extends JPanel {
             }
         });
 
-        Scene tabBarScene = new Scene(root);
+        final Scene tabBarScene = new Scene(root);
         tabPanel.setScene(tabBarScene);
         Platform.runLater(() -> {
             root.prefWidthProperty().bind(tabBarScene.widthProperty());
@@ -61,20 +64,29 @@ public class TabBar extends JPanel {
     }
 
     public void addTabToUI(CefBrowser browser) {
-        Button closeButton = new Button("X");
+        final Label tabTitle = new Label("Loading...");
 
-        Button tabButton = new Button("Loading...", closeButton);
-        tabButton.setPrefWidth(150);
-        tabButton.setPrefHeight(90);
-        tabButton.setOnAction(event -> {
+        final Button closeButton = new Button("X");
+        closeButton.setStyle("-fx-background-color: transparent;");
+
+        final HBox tabBox = new HBox(10);
+        tabBox.setStyle("-fx-background-color: #F0EEE1; -fx-border-radius: 25px; -fx-background-radius: 25px; -fx-padding: 10px; -fx-pref-width: 150px;");
+        tabBox.setMaxHeight(Double.MAX_VALUE);
+        final Region tabSpacer = new Region();
+        tabBox.setAlignment(Pos.CENTER);
+        HBox.setHgrow(tabSpacer, Priority.ALWAYS);
+        tabBox.setOnMouseClicked(event -> {
             SwingUtilities.invokeLater(() -> {
                 parent.showBrowser(browser);
             });
         });
 
+        closeButton.prefHeightProperty().bind(tabBox.heightProperty().multiply(0.8));
         closeButton.setOnAction(event -> {
+            event.consume();
+
             Platform.runLater(() -> {
-                root.getChildren().remove(tabButton);
+                root.getChildren().remove(tabBox);
             });
 
             SwingUtilities.invokeLater(() -> {
@@ -83,13 +95,16 @@ public class TabBar extends JPanel {
             });
         });
 
-        tabMap.put(browser, tabButton);
+        tabBox.getChildren().addAll(tabTitle, tabSpacer, closeButton);
 
-        root.getChildren().add(tabButton);
+        tabMap.put(browser, tabBox);
+
+        root.getChildren().add(tabBox);
     }
 
     public void setTabTitle(CefBrowser browser, String title) {
-        Button button = tabMap.get(browser);
-        if (button != null) button.setText(title);
+        final HBox box = tabMap.get(browser);
+        final Label tabTitle = (Label) box.getChildren().get(0);
+        tabTitle.setText(title);
     }
 }

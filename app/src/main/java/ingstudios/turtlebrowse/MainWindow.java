@@ -250,13 +250,15 @@ public class MainWindow extends JFrame {
         
         openedBrowserTabs.remove(browser);
 
+        System.out.printf("Browser is current browser: %s", browser == currentBrowser);
+
         if (browser == currentBrowser) {
             if (openedBrowserTabs.isEmpty()) {
-                System.out.println("Tab is empty.");
+                System.out.println("No tabs.");
                 currentBrowser = null;
                 dispose();
             } else {
-                System.out.println("Tab is not empty, reverting to last tab.");
+                System.out.println("Tabs is not empty, reverting to last tab.");
 
                 int nextIndex = openedBrowserTabs.size() - 1;
                 CefBrowser nextBrowser = openedBrowserTabs.get(nextIndex);
@@ -271,6 +273,8 @@ public class MainWindow extends JFrame {
                     addressBar.updateUrl(nextBrowser.getURL());
                 });
             }
+        } else {
+            browser.close(true);
         }
     }
 
@@ -288,6 +292,10 @@ public class MainWindow extends JFrame {
                 }
             });
         }
+
+        SwingUtilities.invokeLater(() -> {
+            addressBar.updateUrl(browser.getURL());
+        });
         
         browserContainer.removeAll();
         browserContainer.add(ui, BorderLayout.CENTER);
