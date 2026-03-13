@@ -1,6 +1,7 @@
 package ingstudios.turtlebrowse;
 
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.embed.swing.JFXPanel;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -8,8 +9,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.paint.Paint;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -39,13 +44,21 @@ public class AddressBar extends JPanel {
         Platform.runLater(() -> {
             final HBox root = new HBox();
             root.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
-            root.setStyle("-fx-spacing: 10px; -fx-padding: 10px; -fx-background-color: #FCFAED; -fx-fill: #1B1C14; -fx-text-fill: #1B1C14;");
+            root.setStyle("-fx-spacing: 10px; -fx-padding: 10px;");
+            root.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
+                final Paint backgroundColor = this.parent.materialColorScheme.getSurface().get();
+                return new Background(new BackgroundFill(backgroundColor, null, null));
+            }, this.parent.materialColorScheme.getSurface()));
             root.setAlignment(Pos.CENTER);
 
             final Button backButton = new Button("<");
             backButton.setGraphic(new FontIcon(Material2OutlinedAL.ARROW_BACK));
             backButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-            backButton.setStyle("-fx-background-color: #F0EEE1; -fx-border-radius: 25px; -fx-background-radius: 25px; -fx-padding: 10px;");
+            backButton.setStyle("-fx-padding: 10px;");
+            backButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
+                final Paint backgroundColor = this.parent.materialColorScheme.getSurfaceContainer().get();
+                return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
+            }, this.parent.materialColorScheme.getSurfaceContainer()));
             backButton.setOnMouseEntered(event -> {
                 backButton.setCursor(Cursor.HAND);
             });
@@ -61,7 +74,11 @@ public class AddressBar extends JPanel {
             final Button forwardButton = new Button(">");
             forwardButton.setGraphic(new FontIcon(Material2OutlinedAL.ARROW_FORWARD));
             forwardButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-            forwardButton.setStyle("-fx-background-color: #F0EEE1; -fx-border-radius: 25px; -fx-background-radius: 25px; -fx-padding: 10px;");
+            forwardButton.setStyle("-fx-padding: 10px;");
+            forwardButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
+                final Paint backgroundColor = this.parent.materialColorScheme.getSurfaceContainer().get();
+                return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
+            }, this.parent.materialColorScheme.getSurfaceContainer()));
             forwardButton.setOnMouseEntered(event -> {
                 forwardButton.setCursor(Cursor.HAND);
             });
@@ -77,7 +94,11 @@ public class AddressBar extends JPanel {
             final Button reloadButton = new Button("↻");
             reloadButton.setGraphic(new FontIcon(Material2OutlinedMZ.REFRESH));
             reloadButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-            reloadButton.setStyle("-fx-background-color: #F0EEE1; -fx-border-radius: 25px; -fx-background-radius: 25px; -fx-padding: 10px;");
+            reloadButton.setStyle("-fx-padding: 10px;");
+            reloadButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
+                final Paint backgroundColor = this.parent.materialColorScheme.getSurfaceContainer().get();
+                return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
+            }, this.parent.materialColorScheme.getSurfaceContainer()));
             reloadButton.setOnMouseEntered(event -> {
                 reloadButton.setCursor(Cursor.HAND);
             });
@@ -91,9 +112,13 @@ public class AddressBar extends JPanel {
             });
 
             addressField = new TextField(startUrl);
-            addressField.setStyle("-fx-background-color: #F0EEE1; -fx-border-radius: 25px; -fx-background-radius: 25px; -fx-padding: 10px;");
+            addressField.setStyle("-fx-padding: 10px;");
+            addressField.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
+                final Paint backgroundColor = this.parent.materialColorScheme.getSurfaceContainer().get();
+                return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
+            }, this.parent.materialColorScheme.getSurfaceContainer()));
             addressField.setOnAction(event -> {
-                CefBrowser browser = parent.getBrowserInstance();
+                CefBrowser browser = this.parent.getBrowserInstance();
 
                 String enteredUrl = formatURL(addressField.getText());
 
@@ -105,11 +130,11 @@ public class AddressBar extends JPanel {
             });
 
             addressField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-                parent.isUiFocused.set(newValue);
+                this.parent.isUiFocused.set(newValue);
             });
 
             addressField.setOnMousePressed(event -> {
-                parent.isUiFocused.set(true);
+                this.parent.isUiFocused.set(true);
             });
 
             addressField.setOnMouseClicked(event -> {
@@ -153,16 +178,16 @@ public class AddressBar extends JPanel {
         addressField.selectAll();
 
         SwingUtilities.invokeLater(() -> {
-            CefBrowser browser = parent.getBrowserInstance();
+            CefBrowser browser = this.parent.getBrowserInstance();
             if (browser != null) browser.setFocus(false);
-            parent.isUiFocused.set(false);
+            this.parent.isUiFocused.set(false);
         });
     }
 
     private String formatURL(String url) {
         if (url.contains(" ")) {
             String searchQuery = URLEncoder.encode(url, StandardCharsets.UTF_8);
-            return parent.DEFAULT_SEARCH_PROVIDER + searchQuery;
+            return this.parent.DEFAULT_SEARCH_PROVIDER + searchQuery;
         }
 
         return url;

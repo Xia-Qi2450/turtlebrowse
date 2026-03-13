@@ -28,10 +28,14 @@ import org.cef.browser.CefMessageRouter;
 import org.cef.handler.CefDisplayHandlerAdapter;
 import org.cef.handler.CefFocusHandlerAdapter;
 import org.cef.handler.CefLifeSpanHandlerAdapter;
+import org.glavo.monetfx.ColorScheme;
+import org.glavo.monetfx.beans.property.ColorSchemeProperty;
+import org.glavo.monetfx.beans.property.SimpleColorSchemeProperty;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import me.friwi.jcefmaven.*;
 
@@ -52,6 +56,7 @@ public class MainWindow extends JFrame {
     private TabBar tabBar;
     private final Map<CefBrowser, String> titleMap = new HashMap<>();
     public final BooleanProperty isUiFocused = new SimpleBooleanProperty(false);
+    public ColorSchemeProperty materialColorScheme = new SimpleColorSchemeProperty(ColorScheme.fromSeed(Color.web("#BDCF47")));
 
     public MainWindow() {
         super("Turtlebrowse");
@@ -62,6 +67,8 @@ public class MainWindow extends JFrame {
             Font.loadFont(getClass().getResourceAsStream("/fonts/material_icons_outlined.otf"), 10);
             Font.getFamilies().forEach(System.out::println);
         });
+
+        setMaterialColorSchemeFromSystem();
 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -324,6 +331,11 @@ public class MainWindow extends JFrame {
 
     public CefBrowser getBrowserInstance() {
         return currentBrowser;
+    }
+
+    private void setMaterialColorSchemeFromSystem() {
+        final Color accentColor = Platform.getPreferences().getAccentColor();
+        materialColorScheme.set(ColorScheme.fromSeed(accentColor));
     }
 
     @Override

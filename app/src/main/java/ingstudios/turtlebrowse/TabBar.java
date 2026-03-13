@@ -13,8 +13,8 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2OutlinedAL;
 
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.embed.swing.JFXPanel;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -27,7 +27,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 public class TabBar extends JPanel {
     private final Map<CefBrowser, HBox> tabMap = new HashMap<>();
@@ -44,13 +44,21 @@ public class TabBar extends JPanel {
 
         root.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
         root.setFillHeight(true);
-        root.setStyle("-fx-spacing: 10px; -fx-padding: 10px; -fx-background-color: #FCFAED; -fx-fill: #1B1C14; -fx-text-fill: #1B1C14;");
+        root.setStyle("-fx-spacing: 10px; -fx-padding: 10px;");
+        root.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
+            final Paint backgroundColor = this.parent.materialColorScheme.getSurface().get();
+            return new Background(new BackgroundFill(backgroundColor, null, null));
+        }, this.parent.materialColorScheme.getSurface()));
         root.setAlignment(Pos.CENTER_LEFT);
 
         final Button createTabButton = new Button("+");
         createTabButton.setGraphic(new FontIcon(Material2OutlinedAL.ADD));
         createTabButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-        createTabButton.setStyle("-fx-background-color: #FCFAED; -fx-border-radius: 25px; -fx-background-radius: 25px; -fx-padding: 10px;");
+        createTabButton.setStyle("-fx-padding: 10px;");
+        createTabButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
+            final Paint backgroundColor = this.parent.materialColorScheme.getSurfaceContainer().get();
+            return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
+        }, this.parent.materialColorScheme.getSurfaceContainer()));
         createTabButton.setMaxHeight(Double.MAX_VALUE);
         createTabButton.setOnMouseEntered(event -> {
             createTabButton.setCursor(Cursor.HAND);
@@ -60,7 +68,7 @@ public class TabBar extends JPanel {
         });
         createTabButton.setOnAction(event -> {
             SwingUtilities.invokeLater(() -> {
-                parent.createTab(parent.START_URL);
+                this.parent.createTab(this.parent.START_URL);
             });
         });
         root.getChildren().add(createTabButton);
@@ -90,7 +98,11 @@ public class TabBar extends JPanel {
         closeButton.setStyle("-fx-background-color: transparent;");
 
         final HBox tabBox = new HBox(10);
-        tabBox.setStyle("-fx-background-color: #F0EEE1; -fx-border-radius: 25px; -fx-background-radius: 25px; -fx-padding: 10px; -fx-pref-width: 150px;");
+        tabBox.setStyle("-fx-padding: 10px; -fx-pref-width: 150px;");
+        tabBox.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
+            final Paint backgroundColor = this.parent.materialColorScheme.getSurfaceContainer().get();
+            return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
+        }, this.parent.materialColorScheme.getSurfaceContainer()));
         tabBox.setMaxHeight(Double.MAX_VALUE);
         final Region tabSpacer = new Region();
         tabBox.setAlignment(Pos.CENTER);
@@ -103,7 +115,7 @@ public class TabBar extends JPanel {
         });
         tabBox.setOnMouseClicked(event -> {
             SwingUtilities.invokeLater(() -> {
-                parent.showTab(browser);
+                this.parent.showTab(browser);
             });
         });
 
@@ -123,7 +135,7 @@ public class TabBar extends JPanel {
 
             SwingUtilities.invokeLater(() -> {
                 tabMap.remove(browser);
-                parent.closeTab(browser);
+                this.parent.closeTab(browser);
             });
         });
 
@@ -141,7 +153,16 @@ public class TabBar extends JPanel {
     }
 
     public void setCurrentTab(CefBrowser currentBrowser) {
-        final HBox currentBrowserBox = tabMap.get(currentBrowser);
-        currentBrowserBox.setBackground(new Background(new BackgroundFill(Color.web("#F0EEE1"), new CornerRadii(25), new Insets(10))));
+        for (Map.Entry<CefBrowser, HBox> entry : tabMap.entrySet()) {
+            final HBox tabBox = entry.getValue();
+            final CefBrowser browserKey = entry.getKey();
+
+            tabBox.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
+                boolean isActive = (browserKey == currentBrowser);
+                Paint color = isActive ? this.parent.materialColorScheme.getSurfaceContainer().get() : this.parent.materialColorScheme.getSurface().get();
+                    
+                return new Background(new BackgroundFill(color, new CornerRadii(25), null));
+            }, this.parent.materialColorScheme.getSurfaceContainer(), this.parent.materialColorScheme.getSurface()));
+        }
     }
 }

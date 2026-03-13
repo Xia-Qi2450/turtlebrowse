@@ -25,18 +25,21 @@ dependencies {
     // Material icons from Ikonli
     implementation("org.kordamp.ikonli:ikonli-javafx:12.4.0")
     implementation("org.kordamp.ikonli:ikonli-material2-pack:12.4.0")
+
+    // Monet theme builder for JavaFX
+    implementation("org.glavo:MonetFX:0.4.0")
 }
 
 // Apply a specific Java toolchain. 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(24)
     }
 }
 
 // JavaFX Configuration
 javafx {
-    version = "21"
+    version = "24"
     modules("javafx.controls", "javafx.graphics", "javafx.base", "javafx.swing")
 }
 
