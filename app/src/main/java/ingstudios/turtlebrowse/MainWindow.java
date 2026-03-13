@@ -10,6 +10,8 @@ import java.awt.event.WindowEvent;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -30,10 +32,12 @@ import org.cef.handler.CefLifeSpanHandlerAdapter;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.text.Font;
 import me.friwi.jcefmaven.*;
 
 public class MainWindow extends JFrame {
     public final String START_URL = "https://google.com";
+    public final String DEFAULT_SEARCH_PROVIDER = "https://google.com/search?q=";
     private final boolean USE_OSR = false;
 
     private CefApp cefApp;
@@ -44,14 +48,20 @@ public class MainWindow extends JFrame {
     private ArrayList<CefBrowser> openedBrowserTabs = new ArrayList<>();
     private JPanel root;
     private JPanel browserContainer;
-    private AddressBar addressBar;
+    public AddressBar addressBar;
     private TabBar tabBar;
+    private final Map<CefBrowser, String> titleMap = new HashMap<>();
     public final BooleanProperty isUiFocused = new SimpleBooleanProperty(false);
 
     public MainWindow() {
         super("Turtlebrowse");
 
         Platform.startup(() -> {});
+        Platform.runLater(() -> {
+            Font.loadFont(getClass().getResourceAsStream("/fonts/google_sans_flex.ttf"), 10);
+            Font.loadFont(getClass().getResourceAsStream("/fonts/material_icons_outlined.otf"), 10);
+            Font.getFamilies().forEach(System.out::println);
+        });
 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -134,6 +144,10 @@ public class MainWindow extends JFrame {
         cefClient.addDisplayHandler(new CefDisplayHandlerAdapter() {
             @Override
             public void onTitleChange(CefBrowser browser, String title) {
+                if (browser != currentBrowser) return;
+
+                titleMap.put(browser, title);
+
                 Platform.runLater(() -> {
                     tabBar.setTabTitle(browser, title);
                 });
@@ -145,6 +159,7 @@ public class MainWindow extends JFrame {
 
             @Override
             public void onAddressChange(CefBrowser cefBrowser, CefFrame frame, String url) {
+                if (cefBrowser != currentBrowser) return;
                 System.out.print("Navigated to:");
                 System.out.println(url);
                 addressBar.updateUrl(url);
@@ -240,7 +255,7 @@ public class MainWindow extends JFrame {
         });
 
         SwingUtilities.invokeLater(() -> {
-            showBrowser(browser);
+            showTab(browser);
         });
     }
 
@@ -249,6 +264,7 @@ public class MainWindow extends JFrame {
         if (indexToClose == -1) return;
         
         openedBrowserTabs.remove(browser);
+        titleMap.remove(browser);
 
         System.out.printf("Browser is current browser: %s", browser == currentBrowser);
 
@@ -265,12 +281,8 @@ public class MainWindow extends JFrame {
                 System.out.println(openedBrowserTabs.get(nextIndex));
 
                 SwingUtilities.invokeLater(() -> {
-                    showBrowser(nextBrowser);
+                    showTab(nextBrowser);
                     browser.close(true);
-                });
-
-                Platform.runLater(() -> {
-                    addressBar.updateUrl(nextBrowser.getURL());
                 });
             }
         } else {
@@ -278,7 +290,7 @@ public class MainWindow extends JFrame {
         }
     }
 
-    public void showBrowser(CefBrowser browser) {
+    public void showTab(CefBrowser browser) {
         currentBrowser = browser;
         Component ui = browser.getUIComponent();
 
@@ -293,8 +305,12 @@ public class MainWindow extends JFrame {
             });
         }
 
-        SwingUtilities.invokeLater(() -> {
+        final String browserTitle = titleMap.get(browser);
+        updateWindowTitle(browserTitle != null ? browserTitle : "Loading...");
+
+        Platform.runLater(() -> {
             addressBar.updateUrl(browser.getURL());
+            tabBar.setCurrentTab(browser);
         });
         
         browserContainer.removeAll();

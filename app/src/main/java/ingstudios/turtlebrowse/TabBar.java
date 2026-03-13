@@ -9,16 +9,24 @@ import javax.swing.SwingUtilities;
 
 import org.cef.CefClient;
 import org.cef.browser.CefBrowser;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material2.Material2OutlinedAL;
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 public class TabBar extends JPanel {
     private final Map<CefBrowser, HBox> tabMap = new HashMap<>();
@@ -33,13 +41,22 @@ public class TabBar extends JPanel {
         final JFXPanel tabPanel = new JFXPanel();
         tabPanel.setPreferredSize(new java.awt.Dimension(1200, 50));
 
+        root.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
         root.setFillHeight(true);
         root.setStyle("-fx-spacing: 10px; -fx-padding: 10px; -fx-background-color: #FCFAED; -fx-fill: #1B1C14; -fx-text-fill: #1B1C14;");
         root.setAlignment(Pos.CENTER_LEFT);
 
         final Button createTabButton = new Button("+");
-        createTabButton.setStyle("-fx-background-color: #F0EEE1; -fx-border-radius: 25px; -fx-background-radius: 25px; -fx-padding: 10px;");
+        createTabButton.setGraphic(new FontIcon(Material2OutlinedAL.ADD));
+        createTabButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        createTabButton.setStyle("-fx-background-color: #FCFAED; -fx-border-radius: 25px; -fx-background-radius: 25px; -fx-padding: 10px;");
         createTabButton.setMaxHeight(Double.MAX_VALUE);
+        createTabButton.setOnMouseEntered(event -> {
+            createTabButton.setCursor(Cursor.HAND);
+        });
+        createTabButton.setOnMouseDragExited(event -> {
+            createTabButton.setCursor(Cursor.DEFAULT);
+        });
         createTabButton.setOnAction(event -> {
             SwingUtilities.invokeLater(() -> {
                 parent.createTab(parent.START_URL);
@@ -67,6 +84,8 @@ public class TabBar extends JPanel {
         final Label tabTitle = new Label("Loading...");
 
         final Button closeButton = new Button("X");
+        closeButton.setGraphic(new FontIcon(Material2OutlinedAL.CLOSE));
+        closeButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         closeButton.setStyle("-fx-background-color: transparent;");
 
         final HBox tabBox = new HBox(10);
@@ -75,13 +94,25 @@ public class TabBar extends JPanel {
         final Region tabSpacer = new Region();
         tabBox.setAlignment(Pos.CENTER);
         HBox.setHgrow(tabSpacer, Priority.ALWAYS);
+        tabBox.setOnMouseEntered(event -> {
+            tabBox.setCursor(Cursor.HAND);
+        });
+        tabBox.setOnMouseDragExited(event -> {
+            tabBox.setCursor(Cursor.DEFAULT);
+        });
         tabBox.setOnMouseClicked(event -> {
             SwingUtilities.invokeLater(() -> {
-                parent.showBrowser(browser);
+                parent.showTab(browser);
             });
         });
 
         closeButton.prefHeightProperty().bind(tabBox.heightProperty().multiply(0.8));
+        closeButton.setOnMouseEntered(event -> {
+            closeButton.setCursor(Cursor.HAND);
+        });
+        closeButton.setOnMouseDragExited(event -> {
+            closeButton.setCursor(Cursor.DEFAULT);
+        });
         closeButton.setOnAction(event -> {
             event.consume();
 
@@ -99,12 +130,17 @@ public class TabBar extends JPanel {
 
         tabMap.put(browser, tabBox);
 
-        root.getChildren().add(tabBox);
+        root.getChildren().add(Math.max(0, root.getChildren().size() - 1), tabBox);
     }
 
     public void setTabTitle(CefBrowser browser, String title) {
         final HBox box = tabMap.get(browser);
         final Label tabTitle = (Label) box.getChildren().get(0);
         tabTitle.setText(title);
+    }
+
+    public void setCurrentTab(CefBrowser currentBrowser) {
+        final HBox currentBrowserBox = tabMap.get(currentBrowser);
+        currentBrowserBox.setBackground(Background.fill(new BackgroundFill(Color.web("#F0EEE1"), "25px", "10px")));
     }
 }

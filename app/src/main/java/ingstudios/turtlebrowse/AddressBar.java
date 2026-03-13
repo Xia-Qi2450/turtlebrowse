@@ -2,19 +2,27 @@ package ingstudios.turtlebrowse;
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import org.cef.CefClient;
 import org.cef.browser.*;
+
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material2.Material2OutlinedAL;
+import org.kordamp.ikonli.material2.Material2OutlinedMZ;
 
 public class AddressBar extends JPanel {
     private TextField addressField;
@@ -29,26 +37,53 @@ public class AddressBar extends JPanel {
         addressBarPanel.setPreferredSize(new java.awt.Dimension(1200, 50));
 
         Platform.runLater(() -> {
-            HBox root = new HBox();
+            final HBox root = new HBox();
+            root.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
+            root.setStyle("-fx-spacing: 10px; -fx-padding: 10px; -fx-background-color: #FCFAED; -fx-fill: #1B1C14; -fx-text-fill: #1B1C14;");
             root.setAlignment(Pos.CENTER);
-            root.setSpacing(10);
-            root.setPadding(new Insets(10));
 
-            Button backButton = new Button("<");
+            final Button backButton = new Button("<");
+            backButton.setGraphic(new FontIcon(Material2OutlinedAL.ARROW_BACK));
+            backButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            backButton.setStyle("-fx-background-color: #F0EEE1; -fx-border-radius: 25px; -fx-background-radius: 25px; -fx-padding: 10px;");
+            backButton.setOnMouseEntered(event -> {
+                backButton.setCursor(Cursor.HAND);
+            });
+            backButton.setOnMouseDragExited(event -> {
+                backButton.setCursor(Cursor.DEFAULT);
+            });
             backButton.setOnAction(event -> {
                 System.out.println("Back button clicked.");
                 CefBrowser browser = this.parent.getBrowserInstance();
                 if (browser.canGoBack()) browser.goBack();
             });
 
-            Button forwardButton = new Button(">");
+            final Button forwardButton = new Button(">");
+            forwardButton.setGraphic(new FontIcon(Material2OutlinedAL.ARROW_FORWARD));
+            forwardButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            forwardButton.setStyle("-fx-background-color: #F0EEE1; -fx-border-radius: 25px; -fx-background-radius: 25px; -fx-padding: 10px;");
+            forwardButton.setOnMouseEntered(event -> {
+                forwardButton.setCursor(Cursor.HAND);
+            });
+            forwardButton.setOnMouseDragExited(event -> {
+                forwardButton.setCursor(Cursor.DEFAULT);
+            });
             forwardButton.setOnAction(event -> {
                 System.out.println("Forward button clicked.");
                 CefBrowser browser = this.parent.getBrowserInstance();
                 if (browser.canGoForward()) browser.goForward();
             });
 
-            Button reloadButton = new Button("↻");
+            final Button reloadButton = new Button("↻");
+            reloadButton.setGraphic(new FontIcon(Material2OutlinedMZ.REFRESH));
+            reloadButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            reloadButton.setStyle("-fx-background-color: #F0EEE1; -fx-border-radius: 25px; -fx-background-radius: 25px; -fx-padding: 10px;");
+            reloadButton.setOnMouseEntered(event -> {
+                reloadButton.setCursor(Cursor.HAND);
+            });
+            reloadButton.setOnMouseDragExited(event -> {
+                reloadButton.setCursor(Cursor.DEFAULT);
+            });
             reloadButton.setOnAction(event -> {
                 System.out.println("Reload button clicked.");
                 CefBrowser browser = this.parent.getBrowserInstance();
@@ -56,10 +91,11 @@ public class AddressBar extends JPanel {
             });
 
             addressField = new TextField(startUrl);
+            addressField.setStyle("-fx-background-color: #F0EEE1; -fx-border-radius: 25px; -fx-background-radius: 25px; -fx-padding: 10px;");
             addressField.setOnAction(event -> {
                 CefBrowser browser = parent.getBrowserInstance();
 
-                String enteredUrl = addressField.getText();
+                String enteredUrl = formatURL(addressField.getText());
 
                 System.out.print("Entered URL:");
                 System.out.println(enteredUrl);
@@ -109,7 +145,7 @@ public class AddressBar extends JPanel {
     }
 
     public void updateUrl(String newUrl) {
-        addressField.setText(newUrl);
+        addressField.setText(formatURL(newUrl));
     }
 
     public void focusAddressField() {
@@ -121,5 +157,14 @@ public class AddressBar extends JPanel {
             if (browser != null) browser.setFocus(false);
             parent.isUiFocused.set(false);
         });
+    }
+
+    private String formatURL(String url) {
+        if (url.contains(" ")) {
+            String searchQuery = URLEncoder.encode(url, StandardCharsets.UTF_8);
+            return parent.DEFAULT_SEARCH_PROVIDER + searchQuery;
+        }
+
+        return url;
     }
 }

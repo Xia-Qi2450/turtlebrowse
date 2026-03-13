@@ -21,6 +21,10 @@ dependencies {
 
     // JCEF Maven for Chromium embedding
     implementation("me.friwi:jcefmaven:141.0.10")
+
+    // Material icons from Ikonli
+    implementation("org.kordamp.ikonli:ikonli-javafx:12.4.0")
+    implementation("org.kordamp.ikonli:ikonli-material2-pack:12.4.0")
 }
 
 // Apply a specific Java toolchain. 

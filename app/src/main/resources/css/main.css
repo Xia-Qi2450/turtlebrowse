@@ -1,0 +1,4 @@
+.root {
+    font-family: 'Google Sans Flex'; /* Make CSS compiler happy */
+    -fx-font-family: 'Google Sans Flex';
+}
