@@ -14,6 +14,7 @@ import org.kordamp.ikonli.material2.Material2OutlinedAL;
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -22,11 +23,11 @@ import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 
 public class TabBar extends JPanel {
     private final Map<CefBrowser, HBox> tabMap = new HashMap<>();
@@ -141,6 +142,6 @@ public class TabBar extends JPanel {
 
     public void setCurrentTab(CefBrowser currentBrowser) {
         final HBox currentBrowserBox = tabMap.get(currentBrowser);
-        currentBrowserBox.setBackground(Background.fill(new BackgroundFill(Color.web("#F0EEE1"), "25px", "10px")));
+        currentBrowserBox.setBackground(new Background(new BackgroundFill(Color.web("#F0EEE1"), new CornerRadii(25), new Insets(10))));
     }
 }
