@@ -138,6 +138,8 @@ public class MainWindow extends JFrame {
             }
         });
 
+        cefClient.addKeyboardHandler(new KeyboardHandler(this, START_URL));
+
         // Top panel (address + tab)
         final JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(tabBar, BorderLayout.NORTH);
