@@ -3,7 +3,9 @@ plugins {
 
     id("org.openjfx.javafxplugin") version "0.1.0"
 
-    //id("io.github.goooler.shadow") version "8.1.7"
+    id("com.gradleup.shadow") version "9.3.2"
+
+    id("org.panteleyev.jpackageplugin") version "2.0.1"
 }
 
 repositories {
@@ -48,43 +50,65 @@ application {
     mainClass.set("ingstudios.turtlebrowse.Main")
 }
 
-/*
-val mainClassName: String by extra("ingstudios.turtlebrowse.Main")
 
-tasks.shadowJar {
-    manifest {
-        attributes["Main-Class"] = "ingstudios.turtlebrowse.Main"
+tasks.jpackage {
+    verbose = true
+
+    runtimeImage = file(System.getProperty("java.home"))
+
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(24)
     }
-    mergeServiceFiles()
-}
+    
+    appName = "Turtlebrowse"
+    vendor = "(ing) Studios"
+    appVersion = "0.0.1"
+    copyright = "2026 (ing) Studios and Ethan Lee"
 
-tasks.register<Exec>("jpackage") {
+    input = layout.buildDirectory.dir("libs")
+    
+    mainJar = "app-all.jar"
     dependsOn(tasks.shadowJar)
+    mainClass = "ingstudios.turtlebrowse.Main"
 
-    val jarFile = tasks.shadowJar.get().archiveFile.get().asFile
-    val icon = file("src/main/resources/logo_full_trans.ico")
-    val outputDir = file("build/jpackage")
+    destination = layout.buildDirectory.dir("dist")
 
-    commandLine(
-        "jpackage",
-        "--input", jarFile.parent,
-        "--main-jar", jarFile.name,
-        "--main-class", "ingstudios.turtlebrowse.Main",
-        "--type", "exe",
-        "--name", "Turtlebrowse",
-        "--app-version", "0.0.1",
-        "--vendor", "(ing) Studios",
-        "--icon", icon.absolutePath,
-        "--dest", outputDir.absolutePath,
-        "--java-options", "-Dapp.dir=\$APPDIR",
-        "--win-dir-chooser",
-        "--win-menu",
-        "--win-shortcut",
-        "--win-shortcut-prompt",
-        "--install-dir", "ingStudios\\Turtlebrowse"
-    )
+    icon = when {
+        System.getProperty("os.name").lowercase().contains("win") -> 
+            layout.projectDirectory.file("src/main/resources/icon.ico")
+        System.getProperty("os.name").lowercase().contains("mac") -> 
+            layout.projectDirectory.file("src/main/resources/icon.icns")
+        else -> 
+            layout.projectDirectory.file("src/main/resources/logo_full_trans.png")
+    }
+
+    javaOptions = listOf("--enable-native-access=ALL-UNNAMED", "-Dapp.dir=\$APPDIR")
+
+    windows {
+        type = org.panteleyev.jpackage.ImageType.EXE
+        winDirChooser = true
+        winMenu = true
+        winShortcut = true
+        winShortcutPrompt = true
+        installDir = "ingStudios\\Turtlebrowse"
+        winUpgradeUuid = "6f701d42-0c33-443a-98fa-6543c3e7b3df"
+        winConsole = true
+    }
+
+    mac {
+        type = org.panteleyev.jpackage.ImageType.PKG
+        macPackageName = "Turtlebrowse"
+        macPackageIdentifier = "dev.ingstudios.turtlebrowse"
+    }
+
+    linux {
+        type = org.panteleyev.jpackage.ImageType.DEB
+        linuxShortcut = true
+        linuxAppCategory = "Network;WebBrowser;"
+        linuxPackageName = "turtlebrowse"
+        linuxDebMaintainer = "contact@ingstudios.dev"
+    }
 }
-*/
 
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
