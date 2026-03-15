@@ -101,6 +101,12 @@ public class MainWindow extends JFrame {
         // Tab bar
         tabBar = new TabBar(cefClient, openedBrowserTabs, this);
 
+        // Keyboard handler (JCEF)
+        cefClient.addKeyboardHandler(new CefKeyboardHandler(this, START_URL));
+
+        // Keyboard handler (Swing)
+        new SwingKeyboardHandler(this, START_URL);
+
         cefClient.addFocusHandler(new CefFocusHandlerAdapter() {
             @Override
             public void onGotFocus(CefBrowser browser) {
@@ -137,8 +143,6 @@ public class MainWindow extends JFrame {
                 return false;
             }
         });
-
-        cefClient.addKeyboardHandler(new KeyboardHandler(this, START_URL));
 
         // Top panel (address + tab)
         final JPanel topPanel = new JPanel(new BorderLayout());
@@ -202,6 +206,7 @@ public class MainWindow extends JFrame {
         cefSettings = builder.getCefSettings();
 
         cefSettings.windowless_rendering_enabled = USE_OSR;
+        cefSettings.remote_debugging_port = 6767;
 
         try {
             String cachePath = getCachePath();
@@ -338,6 +343,10 @@ public class MainWindow extends JFrame {
     private void setMaterialColorSchemeFromSystem() {
         final Color accentColor = Platform.getPreferences().getAccentColor();
         materialColorScheme.set(ColorScheme.fromSeed(accentColor));
+    }
+
+    public void createDevTools() {
+        currentBrowser.openDevTools();
     }
 
     @Override
