@@ -1,4 +1,4 @@
-package ingstudios.turtlebrowse;
+package dev.ingstudios.turtlebrowse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,12 +15,14 @@ import org.kordamp.ikonli.material2.Material2OutlinedAL;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.embed.swing.JFXPanel;
+import javafx.event.Event;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -67,9 +69,7 @@ public class TabBar extends JPanel {
             createTabButton.setCursor(Cursor.DEFAULT);
         });
         createTabButton.setOnAction(event -> {
-            SwingUtilities.invokeLater(() -> {
-                this.parent.createTab(this.parent.START_URL);
-            });
+            this.parent.createTab(this.parent.START_URL);
         });
         root.getChildren().add(createTabButton);
 
@@ -114,9 +114,8 @@ public class TabBar extends JPanel {
             tabBox.setCursor(Cursor.DEFAULT);
         });
         tabBox.setOnMouseClicked(event -> {
-            SwingUtilities.invokeLater(() -> {
-                this.parent.showTab(browser);
-            });
+            if (event.getButton() == MouseButton.PRIMARY) this.parent.showTab(browser);
+            else if (event.getButton() == MouseButton.MIDDLE) Platform.runLater(() -> closeTab(event, tabBox, browser));
         });
 
         closeButton.prefHeightProperty().bind(tabBox.heightProperty().multiply(0.8));
@@ -127,16 +126,7 @@ public class TabBar extends JPanel {
             closeButton.setCursor(Cursor.DEFAULT);
         });
         closeButton.setOnAction(event -> {
-            event.consume();
-
-            Platform.runLater(() -> {
-                root.getChildren().remove(tabBox);
-            });
-
-            SwingUtilities.invokeLater(() -> {
-                tabMap.remove(browser);
-                this.parent.closeTab(browser);
-            });
+            Platform.runLater(() -> closeTab(event, tabBox, browser));
         });
 
         tabBox.getChildren().addAll(tabTitle, tabSpacer, closeButton);
@@ -146,8 +136,20 @@ public class TabBar extends JPanel {
         root.getChildren().add(Math.max(0, root.getChildren().size() - 1), tabBox);
     }
 
+    private void closeTab(Event event, HBox tabBox, CefBrowser browser) {
+        event.consume();
+
+        root.getChildren().remove(tabBox);
+
+        SwingUtilities.invokeLater(() -> {
+            tabMap.remove(browser);
+            this.parent.closeTab(browser);
+        });
+    }
+
     public void setTabTitle(CefBrowser browser, String title) {
         final HBox box = tabMap.get(browser);
+        if (box == null) return; // Temporary fix for threading issues
         final Label tabTitle = (Label) box.getChildren().get(0);
         tabTitle.setText(title);
     }

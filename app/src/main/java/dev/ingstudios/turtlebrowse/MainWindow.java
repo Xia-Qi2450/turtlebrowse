@@ -1,4 +1,4 @@
-package ingstudios.turtlebrowse;
+package dev.ingstudios.turtlebrowse;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -175,17 +175,14 @@ public class MainWindow extends JFrame {
                 if (cefBrowser != currentBrowser) return;
                 System.out.print("Navigated to:");
                 System.out.println(url);
-                addressBar.updateUrl(url);
+                Platform.runLater(() -> addressBar.updateUrl(url));
             }
         });
 
         cefClient.addLifeSpanHandler(new CefLifeSpanHandlerAdapter() {
             @Override
             public boolean onBeforePopup(CefBrowser browser, CefFrame frame, String targetUrl, String targetFrameName) {
-                SwingUtilities.invokeLater(() -> {
-                    createTab(targetUrl);
-                });
-
+                createTab(targetUrl);
                 return true;
             }
         });
@@ -268,9 +265,7 @@ public class MainWindow extends JFrame {
             tabBar.addTabToUI(browser);
         });
 
-        SwingUtilities.invokeLater(() -> {
-            showTab(browser);
-        });
+        showTab(browser);
     }
 
     public void closeTab(CefBrowser browser) {
@@ -294,8 +289,9 @@ public class MainWindow extends JFrame {
                 CefBrowser nextBrowser = openedBrowserTabs.get(nextIndex);
                 System.out.println(openedBrowserTabs.get(nextIndex));
 
+                showTab(nextBrowser);
+
                 SwingUtilities.invokeLater(() -> {
-                    showTab(nextBrowser);
                     browser.close(true);
                 });
             }
@@ -312,15 +308,19 @@ public class MainWindow extends JFrame {
             ui.addMouseListener(new java.awt.event.MouseAdapter() {
                 @Override
                 public void mousePressed(java.awt.event.MouseEvent event) {
-                    isUiFocused.set(false);
-                    ui.requestFocusInWindow();
-                    browser.setFocus(true);
+                    SwingUtilities.invokeLater(() -> {
+                        isUiFocused.set(false);
+                        ui.requestFocusInWindow();
+                        browser.setFocus(true);
+                    });
                 }
             });
         }
 
-        final String browserTitle = titleMap.get(browser);
-        updateWindowTitle(browserTitle != null ? browserTitle : "Loading...");
+        SwingUtilities.invokeLater(() -> {
+            final String browserTitle = titleMap.get(browser);
+            updateWindowTitle(browserTitle != null ? browserTitle : "Loading...");
+        });
 
         Platform.runLater(() -> {
             addressBar.updateUrl(browser.getURL());

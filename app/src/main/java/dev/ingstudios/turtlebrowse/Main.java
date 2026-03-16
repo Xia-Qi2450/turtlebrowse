@@ -1,4 +1,4 @@
-package ingstudios.turtlebrowse;
+package dev.ingstudios.turtlebrowse;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;

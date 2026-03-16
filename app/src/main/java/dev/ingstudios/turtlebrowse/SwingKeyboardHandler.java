@@ -1,11 +1,8 @@
-package ingstudios.turtlebrowse;
+package dev.ingstudios.turtlebrowse;
 
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
-
-import javafx.application.Platform;
-
 import java.awt.AWTEvent;
 
 public class SwingKeyboardHandler {
@@ -19,12 +16,16 @@ public class SwingKeyboardHandler {
                         int keyCode = keyEvent.getKeyCode();
                         System.out.println("Global key pressed: " + KeyEvent.getKeyText(keyCode));
 
-                        if (keyCode == KeyEvent.VK_T && keyEvent.isControlDown()) {
-                            System.out.println("Ctrl + T detected, creating a new tab.");
-                            Platform.runLater(() -> parent.createTab(startUrl));
-                            keyEvent.consume();
-                        } else if (keyCode == KeyEvent.VK_I && keyEvent.isControlDown() && keyEvent.isShiftDown()) {
+                        if (keyCode == KeyEvent.VK_I && keyEvent.isControlDown() && keyEvent.isShiftDown()) { // DevTools (Ctrl + Shift + I)
                             parent.createDevTools();
+                            keyEvent.consume();
+                        } else if (keyCode == KeyEvent.VK_T && keyEvent.isControlDown()) { // New tab (Ctrl + T)
+                            System.out.println("Ctrl + T detected, creating a new tab.");
+                            parent.createTab(startUrl);
+                            keyEvent.consume();
+                        } else if (keyCode == KeyEvent.VK_L && keyEvent.isControlDown()) { // Focus address field (Ctrl + L)
+                            System.out.println("Ctrl + L pressed.");
+                            parent.addressBar.focusAddressField();
                             keyEvent.consume();
                         }
                     }

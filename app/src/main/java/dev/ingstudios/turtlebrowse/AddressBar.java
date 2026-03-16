@@ -1,4 +1,4 @@
-package ingstudios.turtlebrowse;
+package dev.ingstudios.turtlebrowse;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -174,13 +174,19 @@ public class AddressBar extends JPanel {
     }
 
     public void focusAddressField() {
-        addressField.requestFocus();
-        addressField.selectAll();
+        System.out.println("Focus address field called.");
 
         SwingUtilities.invokeLater(() -> {
+            System.out.println("Inside Swing thread for removing focus from browser.");
             CefBrowser browser = this.parent.getBrowserInstance();
             if (browser != null) browser.setFocus(false);
             this.parent.isUiFocused.set(false);
+
+            Platform.runLater(() -> {
+                System.out.println("Inside JavaFX thread requesting focus to the address field.");
+                addressField.requestFocus();
+                addressField.selectAll();
+            });
         });
     }
 

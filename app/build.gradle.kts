@@ -47,7 +47,7 @@ javafx {
 
 application {
     // Define the main class for the application.
-    mainClass.set("ingstudios.turtlebrowse.Main")
+    mainClass.set("dev.ingstudios.turtlebrowse.Main")
 }
 
 
@@ -69,7 +69,7 @@ tasks.jpackage {
     
     mainJar = "app-all.jar"
     dependsOn(tasks.shadowJar)
-    mainClass = "ingstudios.turtlebrowse.Main"
+    mainClass = "dev.ingstudios.turtlebrowse.Main"
 
     destination = layout.buildDirectory.dir("dist")
 
