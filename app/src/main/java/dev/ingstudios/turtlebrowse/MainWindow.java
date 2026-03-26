@@ -25,6 +25,7 @@ import org.cef.CefApp.CefAppState;
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
 import org.cef.browser.CefMessageRouter;
+import org.cef.callback.CefSchemeRegistrar;
 import org.cef.handler.CefDisplayHandlerAdapter;
 import org.cef.handler.CefFocusHandlerAdapter;
 import org.cef.handler.CefLifeSpanHandlerAdapter;
@@ -65,7 +66,6 @@ public class MainWindow extends JFrame {
         Platform.runLater(() -> {
             Font.loadFont(getClass().getResourceAsStream("/fonts/google_sans_flex.ttf"), 10);
             Font.loadFont(getClass().getResourceAsStream("/fonts/material_icons_outlined.otf"), 10);
-            Font.getFamilies().forEach(System.out::println);
         });
 
         setMaterialColorSchemeFromSystem();
@@ -218,10 +218,20 @@ public class MainWindow extends JFrame {
             public void stateHasChanged(CefAppState state) {
                 if (state == CefAppState.TERMINATED) System.exit(0);
             }
+
+            @Override
+            public void onRegisterCustomSchemes(CefSchemeRegistrar registrar) {
+                registrar.addCustomScheme("turtlebrowse", false, false, false, false, false, false, false);
+            }
         });
 
         try {
             CefApp cefApp = builder.build();
+            cefApp.registerSchemeHandlerFactory(
+                "turtlebrowse",
+                "",
+                new TurtlebrowseSchemeHandlerFactory()
+            );
             return cefApp;
         } catch (Exception error) {
             System.out.print("Error while building CEF app:");

@@ -48,6 +48,7 @@ javafx {
 application {
     // Define the main class for the application.
     mainClass.set("dev.ingstudios.turtlebrowse.Main")
+    applicationDefaultJvmArgs = listOf("--enable-native-access=ALL-UNNAMED", "--add-modules=jdk.incubator.vector", "-Djava.library.path=" + System.getProperty("java.library.path"))
 }
 
 

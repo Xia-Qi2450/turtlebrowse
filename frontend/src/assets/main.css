@@ -1,0 +1,12 @@
+@import url('./base.css');
+
+html, body {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-family: var(--md-ref-typeface-plain);
+	background-color: var(--md-sys-color-background);
+	color: var(--md-sys-color-on-background);
+}
