@@ -32,6 +32,7 @@ import org.kordamp.ikonli.material2.Material2OutlinedMZ;
 public class AddressBar extends JPanel {
     private TextField addressField;
     private MainWindow parent;
+    private boolean addressFieldFocused = false;
 
     public AddressBar(CefClient client, MainWindow parent, String startUrl) {
         this.parent = parent;
@@ -39,6 +40,7 @@ public class AddressBar extends JPanel {
         this.setLayout(new java.awt.BorderLayout());
 
         JFXPanel addressBarPanel = new JFXPanel();
+        addressBarPanel.setFocusable(true);
         addressBarPanel.setPreferredSize(new java.awt.Dimension(1200, 50));
 
         Platform.runLater(() -> {
@@ -130,14 +132,21 @@ public class AddressBar extends JPanel {
             });
 
             addressField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-                this.parent.isUiFocused.set(newValue);
-            });
-
-            addressField.setOnMousePressed(event -> {
-                this.parent.isUiFocused.set(true);
+                if (!newValue) {
+                    System.out.println("Address field has lost focus.");
+                    addressFieldFocused = false;
+                    return;
+                }
             });
 
             addressField.setOnMouseClicked(event -> {
+                this.parent.isUiFocused.set(true);
+
+                if (addressFieldFocused) {
+                    System.out.println("Address field already focused, not selecting all.");
+                    return;
+                }
+
                 addressField.requestFocus();
                 addressField.selectAll();
 
@@ -145,6 +154,8 @@ public class AddressBar extends JPanel {
                     CefBrowser browser = this.parent.getBrowserInstance();
                     if (browser != null) browser.setFocus(false);
                 });
+
+                addressFieldFocused = true;
             });
 
             root.getChildren().addAll(backButton, forwardButton, reloadButton, addressField);
@@ -177,16 +188,22 @@ public class AddressBar extends JPanel {
         System.out.println("Focus address field called.");
 
         SwingUtilities.invokeLater(() -> {
-            System.out.println("Inside Swing thread for removing focus from browser.");
-            CefBrowser browser = this.parent.getBrowserInstance();
-            if (browser != null) browser.setFocus(false);
-            this.parent.isUiFocused.set(false);
+            this.parent.isUiFocused.set(true);
 
-            Platform.runLater(() -> {
-                System.out.println("Inside JavaFX thread requesting focus to the address field.");
-                addressField.requestFocus();
-                addressField.selectAll();
+            if (addressFieldFocused) {
+                System.out.println("Address field already focused, not selecting all.");
+                return;
+            }
+
+            addressField.requestFocus();
+            addressField.selectAll();
+
+            SwingUtilities.invokeLater(() -> {
+                CefBrowser browser = this.parent.getBrowserInstance();
+                if (browser != null) browser.setFocus(false);
             });
+
+            addressFieldFocused = true;
         });
     }
 
