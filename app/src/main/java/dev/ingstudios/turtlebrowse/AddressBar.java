@@ -16,9 +16,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Paint;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -122,7 +119,7 @@ public class AddressBar extends JPanel {
             addressField.setOnAction(event -> {
                 CefBrowser browser = this.parent.getBrowserInstance();
 
-                String enteredUrl = formatURL(addressField.getText());
+                String enteredUrl = this.parent.formatURL(addressField.getText(), false);
 
                 System.out.print("Entered URL:");
                 System.out.println(enteredUrl);
@@ -181,7 +178,7 @@ public class AddressBar extends JPanel {
     }
 
     public void updateUrl(String newUrl) {
-        addressField.setText(formatURL(newUrl));
+        addressField.setText(this.parent.formatURL(newUrl, false));
     }
 
     public void focusAddressField() {
@@ -205,14 +202,5 @@ public class AddressBar extends JPanel {
 
             addressFieldFocused = true;
         });
-    }
-
-    private String formatURL(String url) {
-        if (url.contains(" ")) {
-            String searchQuery = URLEncoder.encode(url, StandardCharsets.UTF_8);
-            return this.parent.DEFAULT_SEARCH_PROVIDER + searchQuery;
-        }
-
-        return url;
     }
 }

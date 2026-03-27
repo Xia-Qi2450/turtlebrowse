@@ -8,6 +8,8 @@ import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -42,7 +44,7 @@ import javafx.scene.text.Font;
 import me.friwi.jcefmaven.*;
 
 public class MainWindow extends JFrame {
-    public final String START_URL = "https://google.com";
+    public final String START_URL = "turtlebrowse://newtab";
     public final String DEFAULT_SEARCH_PROVIDER = "https://google.com/search?q=";
     private final boolean USE_OSR = false;
 
@@ -96,7 +98,9 @@ public class MainWindow extends JFrame {
         }
 
         cefClient = cefApp.createClient();
-        cefMessageRouter = CefMessageRouter.create();
+        CefMessageRouter.CefMessageRouterConfig config = new CefMessageRouter.CefMessageRouterConfig("cefQuery", "cefQueryCancel");
+        cefMessageRouter = CefMessageRouter.create(config);
+        cefMessageRouter.addHandler(new TurtlebrowseMessageRouter(this), true);
         cefClient.addMessageRouter(cefMessageRouter);
 
         // Tab bar
@@ -393,6 +397,9 @@ public class MainWindow extends JFrame {
     public void dispose() {
         System.out.println("Closing...");
 
+        cefClient.removeMessageRouter(cefMessageRouter);
+        cefMessageRouter.dispose();
+
         for (CefBrowser browser : openedBrowserTabs) {
             if (browser != null) browser.close(true);
         }
@@ -404,5 +411,23 @@ public class MainWindow extends JFrame {
         super.dispose();
 
         System.out.println("Successfully closed browser.");
+    }
+
+    public String formatURL(String url, Boolean isSearching) {
+        if (isSearching) {
+            String searchQuery = URLEncoder.encode(url, StandardCharsets.UTF_8);
+            return DEFAULT_SEARCH_PROVIDER + searchQuery;
+        }
+
+        if (url.contains(" ")) {
+            String searchQuery = URLEncoder.encode(url, StandardCharsets.UTF_8);
+            return DEFAULT_SEARCH_PROVIDER + searchQuery;
+        }
+
+        return url;
+    }
+
+    public void searchWeb(String query) {
+        currentBrowser.loadURL(formatURL(query, true));
     }
 }
