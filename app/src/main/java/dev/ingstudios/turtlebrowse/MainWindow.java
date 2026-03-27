@@ -7,6 +7,7 @@ import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -201,7 +202,7 @@ public class MainWindow extends JFrame {
         builder.addJcefArgs("--enable-media-stream", "--enable-gpu");
 
         cefSettings = builder.getCefSettings();
-
+        builder.setInstallDir(getInstallDir());
         cefSettings.windowless_rendering_enabled = USE_OSR;
         cefSettings.remote_debugging_port = 6767;
 
@@ -221,17 +222,17 @@ public class MainWindow extends JFrame {
 
             @Override
             public void onRegisterCustomSchemes(CefSchemeRegistrar registrar) {
-                registrar.addCustomScheme("turtlebrowse", false, false, false, false, false, false, false);
+                registrar.addCustomScheme("turtlebrowse", true, false, false, false, false, false, false);
+            }
+
+            @Override
+            public void onContextInitialized() {
+                CefApp.getInstance().registerSchemeHandlerFactory("turtlebrowse", "", new TurtlebrowseSchemeHandlerFactory());
             }
         });
 
         try {
             CefApp cefApp = builder.build();
-            cefApp.registerSchemeHandlerFactory(
-                "turtlebrowse",
-                "",
-                new TurtlebrowseSchemeHandlerFactory()
-            );
             return cefApp;
         } catch (Exception error) {
             System.out.print("Error while building CEF app:");
@@ -243,10 +244,10 @@ public class MainWindow extends JFrame {
     private String getCachePath() {
         Path cachePath;
 
-        String appName = "Turtlebrowse";
-        String cacheDir = "cef-cache";
+        final String appName = "Turtlebrowse";
+        final String cacheDir = "cef-cache";
 
-        String userHome = System.getProperty("user.home");
+        final String userHome = System.getProperty("user.home");
 
         if (OS.isWindows()) {
             String localAppData = System.getenv("LOCALAPPDATA");
@@ -261,6 +262,35 @@ public class MainWindow extends JFrame {
         }
 
         return cachePath.toString();
+    }
+
+    private File getInstallDir() {
+        Path installPath;
+
+        final String appName = "Turtlebrowse";
+        final String installDir = "cef-install";
+
+        final String userHome = System.getProperty("user.home");
+
+        if (OS.isWindows()) {
+            String localAppData = System.getenv("LOCALAPPDATA");
+            installPath = Paths.get(localAppData, "ingStudios", appName, installDir);
+        } else if (OS.isLinux()) {
+            String xdgDataHome = System.getenv("XDG_DATA_HOME");
+            installPath = Paths.get(xdgDataHome, "ingStudios", appName, installDir);
+        } else if (OS.isMacintosh()) {
+            installPath = Paths.get(userHome, "Library", "Application Support", appName, installDir);
+        } else {
+            throw new RuntimeException("Unknown operating system");
+        }
+
+        final File installFile = installPath.toFile();
+
+        if (!installFile.exists()) {
+            installFile.mkdirs();
+        }
+
+        return installFile;
     }
 
     public void updateWindowTitle(String pageTitle) {

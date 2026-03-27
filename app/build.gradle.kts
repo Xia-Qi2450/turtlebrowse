@@ -46,9 +46,12 @@ javafx {
 }
 
 application {
-    // Define the main class for the application.
     mainClass.set("dev.ingstudios.turtlebrowse.Main")
-    applicationDefaultJvmArgs = listOf("--enable-native-access=ALL-UNNAMED", "--add-modules=jdk.incubator.vector", "-Djava.library.path=" + System.getProperty("java.library.path"))
+    applicationDefaultJvmArgs = listOf(
+        "--enable-native-access=ALL-UNNAMED,javafx.graphic",
+        "--add-modules=jdk.incubator.vector",
+        "-Djava.library.path=build/natives"
+    )
 }
 
 
@@ -83,7 +86,7 @@ tasks.jpackage {
             layout.projectDirectory.file("src/main/resources/logo_full_trans.png")
     }
 
-    javaOptions = listOf("--enable-native-access=ALL-UNNAMED", "-Dapp.dir=\$APPDIR")
+    javaOptions = listOf("--enable-native-access=ALL-UNNAMED,javafx.graphics", "-Dapp.dir=\$APPDIR")
 
     windows {
         type = org.panteleyev.jpackage.ImageType.EXE
