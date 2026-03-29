@@ -92,7 +92,7 @@ public class MainWindow extends JFrame {
 
         // CEF browser setup
         try {
-            cefApp = creatCefApp();
+            cefApp = createCefApp();
         } catch (RuntimeException error) {
             System.exit(1);
         }
@@ -157,7 +157,10 @@ public class MainWindow extends JFrame {
         root.add(topPanel, BorderLayout.NORTH);
         root.add(browserContainer, BorderLayout.CENTER);
 
-        createTab(START_URL);
+        SwingUtilities.invokeLater(() -> {
+            createTab(START_URL);
+            setVisible(true);
+        });
 
         cefClient.addDisplayHandler(new CefDisplayHandlerAdapter() {
             @Override
@@ -201,9 +204,9 @@ public class MainWindow extends JFrame {
         });
     }
 
-    private CefApp creatCefApp() {
+    private CefApp createCefApp() {
         CefAppBuilder builder = new CefAppBuilder();
-        builder.addJcefArgs("--enable-media-stream", "--enable-gpu");
+        builder.addJcefArgs("--enable-media-stream", "--enable-gpu" ,"--no-sandbox", "--disable-setuid-sandbox");
 
         cefSettings = builder.getCefSettings();
         builder.setInstallDir(getInstallDir());
@@ -258,6 +261,9 @@ public class MainWindow extends JFrame {
             cachePath = Paths.get(localAppData, "ingStudios", appName, cacheDir);
         } else if (OS.isLinux()) {
             String xdgDataHome = System.getenv("XDG_DATA_HOME");
+            if (xdgDataHome == null || xdgDataHome.isEmpty()) {
+                xdgDataHome = userHome + "/.local/share";
+            }
             cachePath = Paths.get(xdgDataHome, "ingStudios", appName, cacheDir);
         } else if (OS.isMacintosh()) {
             cachePath = Paths.get(userHome, "Library", "Application Support", appName, cacheDir);
@@ -281,6 +287,9 @@ public class MainWindow extends JFrame {
             installPath = Paths.get(localAppData, "ingStudios", appName, installDir);
         } else if (OS.isLinux()) {
             String xdgDataHome = System.getenv("XDG_DATA_HOME");
+            if (xdgDataHome == null || xdgDataHome.isEmpty()) {
+                xdgDataHome = userHome + "/.local/share";
+            }
             installPath = Paths.get(xdgDataHome, "ingStudios", appName, installDir);
         } else if (OS.isMacintosh()) {
             installPath = Paths.get(userHome, "Library", "Application Support", appName, installDir);
@@ -345,39 +354,39 @@ public class MainWindow extends JFrame {
     }
 
     public void showTab(CefBrowser browser) {
-        currentBrowser = browser;
-        Component ui = browser.getUIComponent();
-
-        if (ui.getMouseListeners().length == 0) {
-            ui.addMouseListener(new java.awt.event.MouseAdapter() {
-                @Override
-                public void mousePressed(java.awt.event.MouseEvent event) {
-                    SwingUtilities.invokeLater(() -> {
-                        isUiFocused.set(false);
-                        ui.requestFocusInWindow();
-                        browser.setFocus(true);
-                    });
-                }
-            });
-        }
-
         SwingUtilities.invokeLater(() -> {
+            currentBrowser = browser;
+            Component ui = browser.getUIComponent();
+
+            if (ui.getMouseListeners().length == 0) {
+                ui.addMouseListener(new java.awt.event.MouseAdapter() {
+                    @Override
+                    public void mousePressed(java.awt.event.MouseEvent event) {
+                        SwingUtilities.invokeLater(() -> {
+                            isUiFocused.set(false);
+                            ui.requestFocusInWindow();
+                            browser.setFocus(true);
+                        });
+                    }
+                });
+            }
+
             final String browserTitle = titleMap.get(browser);
             updateWindowTitle(browserTitle != null ? browserTitle : "Loading...");
-        });
 
-        Platform.runLater(() -> {
-            addressBar.updateUrl(browser.getURL());
-            tabBar.setCurrentTab(browser);
-        });
-        
-        browserContainer.removeAll();
-        browserContainer.add(ui, BorderLayout.CENTER);
-        
-        browserContainer.revalidate();
-        browserContainer.repaint();
+            Platform.runLater(() -> {
+                addressBar.updateUrl(browser.getURL());
+                tabBar.setCurrentTab(browser);
+            });
+            
+            browserContainer.removeAll();
+            browserContainer.add(ui, BorderLayout.CENTER);
+            
+            browserContainer.revalidate();
+            browserContainer.repaint();
 
-        browser.setFocus(true);
+            browser.setFocus(true);
+        });
     }
 
     public CefBrowser getBrowserInstance() {
@@ -386,7 +395,11 @@ public class MainWindow extends JFrame {
 
     private void setMaterialColorSchemeFromSystem() {
         final Color accentColor = Platform.getPreferences().getAccentColor();
-        materialColorScheme.set(ColorScheme.fromSeed(accentColor));
+        if (accentColor == null) {
+            materialColorScheme.set(ColorScheme.fromSeed(Color.web("#BDCF47")));
+        } else {
+            materialColorScheme.set(ColorScheme.fromSeed(accentColor));
+        }
     }
 
     public void createDevTools() {

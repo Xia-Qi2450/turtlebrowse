@@ -48,8 +48,9 @@ javafx {
 application {
     mainClass.set("dev.ingstudios.turtlebrowse.Main")
     applicationDefaultJvmArgs = listOf(
-        "--enable-native-access=ALL-UNNAMED,javafx.graphic",
+        "--enable-native-access=ALL-UNNAMED,javafx.graphics", 
         "--add-modules=jdk.incubator.vector",
+        "-Dglass.platform=gtk",
         "-Djava.library.path=build/natives"
     )
 }
