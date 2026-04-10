@@ -44,7 +44,7 @@ import javafx.scene.text.Font;
 import me.friwi.jcefmaven.*;
 
 public class MainWindow extends JFrame {
-    public final String START_URL = "turtlebrowse://newtab";
+    public final String START_URL = "https://google.com";
     public final String DEFAULT_SEARCH_PROVIDER = "https://google.com/search?q=";
     private final boolean USE_OSR = false;
 
@@ -70,6 +70,10 @@ public class MainWindow extends JFrame {
             Font.loadFont(getClass().getResourceAsStream("/fonts/google_sans_flex.ttf"), 10);
             Font.loadFont(getClass().getResourceAsStream("/fonts/material_icons_outlined.otf"), 10);
         });
+
+        System.out.println("AWT Toolkit: " + java.awt.Toolkit.getDefaultToolkit().getClass().getName());
+        System.out.println("DISPLAY: " + System.getenv("DISPLAY"));
+        System.out.println("WAYLAND_DISPLAY: " + System.getenv("WAYLAND_DISPLAY"));
 
         setMaterialColorSchemeFromSystem();
 
@@ -206,7 +210,13 @@ public class MainWindow extends JFrame {
 
     private CefApp createCefApp() {
         CefAppBuilder builder = new CefAppBuilder();
-        builder.addJcefArgs("--enable-media-stream", "--enable-gpu" ,"--no-sandbox", "--disable-setuid-sandbox");
+        builder.addJcefArgs(
+            "--enable-media-stream",
+            "--ozone-platform=x11",
+            "--disable-gpu",
+            "--disable-gpu-compositing",
+            "--disable-software-rasterizer"
+        );
 
         cefSettings = builder.getCefSettings();
         builder.setInstallDir(getInstallDir());

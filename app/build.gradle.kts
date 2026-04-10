@@ -22,7 +22,7 @@ dependencies {
     implementation(libs.guava)
 
     // JCEF Maven for Chromium embedding
-    implementation("me.friwi:jcefmaven:141.0.10")
+    implementation("me.friwi:jcefmaven:143.0.14")
 
     // Material icons from Ikonli
     implementation("org.kordamp.ikonli:ikonli-javafx:12.4.0")
@@ -48,10 +48,13 @@ javafx {
 application {
     mainClass.set("dev.ingstudios.turtlebrowse.Main")
     applicationDefaultJvmArgs = listOf(
-        "--enable-native-access=ALL-UNNAMED,javafx.graphics", 
+        "--enable-native-access=ALL-UNNAMED,javafx.graphics",
         "--add-modules=jdk.incubator.vector",
         "-Dglass.platform=gtk",
-        "-Djava.library.path=build/natives"
+        "-Djava.library.path=build/natives",
+        "-Dsun.java2d.opengl=false",
+        "-Dsun.java2d.xrender=false",
+        "-Dswing.defaultlaf=javax.swing.plaf.metal.MetalLookAndFeel"
     )
 }
 
@@ -118,4 +121,10 @@ tasks.jpackage {
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+tasks.named<JavaExec>("run") {
+    environment("_JAVA_AWT_WM_NONREPARENTING", "0")
+    environment("GDK_BACKEND", "x11")
+    environment("WAYLAND_DISPLAY", "")
 }
