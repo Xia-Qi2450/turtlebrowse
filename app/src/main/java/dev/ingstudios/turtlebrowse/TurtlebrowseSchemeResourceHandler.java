@@ -58,15 +58,20 @@ public class TurtlebrowseSchemeResourceHandler implements CefResourceHandler {
     @Override
     public boolean open(CefRequest request, BoolRef handleRequest, CefCallback callback) {
         String url = request.getURL();
+        System.out.println("Scheme handler open() called with URL: " + url);
 
         if (url.startsWith("turtlebrowse://newtab")) {
             String path = url.substring("turtlebrowse://newtab".length());
+            System.out.println("Parsed path: '" + path + "'");
 
             if (path.isEmpty() || path.equals("/")) {
                 loadResourcePage("/web/index.html", "newtab");
             } else {
                 loadResource("/web" + path);
             }
+
+            System.out.println("Data loaded, length: " + (data != null ? data.length : "NULL"));
+            System.out.println("MIME type: " + mimeType);
 
             handleRequest.set(true);
             callback.Continue();

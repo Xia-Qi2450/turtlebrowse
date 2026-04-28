@@ -215,7 +215,8 @@ public class MainWindow extends JFrame {
             "--ozone-platform=x11",
             "--disable-gpu",
             "--disable-gpu-compositing",
-            "--disable-software-rasterizer"
+            "--disable-software-rasterizer",
+            "--no-sandbox"
         );
 
         cefSettings = builder.getCefSettings();
@@ -239,7 +240,7 @@ public class MainWindow extends JFrame {
 
             @Override
             public void onRegisterCustomSchemes(CefSchemeRegistrar registrar) {
-                registrar.addCustomScheme("turtlebrowse", true, false, false, false, false, false, false);
+                registrar.addCustomScheme("turtlebrowse", true, true, true, true, true, true, true);
             }
 
             @Override

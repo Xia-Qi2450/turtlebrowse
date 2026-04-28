@@ -90,7 +90,15 @@ tasks.jpackage {
             layout.projectDirectory.file("src/main/resources/logo_full_trans.png")
     }
 
-    javaOptions = listOf("--enable-native-access=ALL-UNNAMED,javafx.graphics", "-Dapp.dir=\$APPDIR")
+    javaOptions = listOf("--enable-native-access=ALL-UNNAMED,javafx.graphics",
+        "--add-modules=jdk.incubator.vector",
+        "-Dglass.platform=gtk",
+        "-Djava.library.path=build/natives",
+        "-Dsun.java2d.opengl=false",
+        "-Dsun.java2d.xrender=false",
+        "-Dswing.defaultlaf=javax.swing.plaf.metal.MetalLookAndFeel",
+        "-Dapp.dir=\$APPDIR",
+        )
 
     windows {
         type = org.panteleyev.jpackage.ImageType.EXE
