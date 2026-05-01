@@ -44,7 +44,7 @@ import javafx.scene.text.Font;
 import me.friwi.jcefmaven.*;
 
 public class MainWindow extends JFrame {
-    public final String START_URL = "https://google.com";
+    public final String START_URL = "turtlebrowse://newtab";
     public final String DEFAULT_SEARCH_PROVIDER = "https://google.com/search?q=";
     private final boolean USE_OSR = false;
 
@@ -216,7 +216,8 @@ public class MainWindow extends JFrame {
             "--disable-gpu",
             "--disable-gpu-compositing",
             "--disable-software-rasterizer",
-            "--no-sandbox"
+            "--no-sandbox",
+            "--single-process"
         );
 
         cefSettings = builder.getCefSettings();
@@ -240,7 +241,7 @@ public class MainWindow extends JFrame {
 
             @Override
             public void onRegisterCustomSchemes(CefSchemeRegistrar registrar) {
-                registrar.addCustomScheme("turtlebrowse", true, true, true, true, true, true, true);
+                registrar.addCustomScheme("turtlebrowse", true, false, true, true, true, true, true);
             }
 
             @Override
@@ -435,6 +436,8 @@ public class MainWindow extends JFrame {
         super.dispose();
 
         System.out.println("Successfully closed browser.");
+
+        System.exit(0);
     }
 
     public String formatURL(String url, Boolean isSearching) {

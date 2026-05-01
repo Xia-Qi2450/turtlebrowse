@@ -1,7 +1,6 @@
 package dev.ingstudios.turtlebrowse;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.cef.callback.CefCallback;
@@ -39,22 +38,6 @@ public class TurtlebrowseSchemeResourceHandler implements CefResourceHandler {
         }
     }
 
-    private void loadResourcePage(String resourcePath, String pageName) {
-        try (InputStream inputStream = getClass().getResourceAsStream(resourcePath)) {
-            if (inputStream != null) {
-                final byte[] rawData = inputStream.readAllBytes();
-                final String html = new String(rawData, StandardCharsets.UTF_8);
-                final String routerFix = "<script>history.replaceState(null, '', '/" + pageName + "');</script>";
-                final String injectedHtml = html.replace("<head>", "<head>" + routerFix);
-
-                this.data = injectedHtml.getBytes(StandardCharsets.UTF_8);
-                this.mimeType = "text/html";
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public boolean open(CefRequest request, BoolRef handleRequest, CefCallback callback) {
         String url = request.getURL();
@@ -65,7 +48,7 @@ public class TurtlebrowseSchemeResourceHandler implements CefResourceHandler {
             System.out.println("Parsed path: '" + path + "'");
 
             if (path.isEmpty() || path.equals("/")) {
-                loadResourcePage("/web/index.html", "newtab");
+                loadResource("/web/newtab.html");
             } else {
                 loadResource("/web" + path);
             }

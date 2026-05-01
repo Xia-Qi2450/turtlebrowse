@@ -1,6 +1,9 @@
 import type { CefRequest } from "@/types/cef";
 
 export function fetchFromJava(request: string, params?: Record<string, string>): Promise<string | void> {
+	console.log('cefQuery:', window.cefQuery);
+	console.log('keys:', Object.keys(window));
+
 	return new Promise((resolve, reject) => {
 		if (window.cefQuery) {
 			window.cefQuery({

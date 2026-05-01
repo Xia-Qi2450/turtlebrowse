@@ -1,11 +1,8 @@
 import { createApp } from 'vue';
-import App from './App.vue';
-import router from './router';
+import NewTabApp from './NewTabApp.vue';
 import '@/assets/main.css';
 import 'material-symbols/outlined.css';
 
-const app = createApp(App);
-
-app.use(router);
+const app = createApp(NewTabApp);
 
 app.mount('#app');

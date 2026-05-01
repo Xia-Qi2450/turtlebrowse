@@ -3,6 +3,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import { resolve } from 'node:path'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -25,5 +26,10 @@ export default defineConfig({
   build: {
 	outDir: '../app/src/main/resources/web',
 	emptyOutDir: true,
+	rollupOptions: {
+		input: {
+			newtab: resolve(__dirname, 'newtab.html'),
+		}
+	},
   },
 })
