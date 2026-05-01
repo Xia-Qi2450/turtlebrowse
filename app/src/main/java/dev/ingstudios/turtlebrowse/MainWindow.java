@@ -36,6 +36,9 @@ import org.glavo.monetfx.ColorScheme;
 import org.glavo.monetfx.beans.property.ColorSchemeProperty;
 import org.glavo.monetfx.beans.property.SimpleColorSchemeProperty;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -102,6 +105,7 @@ public class MainWindow extends JFrame {
         }
 
         cefClient = cefApp.createClient();
+        
         CefMessageRouter.CefMessageRouterConfig config = new CefMessageRouter.CefMessageRouterConfig("cefQuery", "cefQueryCancel");
         cefMessageRouter = CefMessageRouter.create(config);
         cefMessageRouter.addHandler(new TurtlebrowseMessageRouter(this), true);
@@ -160,11 +164,6 @@ public class MainWindow extends JFrame {
 
         root.add(topPanel, BorderLayout.NORTH);
         root.add(browserContainer, BorderLayout.CENTER);
-
-        SwingUtilities.invokeLater(() -> {
-            createTab(START_URL);
-            setVisible(true);
-        });
 
         cefClient.addDisplayHandler(new CefDisplayHandlerAdapter() {
             @Override
@@ -241,12 +240,16 @@ public class MainWindow extends JFrame {
 
             @Override
             public void onRegisterCustomSchemes(CefSchemeRegistrar registrar) {
-                registrar.addCustomScheme("turtlebrowse", true, false, true, true, true, true, true);
+                registrar.addCustomScheme("turtlebrowse", true, true, true, true, true, true, true);
             }
 
             @Override
             public void onContextInitialized() {
-                CefApp.getInstance().registerSchemeHandlerFactory("turtlebrowse", "", new TurtlebrowseSchemeHandlerFactory());
+                CefApp.getInstance().registerSchemeHandlerFactory("turtlebrowse", "", new TurtlebrowseSchemeHandlerFactory(MainWindow.this));
+                SwingUtilities.invokeLater(() -> {
+                    createTab(START_URL);
+                    setVisible(true);
+                });
             }
         });
 
@@ -456,5 +459,26 @@ public class MainWindow extends JFrame {
 
     public void searchWeb(String query) {
         currentBrowser.loadURL(formatURL(query, true));
+    }
+
+    public String handleApiFromClient(String action, String body) {
+        final Gson gson = new Gson();
+
+        @SuppressWarnings("null")
+        JsonObject params = gson.fromJson(body, JsonObject.class);
+
+        switch (action) {
+            case "GET_NAME":
+                System.out.println("GET_NAME called.");
+                return "Ethan Lee";
+
+            case "SEARCH_WEB":
+                String query = params.get("query").getAsString();
+                SwingUtilities.invokeLater(() -> searchWeb(query));
+                return "\"ok\"";
+
+            default:
+                return "\"Unknown action\"";
+        }
     }
 }

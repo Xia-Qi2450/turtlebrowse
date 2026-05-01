@@ -7,9 +7,15 @@ import org.cef.handler.CefResourceHandler;
 import org.cef.network.CefRequest;
 
 public class TurtlebrowseSchemeHandlerFactory implements CefSchemeHandlerFactory {
+    MainWindow parent;
+
+    public TurtlebrowseSchemeHandlerFactory(MainWindow parent) {
+        this.parent = parent;
+    }
+    
     @Override
     public CefResourceHandler create(CefBrowser browser, CefFrame frame, String schemeName, CefRequest request) {
         System.out.println("Factory create() called for: " + request.getURL());
-        return new TurtlebrowseSchemeResourceHandler();
+        return new TurtlebrowseSchemeResourceHandler(parent);
     }
 }

@@ -13,6 +13,7 @@ public class TurtlebrowseMessageRouter extends CefMessageRouterHandlerAdapter {
 
     public TurtlebrowseMessageRouter(MainWindow parent) {
         this.parent = parent;
+        System.out.println("Successfully registered message router.");
     }
 
     @Override
@@ -21,6 +22,7 @@ public class TurtlebrowseMessageRouter extends CefMessageRouterHandlerAdapter {
         BridgeRequest data = gson.fromJson(request, BridgeRequest.class);
 
         if ("GET_NAME".equals(data.request)) {
+            System.out.println("Client called GET_NAME");
             callback.success("Ethan Lee");
             return true;
         } else if ("SEARCH_WEB".equals(data.request)) {

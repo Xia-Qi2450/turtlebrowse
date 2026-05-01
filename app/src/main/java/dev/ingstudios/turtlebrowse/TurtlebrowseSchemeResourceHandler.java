@@ -2,6 +2,7 @@ package dev.ingstudios.turtlebrowse;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Vector;
 
 import org.cef.callback.CefCallback;
 import org.cef.callback.CefResourceReadCallback;
@@ -11,6 +12,8 @@ import org.cef.misc.BoolRef;
 import org.cef.misc.IntRef;
 import org.cef.misc.LongRef;
 import org.cef.misc.StringRef;
+import org.cef.network.CefPostData;
+import org.cef.network.CefPostDataElement;
 import org.cef.network.CefRequest;
 import org.cef.network.CefResponse;
 
@@ -18,6 +21,11 @@ public class TurtlebrowseSchemeResourceHandler implements CefResourceHandler {
     private byte[] data;
     private int offset = 0;
     private String mimeType = "text/html";
+    private MainWindow parent;
+
+    public TurtlebrowseSchemeResourceHandler(MainWindow parent) {
+        this.parent = parent;
+    }
 
     private void loadResource(String resourcePath) {
         try (var inputStream = getClass().getResourceAsStream(resourcePath)) {
@@ -40,11 +48,11 @@ public class TurtlebrowseSchemeResourceHandler implements CefResourceHandler {
 
     @Override
     public boolean open(CefRequest request, BoolRef handleRequest, CefCallback callback) {
-        String url = request.getURL();
+        final String url = request.getURL();
         System.out.println("Scheme handler open() called with URL: " + url);
 
         if (url.startsWith("turtlebrowse://newtab")) {
-            String path = url.substring("turtlebrowse://newtab".length());
+            final String path = url.substring("turtlebrowse://newtab".length());
             System.out.println("Parsed path: '" + path + "'");
 
             if (path.isEmpty() || path.equals("/")) {
@@ -59,14 +67,50 @@ public class TurtlebrowseSchemeResourceHandler implements CefResourceHandler {
             handleRequest.set(true);
             callback.Continue();
             return true;
+        } else if (url.startsWith("turtlebrowse://api")) {
+            final String action = url.replace("turtlebrowse://api/", "");
+
+            System.out.printf("Action: %s URL: %s", action, url);
+
+            final CefPostData postData = request.getPostData();
+            String body = "{}";
+
+            if (postData != null) {
+                final Vector<CefPostDataElement> elements = new Vector<>();
+                postData.getElements(elements);
+                if (elements != null && elements.size() > 0) {
+                    final CefPostDataElement element = elements.firstElement();
+                    final int elementSize = (int) element.getBytesCount();
+                    final byte[] buffer = new byte[elementSize];
+                    element.getBytes(elementSize, buffer);
+                    body = new String(buffer, StandardCharsets.UTF_8);
+                }
+            }
+
+            String result = parent.handleApiFromClient(action, body);
+            this.data = result.getBytes(StandardCharsets.UTF_8);
+            this.mimeType = "application/json";
+            handleRequest.set(true);
+            callback.Continue();
+            return true;
         }
+
         return false;
     }
 
     @Override
     public void getResponseHeaders(CefResponse response, IntRef responseLength, StringRef redirectUrl) {
+        if (data == null) {
+            data = "<html><body>500 Internal Error</body></html>".getBytes(StandardCharsets.UTF_8);
+            mimeType = "text/html";
+            response.setStatus(500);
+        } else {
+            response.setStatus(200);
+        }
         response.setMimeType(mimeType);
-        response.setStatus(200);
+        response.setHeaderByName("Access-Control-Allow-Origin", "*", true);
+        response.setHeaderByName("Access-Control-Allow-Methods", "GET, OPTIONS", true);
+        response.setHeaderByName("Access-Control-Allow-Headers", "*", true);
         responseLength.set(data.length);
     }
 

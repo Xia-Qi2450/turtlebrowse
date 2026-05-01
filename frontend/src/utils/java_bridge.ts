@@ -1,23 +1,12 @@
-import type { CefRequest } from "@/types/cef";
-
-export function fetchFromJava(request: string, params?: Record<string, string>): Promise<string | void> {
-	console.log('cefQuery:', window.cefQuery);
-	console.log('keys:', Object.keys(window));
-
-	return new Promise((resolve, reject) => {
-		if (window.cefQuery) {
-			window.cefQuery({
-				request: JSON.stringify({
-					request: request,
-					params: params,
-				} as CefRequest),
-				onSuccess: (response) => resolve(response),
-				onFailure: (code, msg) => reject(new Error(`CEF Error ${code}: ${msg}`)),
-			});
-		} else {
-			reject(new Error("CEF environment not detected."));
-		}
+export async function fetchFromJava(request: string, params?: Record<string, string>): Promise<string | void> {
+	const response = await fetch(`turtlebrowse://api/${request}`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(params),
 	});
+	return response.text();
 }
 
 export async function getUserName(): Promise<string> {
