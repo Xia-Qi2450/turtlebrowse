@@ -27,6 +27,12 @@ public class SwingKeyboardHandler {
                             System.out.println("Ctrl + L pressed.");
                             parent.addressBar.focusAddressField();
                             keyEvent.consume();
+                        } else if (keyCode == KeyEvent.VK_LEFT && keyEvent.isAltDown()) { // Navigates back (Alt + <)
+                            if (parent.currentBrowser.canGoBack()) parent.currentBrowser.goBack();
+                            keyEvent.consume();
+                        } else if (keyCode == KeyEvent.VK_RIGHT && keyEvent.isAltDown()) { // Navigates forward (Alt + >)
+                            if (parent.currentBrowser.canGoForward()) parent.currentBrowser.goForward();
+                            keyEvent.consume();
                         }
                     }
                 }

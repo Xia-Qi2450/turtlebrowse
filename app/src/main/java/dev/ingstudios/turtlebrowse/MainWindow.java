@@ -55,7 +55,7 @@ public class MainWindow extends JFrame {
     private CefClient cefClient;
     private CefMessageRouter cefMessageRouter;
     private CefSettings cefSettings;
-    private CefBrowser currentBrowser;
+    public CefBrowser currentBrowser;
     private ArrayList<CefBrowser> openedBrowserTabs = new ArrayList<>();
     private JPanel root;
     private JPanel browserContainer;
@@ -105,11 +105,6 @@ public class MainWindow extends JFrame {
         }
 
         cefClient = cefApp.createClient();
-        
-        CefMessageRouter.CefMessageRouterConfig config = new CefMessageRouter.CefMessageRouterConfig("cefQuery", "cefQueryCancel");
-        cefMessageRouter = CefMessageRouter.create(config);
-        cefMessageRouter.addHandler(new TurtlebrowseMessageRouter(this), true);
-        cefClient.addMessageRouter(cefMessageRouter);
 
         // Tab bar
         tabBar = new TabBar(cefClient, openedBrowserTabs, this);
