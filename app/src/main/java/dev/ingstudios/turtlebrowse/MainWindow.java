@@ -27,7 +27,6 @@ import org.cef.OS;
 import org.cef.CefApp.CefAppState;
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
-import org.cef.browser.CefMessageRouter;
 import org.cef.callback.CefSchemeRegistrar;
 import org.cef.handler.CefDisplayHandlerAdapter;
 import org.cef.handler.CefFocusHandlerAdapter;
@@ -53,7 +52,6 @@ public class MainWindow extends JFrame {
 
     private CefApp cefApp;
     private CefClient cefClient;
-    private CefMessageRouter cefMessageRouter;
     private CefSettings cefSettings;
     public CefBrowser currentBrowser;
     private ArrayList<CefBrowser> openedBrowserTabs = new ArrayList<>();
@@ -419,9 +417,6 @@ public class MainWindow extends JFrame {
     @Override
     public void dispose() {
         System.out.println("Closing...");
-
-        cefClient.removeMessageRouter(cefMessageRouter);
-        cefMessageRouter.dispose();
 
         for (CefBrowser browser : openedBrowserTabs) {
             if (browser != null) browser.close(true);

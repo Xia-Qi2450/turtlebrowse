@@ -14,7 +14,7 @@
     "lint:eslint": "eslint . --fix --cache"
   },
   "dependencies": {
-    "@m3e/web": "^2.1.2",
+    "@m3e/web": "^2.4.1",
     "material-symbols": "^0.43.0",
     "vue": "^3.5.30",
     "vue-router": "^5.0.3"
