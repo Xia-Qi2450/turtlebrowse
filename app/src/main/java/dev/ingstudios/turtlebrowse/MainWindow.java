@@ -193,6 +193,8 @@ public class MainWindow extends JFrame {
 
         cefClient.addDialogHandler(new TurtlebrowseDialogHandler());
 
+        cefClient.addDownloadHandler(new TurtlebrowseDownloadHandler());
+
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent event) {
