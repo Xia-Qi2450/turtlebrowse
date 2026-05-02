@@ -191,12 +191,19 @@ public class MainWindow extends JFrame {
             }
         });
 
+        cefClient.addDialogHandler(new TurtlebrowseDialogHandler());
+
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent event) {
                 CefApp.getInstance().dispose();
                 dispose();
             }
+        });
+
+        SwingUtilities.invokeLater(() -> {
+            createTab(START_URL);
+            setVisible(true);
         });
     }
 
@@ -239,10 +246,6 @@ public class MainWindow extends JFrame {
             @Override
             public void onContextInitialized() {
                 CefApp.getInstance().registerSchemeHandlerFactory("turtlebrowse", "", new TurtlebrowseSchemeHandlerFactory(MainWindow.this));
-                SwingUtilities.invokeLater(() -> {
-                    createTab(START_URL);
-                    setVisible(true);
-                });
             }
         });
 
