@@ -30,6 +30,9 @@ dependencies {
 
     // Monet theme builder for JavaFX
     implementation("org.glavo:MonetFX:0.4.0")
+
+    // Ollama for Java
+    implementation("io.github.ollama4j:ollama4j:1.1.7")
 }
 
 // Apply a specific Java toolchain. 

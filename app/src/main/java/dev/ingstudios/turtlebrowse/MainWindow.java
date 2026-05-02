@@ -207,6 +207,8 @@ public class MainWindow extends JFrame {
             createTab(START_URL);
             setVisible(true);
         });
+
+        new BrowserServer();
     }
 
     private CefApp createCefApp() {
@@ -224,7 +226,6 @@ public class MainWindow extends JFrame {
         cefSettings = builder.getCefSettings();
         builder.setInstallDir(getInstallDir());
         cefSettings.windowless_rendering_enabled = USE_OSR;
-        cefSettings.remote_debugging_port = 6767;
 
         try {
             String cachePath = getCachePath();
@@ -242,7 +243,7 @@ public class MainWindow extends JFrame {
 
             @Override
             public void onRegisterCustomSchemes(CefSchemeRegistrar registrar) {
-                registrar.addCustomScheme("turtlebrowse", true, true, true, true, true, true, true);
+                registrar.addCustomScheme("turtlebrowse", true, true, false, true, true, true, true);
             }
 
             @Override
@@ -463,14 +464,16 @@ public class MainWindow extends JFrame {
         JsonObject params = gson.fromJson(body, JsonObject.class);
 
         switch (action) {
-            case "GET_NAME":
+            case "GET_NAME": {
                 System.out.println("GET_NAME called.");
                 return "Ethan Lee";
+            }
 
-            case "SEARCH_WEB":
-                String query = params.get("query").getAsString();
+            case "SEARCH_WEB": {
+                final String query = params.get("query").getAsString();
                 SwingUtilities.invokeLater(() -> searchWeb(query));
                 return "\"ok\"";
+            }
 
             default:
                 return "\"Unknown action\"";

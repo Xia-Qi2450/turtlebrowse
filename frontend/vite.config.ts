@@ -29,6 +29,7 @@ export default defineConfig({
 	rollupOptions: {
 		input: {
 			newtab: resolve(__dirname, 'newtab.html'),
+			chat: resolve(__dirname, 'chat.html'),
 		}
 	},
   },

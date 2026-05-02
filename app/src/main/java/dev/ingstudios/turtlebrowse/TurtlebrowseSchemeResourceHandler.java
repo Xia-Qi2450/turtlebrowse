@@ -67,6 +67,22 @@ public class TurtlebrowseSchemeResourceHandler implements CefResourceHandler {
             handleRequest.set(true);
             callback.Continue();
             return true;
+        } else if (url.startsWith("turtlebrowse://chat")) {
+            final String path = url.substring("turtlebrowse://chat".length());
+            System.out.println("Parsed path: '" + path + "'");
+
+            if (path.isEmpty() || path.equals("/")) {
+                loadResource("/web/chat.html");
+            } else {
+                loadResource("/web" + path);
+            }
+
+            System.out.println("Data loaded, length: " + (data != null ? data.length : "NULL"));
+            System.out.println("MIME type: " + mimeType);
+
+            handleRequest.set(true);
+            callback.Continue();
+            return true;
         } else if (url.startsWith("turtlebrowse://api")) {
             final String action = url.replace("turtlebrowse://api/", "");
 

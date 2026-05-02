@@ -43,6 +43,7 @@ onMounted(async () => {
 	justify-content: center;
 	width: 100dvw;
 	height: 100dvh;
+	box-sizing: border-box;
 }
 
 .search-bar {
