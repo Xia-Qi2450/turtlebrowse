@@ -32,13 +32,17 @@ function sendPrompt() {
 
     prompts.value.push(conversation);
 
+    const currentConversation = prompts.value[prompts.value.length - 1] as Conversation;
+
     try {
         promptStreaming(prompt.value, (chunk) => {
-            conversation.assistant.thinking += chunk;
+            console.log('Received chunk:', chunk);
+            currentConversation.assistant.thinking += chunk;
         }, (chunk) => {
-            conversation.assistant.response += chunk;
+            console.log('Received chunk:', chunk);
+            currentConversation.assistant.response += chunk;
         }, (response) => {
-            conversation.assistant.response = response;
+            currentConversation.assistant.response = response;
             isGenerating.value = false;
         });
 
@@ -91,6 +95,8 @@ function sendPrompt() {
 }
 
 .conv-group {
+    display: flex;
+    flex-direction: column;
     width: 100%;
 }
 

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { marked } from 'marked';
+
 interface ComponentProps {
 	message: string;
     thinking?: string;
@@ -10,8 +12,9 @@ const props = defineProps<ComponentProps>();
 
 <template>
 	<div class="conv-bubble">
-        <p v-if="props.thinking" class="conv-thinking">{{ props.thinking }}</p>
-		<p class="conv-message">{{ props.message }}</p>
+        <span v-if="props.thinking" class="conv-thinking" v-html="marked.parse(props.thinking)"></span>
+        <hr v-if="props.thinking" />
+		<span class="conv-message" v-html="marked.parse(props.message)"></span>
 	</div>
 </template>
 
@@ -33,7 +36,12 @@ const props = defineProps<ComponentProps>();
 	margin: 0;
 }
 
+.conv-message {
+    font-size: 1rem;
+}
+
 .conv-thinking {
     color: var(--md-sys-color-on-surface-variant);
+    font-size: 0.7rem;
 }
 </style>

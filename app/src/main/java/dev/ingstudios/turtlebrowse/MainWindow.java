@@ -207,8 +207,6 @@ public class MainWindow extends JFrame {
             createTab(START_URL);
             setVisible(true);
         });
-
-        new BrowserServer();
     }
 
     private CefApp createCefApp() {

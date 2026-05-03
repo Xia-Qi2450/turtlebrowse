@@ -1,5 +1,5 @@
 export function promptStreaming(prompt: string, onThink: (chunk: string) => void, onResponse: (chunk: string) => void, onFinish: (response: string) => void) {
-    const source = new EventSource(`http://127.0.0.1:6767/prompt-stream?prompt=${encodeURIComponent(prompt)}`);
+    const source = new EventSource(`turtlebrowse://api/prompt-stream?prompt=${encodeURIComponent(prompt)}`);
     console.log('EventSource created:', source.readyState);
     source.addEventListener('open', () => {
         console.log('EventSource open.');

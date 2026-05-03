@@ -6,18 +6,16 @@ import java.util.Vector;
 
 import org.cef.callback.CefCallback;
 import org.cef.callback.CefResourceReadCallback;
-import org.cef.callback.CefResourceSkipCallback;
-import org.cef.handler.CefResourceHandler;
+import org.cef.handler.CefResourceHandlerAdapter;
 import org.cef.misc.BoolRef;
 import org.cef.misc.IntRef;
-import org.cef.misc.LongRef;
 import org.cef.misc.StringRef;
 import org.cef.network.CefPostData;
 import org.cef.network.CefPostDataElement;
 import org.cef.network.CefRequest;
 import org.cef.network.CefResponse;
 
-public class TurtlebrowseSchemeResourceHandler implements CefResourceHandler {
+public class TurtlebrowseSchemeResourceHandler extends CefResourceHandlerAdapter {
     private byte[] data;
     private int offset = 0;
     private String mimeType = "text/html";
@@ -151,11 +149,4 @@ public class TurtlebrowseSchemeResourceHandler implements CefResourceHandler {
     public void cancel() {
         offset = 0;
     }
-
-    @Override
-    public boolean processRequest(CefRequest request, CefCallback callback) { return false; }
-    @Override
-    public boolean readResponse(byte[] dataOut, int bytesToRead, IntRef bytesRead, CefCallback callback) { return false; }
-    @Override
-    public boolean skip(long bytesToSkip, LongRef bytesSkipped, CefResourceSkipCallback callback) { return false; }
 }
