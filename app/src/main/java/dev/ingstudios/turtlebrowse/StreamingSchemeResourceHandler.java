@@ -16,14 +16,12 @@ import org.cef.network.CefResponse;
 
 import com.google.gson.Gson;
 
-import io.github.ollama4j.exceptions.OllamaException;
-
 public class StreamingSchemeResourceHandler extends CefResourceHandlerAdapter {
     private PipedInputStream pipedIn;
     private PipedOutputStream pipedOut;
     private final Gson gson = new Gson();
 
-    public StreamingSchemeResourceHandler(String prompt) {
+    public StreamingSchemeResourceHandler(String prompt, MainWindow parent) {
         try {
             pipedIn = new PipedInputStream(65536);
             pipedOut = new PipedOutputStream(pipedIn);
@@ -33,18 +31,13 @@ public class StreamingSchemeResourceHandler extends CefResourceHandlerAdapter {
         }
 
         Thread.ofVirtual().start(() -> {
-            try {
-                final OllamaChat chat = new OllamaChat();
-                chat.prompt(prompt,
-                    chunk -> writeSSE("think", chunk),
-                    chunk -> writeSSE("response", chunk),
-                    result -> { writeSSE("done", result); closeStream(); },
-                    error  -> { writeSSE("error", error);  closeStream(); }
-                );
-            } catch (OllamaException e) {
-                writeSSE("error", e.getMessage());
-                closeStream();
-            }
+            final OllamaChat chat = parent.getOllamaSession();
+            chat.prompt(prompt,
+                chunk -> writeSSE("think", chunk),
+                chunk -> writeSSE("response", chunk),
+                result -> { writeSSE("done", result); closeStream(); },
+                error  -> { writeSSE("error", error);  closeStream(); }
+            );
         });
     }
 

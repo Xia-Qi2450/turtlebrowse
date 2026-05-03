@@ -29,7 +29,7 @@ public class TurtlebrowseSchemeHandlerFactory implements CefSchemeHandlerFactory
                     prompt = URLDecoder.decode(pair[1], StandardCharsets.UTF_8);
                 }
             }
-            return new StreamingSchemeResourceHandler(prompt);
+            return new StreamingSchemeResourceHandler(prompt, parent);
         }
 
         return new TurtlebrowseSchemeResourceHandler(parent);

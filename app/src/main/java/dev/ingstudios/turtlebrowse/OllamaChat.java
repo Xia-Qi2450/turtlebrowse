@@ -17,7 +17,7 @@ import io.github.ollama4j.models.response.Model;
 public class OllamaChat {
     private Ollama ollama;
     private OllamaChatRequest builder;
-    private List<OllamaChatMessage> chatHistory = new ArrayList<>();
+    final private List<OllamaChatMessage> history = new ArrayList<>();
 
     public OllamaChat() throws OllamaException {
         try {
@@ -40,8 +40,6 @@ public class OllamaChat {
             }
 
             builder = OllamaChatRequest.builder().withModel(chatModel);
-
-            chatHistory.add(new OllamaChatMessage(OllamaChatMessageRole.SYSTEM, "You are Gemma, a helpful AI assistant inside the Turtlebrowse browser. Answer the user's questions in a friendly manner."));
         } catch (OllamaException e) {
             System.out.printf("Error while initializing Ollama:", e.getMessage());
             throw e;
@@ -50,8 +48,15 @@ public class OllamaChat {
 
     public void prompt(String prompt, Consumer<String> onThinkChunk, Consumer<String> onResponseChunk, Consumer<String> onDone, Consumer<String> onError) {
         System.out.printf("Received prompt: %s\n", prompt);
+        System.out.printf("History: %s", history.toString());
 
-        final OllamaChatRequest chatRequest = builder.withMessages(chatHistory).withMessage(OllamaChatMessageRole.USER, prompt).build();
+        if (history.size() == 0) {
+            history.add(new OllamaChatMessage(OllamaChatMessageRole.SYSTEM, "You are Gemma, a helpful AI assistant inside the Turtlebrowse browser. Answer the user's questions in a friendly manner."));
+        }
+
+        history.add(new OllamaChatMessage(OllamaChatMessageRole.USER, prompt));
+
+        final OllamaChatRequest chatRequest = builder.withMessages(history).build();
 
         OllamaChatStreamObserver streamObserver = new OllamaChatStreamObserver();
         streamObserver.setThinkingStreamHandler(new OllamaGenerateTokenHandler() {
@@ -63,21 +68,19 @@ public class OllamaChat {
         streamObserver.setResponseStreamHandler(new OllamaGenerateTokenHandler() {
             @Override
             public void accept(String message) {
-                onThinkChunk.accept(message);
+                onResponseChunk.accept(message);
             }
         });
 
         try {
-            OllamaChatResult result = ollama.chat(chatRequest, streamObserver);
-            onDone.accept(result.getResponseModel().getMessage().getResponse());
-            chatHistory = result.getChatHistory();
+            final OllamaChatResult result = ollama.chat(chatRequest, streamObserver);
+            final OllamaChatMessage assistantMessage = result.getResponseModel().getMessage();
+            history.add(assistantMessage);
+            System.out.printf("History: %s", history.toString());
+            onDone.accept(assistantMessage.getResponse());
         } catch (OllamaException e) {
             System.out.printf("Error while chatting: %s\n", e.getMessage());
             onError.accept("An unexpected error occurred while chatting.");
         }
-    }
-
-    public void resetHistory() {
-        chatHistory = new ArrayList<>();
     }
 }

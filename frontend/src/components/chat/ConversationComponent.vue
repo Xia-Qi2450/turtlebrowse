@@ -18,7 +18,9 @@ const prompt = ref<string>('');
 const prompts = ref<Conversation[]>([]);
 const isGenerating = ref<boolean>(false);
 
-function sendPrompt() {
+function sendPrompt(event: KeyboardEvent) {
+    if (event.key.toLowerCase() !== 'enter' || event.shiftKey) return;
+
     isGenerating.value = true;
 
     const conversation: Conversation = {
@@ -67,7 +69,7 @@ function sendPrompt() {
 		</div>
 		<m3e-form-field class="form-field" variant="outlined" :disabled="isGenerating">
 			<label slot="label" for="prompt-field">Ask AI</label>
-			<input id="prompt-field" v-model="prompt" @keydown.enter="sendPrompt()" />
+			<input id="prompt-field" v-model="prompt" @keydown="sendPrompt" />
 		</m3e-form-field>
 	</div>
 </template>

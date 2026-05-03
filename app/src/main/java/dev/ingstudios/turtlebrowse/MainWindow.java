@@ -38,6 +38,7 @@ import org.glavo.monetfx.beans.property.SimpleColorSchemeProperty;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import io.github.ollama4j.exceptions.OllamaException;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -62,6 +63,7 @@ public class MainWindow extends JFrame {
     private final Map<CefBrowser, String> titleMap = new HashMap<>();
     public final BooleanProperty isUiFocused = new SimpleBooleanProperty(false);
     public ColorSchemeProperty materialColorScheme = new SimpleColorSchemeProperty(ColorScheme.fromSeed(Color.web("#BDCF47")));
+    private OllamaChat ollamaSession;
 
     public MainWindow() {
         super("Turtlebrowse");
@@ -194,6 +196,12 @@ public class MainWindow extends JFrame {
         cefClient.addDialogHandler(new TurtlebrowseDialogHandler());
 
         cefClient.addDownloadHandler(new TurtlebrowseDownloadHandler());
+
+        try {
+            ollamaSession = new OllamaChat();
+        } catch (OllamaException e) {
+            e.printStackTrace();
+        }
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -476,5 +484,9 @@ public class MainWindow extends JFrame {
             default:
                 return "\"Unknown action\"";
         }
+    }
+
+    public OllamaChat getOllamaSession() {
+        return ollamaSession;
     }
 }
