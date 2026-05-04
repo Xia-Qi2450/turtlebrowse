@@ -22,3 +22,12 @@ export async function getUserName(): Promise<string> {
 export async function searchWeb(query: string) {
 	await fetchFromJava('SEARCH_WEB', { query: query });
 }
+
+export async function getTheme(): Promise<string | undefined> {
+    try {
+        return await fetchFromJava("GET_THEME") as string | undefined;
+    } catch (error) {
+        console.error('Error while getting theme:', error);
+        return undefined;
+    }
+}

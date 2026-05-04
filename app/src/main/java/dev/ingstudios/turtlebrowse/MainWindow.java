@@ -64,6 +64,7 @@ public class MainWindow extends JFrame {
     public final BooleanProperty isUiFocused = new SimpleBooleanProperty(false);
     public ColorSchemeProperty materialColorScheme = new SimpleColorSchemeProperty(ColorScheme.fromSeed(Color.web("#BDCF47")));
     private OllamaChat ollamaSession;
+    private AISidebar aiSidebar;
 
     public MainWindow() {
         super("Turtlebrowse");
@@ -108,6 +109,9 @@ public class MainWindow extends JFrame {
 
         // Tab bar
         tabBar = new TabBar(cefClient, openedBrowserTabs, this);
+
+        // AI Sidebar
+        aiSidebar = new AISidebar(cefClient, this, USE_OSR, isUiFocused);
 
         // Keyboard handler (JCEF)
         cefClient.addKeyboardHandler(new CefKeyboardHandler(this, START_URL));
@@ -157,8 +161,13 @@ public class MainWindow extends JFrame {
         topPanel.add(tabBar, BorderLayout.NORTH);
         topPanel.add(addressBar, BorderLayout.SOUTH);
 
+        // Bottom panel (main browser + AI sidebar)
+        final JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.add(browserContainer, BorderLayout.CENTER);
+        bottomPanel.add(aiSidebar, BorderLayout.EAST);
+
         root.add(topPanel, BorderLayout.NORTH);
-        root.add(browserContainer, BorderLayout.CENTER);
+        root.add(bottomPanel, BorderLayout.CENTER);
 
         cefClient.addDisplayHandler(new CefDisplayHandlerAdapter() {
             @Override
@@ -196,6 +205,8 @@ public class MainWindow extends JFrame {
         cefClient.addDialogHandler(new TurtlebrowseDialogHandler());
 
         cefClient.addDownloadHandler(new TurtlebrowseDownloadHandler());
+
+        cefClient.addContextMenuHandler(new TurtlebrowseContextMenuHandler());
 
         try {
             ollamaSession = new OllamaChat();
@@ -376,7 +387,7 @@ public class MainWindow extends JFrame {
     public void showTab(CefBrowser browser) {
         SwingUtilities.invokeLater(() -> {
             currentBrowser = browser;
-            Component ui = browser.getUIComponent();
+            final Component ui = browser.getUIComponent();
 
             if (ui.getMouseListeners().length == 0) {
                 ui.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -479,6 +490,15 @@ public class MainWindow extends JFrame {
                 final String query = params.get("query").getAsString();
                 SwingUtilities.invokeLater(() -> searchWeb(query));
                 return "\"ok\"";
+            }
+
+            case "GET_THEME": {
+                final Color accentColor = Platform.getPreferences().getAccentColor();
+                String hex = String.format("#%02x%02x%02x", 
+                    (int) (accentColor.getRed() * 255), 
+                    (int) (accentColor.getGreen() * 255), 
+                    (int) (accentColor.getBlue() * 255));
+                return hex;
             }
 
             default:
