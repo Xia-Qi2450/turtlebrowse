@@ -16,7 +16,7 @@ public class AISidebar extends JPanel {
 
     public AISidebar(CefClient client, MainWindow parent, boolean useOsr, BooleanProperty isUiFocused) {
         this.setLayout(new java.awt.BorderLayout());
-        this.setPreferredSize(new java.awt.Dimension(300, 800));
+        this.setPreferredSize(new java.awt.Dimension(500, 800));
 
         final CefBrowser aiBrowser = client.createBrowser("turtlebrowse://chat", useOsr, false);
         browser = aiBrowser;
