@@ -65,6 +65,7 @@ public class MainWindow extends JFrame {
     public ColorSchemeProperty materialColorScheme = new SimpleColorSchemeProperty(ColorScheme.fromSeed(Color.web("#BDCF47")));
     private OllamaChat ollamaSession;
     private AISidebar aiSidebar;
+    private final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
     public MainWindow() {
         super("Turtlebrowse");
@@ -209,7 +210,7 @@ public class MainWindow extends JFrame {
         cefClient.addContextMenuHandler(new TurtlebrowseContextMenuHandler());
 
         try {
-            ollamaSession = new OllamaChat();
+            ollamaSession = new OllamaChat(USER_AGENT);
         } catch (OllamaException e) {
             e.printStackTrace();
         }
@@ -243,6 +244,9 @@ public class MainWindow extends JFrame {
         cefSettings = builder.getCefSettings();
         builder.setInstallDir(getInstallDir());
         cefSettings.windowless_rendering_enabled = USE_OSR;
+        cefSettings.remote_debugging_port = 6767;
+
+        cefSettings.user_agent = USER_AGENT;
 
         try {
             String cachePath = getCachePath();

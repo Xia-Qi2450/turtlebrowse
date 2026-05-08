@@ -13,15 +13,17 @@ import io.github.ollama4j.models.chat.OllamaChatResult;
 import io.github.ollama4j.models.chat.OllamaChatStreamObserver;
 import io.github.ollama4j.models.generate.OllamaGenerateTokenHandler;
 import io.github.ollama4j.models.response.Model;
+import io.github.ollama4j.tools.Tools;
 
 public class OllamaChat {
     private Ollama ollama;
     private OllamaChatRequest builder;
     final private List<OllamaChatMessage> history = new ArrayList<>();
 
-    public OllamaChat() throws OllamaException {
+    public OllamaChat(String userAgent) throws OllamaException {
         try {
             ollama = new Ollama();
+            ollama.setRequestTimeoutSeconds(120);
 
             final List<Model> models = ollama.listModels();
 
@@ -38,6 +40,10 @@ public class OllamaChat {
                     System.out.printf("Pulling %s: %s\n", model, resp.getStatus());
                 });
             }
+
+            final Tools.Tool searchToolSpec = new SearXNGToolSpec(userAgent).getSpecification();
+            
+            ollama.registerTool(searchToolSpec);
 
             builder = OllamaChatRequest.builder().withModel(chatModel);
         } catch (OllamaException e) {
