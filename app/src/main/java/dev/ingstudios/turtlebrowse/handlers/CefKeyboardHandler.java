@@ -8,45 +8,49 @@ import org.cef.misc.EventFlags;
 import dev.ingstudios.turtlebrowse.components.MainWindow;
 
 public class CefKeyboardHandler extends CefKeyboardHandlerAdapter {
-    private MainWindow parent;
-    private String startUrl;
+	private MainWindow parent;
+	private String startUrl;
 
-    public CefKeyboardHandler(MainWindow parent, String startUrl) {
-        System.out.println("New keyboard handler created.");
-        this.parent = parent;
-        this.startUrl = startUrl;
-    }
+	public CefKeyboardHandler(MainWindow parent, String startUrl) {
+		System.out.println("New keyboard handler created.");
+		this.parent = parent;
+		this.startUrl = startUrl;
+	}
 
-    @Override
-    public boolean onKeyEvent(CefBrowser browser, CefKeyEvent event) {
-        System.out.println("Key pressed.");
+	@Override
+	public boolean onKeyEvent(CefBrowser browser, CefKeyEvent event) {
+		System.out.println("Key pressed.");
 
-        if (event.type == CefKeyEvent.EventType.KEYEVENT_RAWKEYDOWN) {
-            boolean ctrlPressed = (event.modifiers & EventFlags.EVENTFLAG_CONTROL_DOWN) != 0;
-            boolean shiftPressed = (event.modifiers & EventFlags.EVENTFLAG_SHIFT_DOWN) != 0;
-            boolean altPressed = (event.modifiers & EventFlags.EVENTFLAG_ALT_DOWN) != 0;
-            System.out.printf("Ctrl pressed: %s", ctrlPressed);
+		if (event.type == CefKeyEvent.EventType.KEYEVENT_RAWKEYDOWN) {
+			boolean ctrlPressed = (event.modifiers & EventFlags.EVENTFLAG_CONTROL_DOWN) != 0;
+			boolean shiftPressed = (event.modifiers & EventFlags.EVENTFLAG_SHIFT_DOWN) != 0;
+			boolean altPressed = (event.modifiers & EventFlags.EVENTFLAG_ALT_DOWN) != 0;
+			System.out.printf("Ctrl pressed: %s", ctrlPressed);
 
-            if (ctrlPressed && shiftPressed && event.windows_key_code == KeyEvent.VK_I) { // DevTools (Ctrl + Shift + I)
-                parent.createDevTools();
-                return true;
-            } else if (ctrlPressed && event.windows_key_code == KeyEvent.VK_T) { // New tab (Ctrl + T)
-                System.out.println("Ctrl + T pressed.");
-                parent.createTab(startUrl);
-                return true;
-            } else if (ctrlPressed && event.windows_key_code == KeyEvent.VK_L) { // Focus address field (Ctrl + L)
-                System.out.println("Ctrl + L pressed.");
-                parent.addressBar.focusAddressField();
-                return true;
-            } else if (altPressed && event.windows_key_code == KeyEvent.VK_LEFT) { // Navigates back (Alt + <)
-                if (parent.currentBrowser.canGoBack()) parent.currentBrowser.goBack();
-                return true;
-            } else if (altPressed && event.windows_key_code == KeyEvent.VK_RIGHT) { // Navigates forward (Alt + >)
-                if (parent.currentBrowser.canGoForward()) parent.currentBrowser.goForward();
-                return true;
-            }
-        }
+			if (ctrlPressed && shiftPressed && event.windows_key_code == KeyEvent.VK_I) { // DevTools (Ctrl + Shift + I)
+				parent.createDevTools();
+				return true;
+			} else if (ctrlPressed && event.windows_key_code == KeyEvent.VK_T) { // New tab (Ctrl + T)
+				System.out.println("Ctrl + T pressed.");
+				parent.createTab(startUrl);
+				return true;
+			} else if (ctrlPressed && event.windows_key_code == KeyEvent.VK_L) { // Focus address field (Ctrl + L)
+				System.out.println("Ctrl + L pressed.");
+				parent.addressBar.focusAddressField();
+				return true;
+			} else if (altPressed && event.windows_key_code == KeyEvent.VK_LEFT) { // Navigates back (Alt + <)
+				if (parent.currentBrowser.canGoBack())
+					parent.currentBrowser.goBack();
+				return true;
+			} else if (altPressed && event.windows_key_code == KeyEvent.VK_RIGHT) { // Navigates forward (Alt + >)
+				if (parent.currentBrowser.canGoForward())
+					parent.currentBrowser.goForward();
+				return true;
+			} else if (ctrlPressed && event.windows_key_code == KeyEvent.VK_R) { // Reloads the page (Ctrl + R)
+				parent.currentBrowser.reload();
+			}
+		}
 
-        return false;
-    }
+		return false;
+	}
 }

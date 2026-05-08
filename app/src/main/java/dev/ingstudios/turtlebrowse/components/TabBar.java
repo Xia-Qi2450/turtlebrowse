@@ -12,6 +12,8 @@ import org.cef.browser.CefBrowser;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2OutlinedAL;
 
+import com.jfoenix.controls.JFXButton;
+
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.embed.swing.JFXPanel;
@@ -32,139 +34,143 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Paint;
 
 public class TabBar extends JPanel {
-    private final Map<CefBrowser, HBox> tabMap = new HashMap<>();
-    private final HBox root = new HBox();
-    private MainWindow parent;
+	private final Map<CefBrowser, HBox> tabMap = new HashMap<>();
+	private final HBox root = new HBox();
+	private MainWindow parent;
 
-    public TabBar(CefClient client, ArrayList<CefBrowser> tabs, MainWindow parent) {
-        this.parent = parent;
+	public TabBar(CefClient client, ArrayList<CefBrowser> tabs, MainWindow parent) {
+		this.parent = parent;
 
-        this.setLayout(new java.awt.BorderLayout());
+		this.setLayout(new java.awt.BorderLayout());
 
-        final JFXPanel tabPanel = new JFXPanel();
-        tabPanel.setPreferredSize(new java.awt.Dimension(1200, 50));
+		final JFXPanel tabPanel = new JFXPanel();
+		tabPanel.setPreferredSize(new java.awt.Dimension(1200, 50));
 
-        root.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
-        root.setFillHeight(true);
-        root.setStyle("-fx-spacing: 10px; -fx-padding: 10px;");
-        root.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-            final Paint backgroundColor = this.parent.materialColorScheme.getSurface().get();
-            return new Background(new BackgroundFill(backgroundColor, null, null));
-        }, this.parent.materialColorScheme.getSurface()));
-        root.setAlignment(Pos.CENTER_LEFT);
+		root.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
+		root.setFillHeight(true);
+		root.setStyle("-fx-spacing: 10px; -fx-padding: 10px;");
+		root.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
+			final Paint backgroundColor = this.parent.materialColorScheme.getSurface().get();
+			return new Background(new BackgroundFill(backgroundColor, null, null));
+		}, this.parent.materialColorScheme.getSurface()));
+		root.setAlignment(Pos.CENTER_LEFT);
 
-        final Button createTabButton = new Button("+");
-        createTabButton.setGraphic(new FontIcon(Material2OutlinedAL.ADD));
-        createTabButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-        createTabButton.setStyle("-fx-padding: 10px;");
-        createTabButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-            final Paint backgroundColor = this.parent.materialColorScheme.getSurfaceContainer().get();
-            return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
-        }, this.parent.materialColorScheme.getSurfaceContainer()));
-        createTabButton.setMaxHeight(Double.MAX_VALUE);
-        createTabButton.setOnMouseEntered(event -> {
-            createTabButton.setCursor(Cursor.HAND);
-        });
-        createTabButton.setOnMouseDragExited(event -> {
-            createTabButton.setCursor(Cursor.DEFAULT);
-        });
-        createTabButton.setOnAction(event -> {
-            this.parent.createTab(this.parent.START_URL);
-        });
-        root.getChildren().add(createTabButton);
+		final Button createTabButton = new JFXButton("+");
+		createTabButton.setGraphic(new FontIcon(Material2OutlinedAL.ADD));
+		createTabButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+		createTabButton.setStyle("-fx-padding: 10px;");
+		createTabButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
+			final Paint backgroundColor = this.parent.materialColorScheme.getSurfaceContainer().get();
+			return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
+		}, this.parent.materialColorScheme.getSurfaceContainer()));
+		createTabButton.setMaxHeight(Double.MAX_VALUE);
+		createTabButton.setOnMouseEntered(event -> {
+			createTabButton.setCursor(Cursor.HAND);
+		});
+		createTabButton.setOnMouseDragExited(event -> {
+			createTabButton.setCursor(Cursor.DEFAULT);
+		});
+		createTabButton.setOnAction(event -> {
+			this.parent.createTab(this.parent.START_URL);
+		});
+		root.getChildren().add(createTabButton);
 
-        Platform.runLater(() -> {
-            for (CefBrowser browser : tabs) {
-                addTabToUI(browser);
-            }
-        });
+		Platform.runLater(() -> {
+			for (CefBrowser browser : tabs) {
+				addTabToUI(browser);
+			}
+		});
 
-        final Scene tabBarScene = new Scene(root);
-        tabPanel.setScene(tabBarScene);
-        Platform.runLater(() -> {
-            root.prefWidthProperty().bind(tabBarScene.widthProperty());
-            root.prefHeightProperty().bind(tabBarScene.heightProperty());
-        });
+		final Scene tabBarScene = new Scene(root);
+		tabPanel.setScene(tabBarScene);
+		Platform.runLater(() -> {
+			root.prefWidthProperty().bind(tabBarScene.widthProperty());
+			root.prefHeightProperty().bind(tabBarScene.heightProperty());
+		});
 
-        this.add(tabPanel);
-    }
+		this.add(tabPanel);
+	}
 
-    public void addTabToUI(CefBrowser browser) {
-        final Label tabTitle = new Label("Loading...");
+	public void addTabToUI(CefBrowser browser) {
+		final Label tabTitle = new Label("Loading...");
 
-        final Button closeButton = new Button("X");
-        closeButton.setGraphic(new FontIcon(Material2OutlinedAL.CLOSE));
-        closeButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-        closeButton.setStyle("-fx-background-color: transparent;");
+		final Button closeButton = new JFXButton("X");
+		closeButton.setGraphic(new FontIcon(Material2OutlinedAL.CLOSE));
+		closeButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+		closeButton.setStyle("-fx-background-color: transparent;");
 
-        final HBox tabBox = new HBox(10);
-        tabBox.setStyle("-fx-padding: 10px; -fx-pref-width: 150px;");
-        tabBox.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-            final Paint backgroundColor = this.parent.materialColorScheme.getSurfaceContainer().get();
-            return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
-        }, this.parent.materialColorScheme.getSurfaceContainer()));
-        tabBox.setMaxHeight(Double.MAX_VALUE);
-        final Region tabSpacer = new Region();
-        tabBox.setAlignment(Pos.CENTER);
-        HBox.setHgrow(tabSpacer, Priority.ALWAYS);
-        tabBox.setOnMouseEntered(event -> {
-            tabBox.setCursor(Cursor.HAND);
-        });
-        tabBox.setOnMouseDragExited(event -> {
-            tabBox.setCursor(Cursor.DEFAULT);
-        });
-        tabBox.setOnMouseClicked(event -> {
-            if (event.getButton() == MouseButton.PRIMARY) this.parent.showTab(browser);
-            else if (event.getButton() == MouseButton.MIDDLE) Platform.runLater(() -> closeTab(event, tabBox, browser));
-        });
+		final HBox tabBox = new HBox(10);
+		tabBox.setStyle("-fx-padding: 10px; -fx-pref-width: 150px;");
+		tabBox.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
+			final Paint backgroundColor = this.parent.materialColorScheme.getSurfaceContainer().get();
+			return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
+		}, this.parent.materialColorScheme.getSurfaceContainer()));
+		tabBox.setMaxHeight(Double.MAX_VALUE);
+		final Region tabSpacer = new Region();
+		tabBox.setAlignment(Pos.CENTER);
+		HBox.setHgrow(tabSpacer, Priority.ALWAYS);
+		tabBox.setOnMouseEntered(event -> {
+			tabBox.setCursor(Cursor.HAND);
+		});
+		tabBox.setOnMouseDragExited(event -> {
+			tabBox.setCursor(Cursor.DEFAULT);
+		});
+		tabBox.setOnMouseClicked(event -> {
+			if (event.getButton() == MouseButton.PRIMARY)
+				this.parent.showTab(browser);
+			else if (event.getButton() == MouseButton.MIDDLE)
+				Platform.runLater(() -> closeTab(event, tabBox, browser));
+		});
 
-        closeButton.prefHeightProperty().bind(tabBox.heightProperty().multiply(0.8));
-        closeButton.setOnMouseEntered(event -> {
-            closeButton.setCursor(Cursor.HAND);
-        });
-        closeButton.setOnMouseDragExited(event -> {
-            closeButton.setCursor(Cursor.DEFAULT);
-        });
-        closeButton.setOnAction(event -> {
-            Platform.runLater(() -> closeTab(event, tabBox, browser));
-        });
+		closeButton.prefHeightProperty().bind(tabBox.heightProperty().multiply(0.8));
+		closeButton.setOnMouseEntered(event -> {
+			closeButton.setCursor(Cursor.HAND);
+		});
+		closeButton.setOnMouseDragExited(event -> {
+			closeButton.setCursor(Cursor.DEFAULT);
+		});
+		closeButton.setOnAction(event -> {
+			Platform.runLater(() -> closeTab(event, tabBox, browser));
+		});
 
-        tabBox.getChildren().addAll(tabTitle, tabSpacer, closeButton);
+		tabBox.getChildren().addAll(tabTitle, tabSpacer, closeButton);
 
-        tabMap.put(browser, tabBox);
+		tabMap.put(browser, tabBox);
 
-        root.getChildren().add(Math.max(0, root.getChildren().size() - 1), tabBox);
-    }
+		root.getChildren().add(Math.max(0, root.getChildren().size() - 1), tabBox);
+	}
 
-    private void closeTab(Event event, HBox tabBox, CefBrowser browser) {
-        event.consume();
+	private void closeTab(Event event, HBox tabBox, CefBrowser browser) {
+		event.consume();
 
-        root.getChildren().remove(tabBox);
+		root.getChildren().remove(tabBox);
 
-        SwingUtilities.invokeLater(() -> {
-            tabMap.remove(browser);
-            this.parent.closeTab(browser);
-        });
-    }
+		SwingUtilities.invokeLater(() -> {
+			tabMap.remove(browser);
+			this.parent.closeTab(browser);
+		});
+	}
 
-    public void setTabTitle(CefBrowser browser, String title) {
-        final HBox box = tabMap.get(browser);
-        if (box == null) return; // Temporary fix for threading issues
-        final Label tabTitle = (Label) box.getChildren().get(0);
-        tabTitle.setText(title);
-    }
+	public void setTabTitle(CefBrowser browser, String title) {
+		final HBox box = tabMap.get(browser);
+		if (box == null)
+			return; // Temporary fix for threading issues
+		final Label tabTitle = (Label) box.getChildren().get(0);
+		tabTitle.setText(title);
+	}
 
-    public void setCurrentTab(CefBrowser currentBrowser) {
-        for (Map.Entry<CefBrowser, HBox> entry : tabMap.entrySet()) {
-            final HBox tabBox = entry.getValue();
-            final CefBrowser browserKey = entry.getKey();
+	public void setCurrentTab(CefBrowser currentBrowser) {
+		for (Map.Entry<CefBrowser, HBox> entry : tabMap.entrySet()) {
+			final HBox tabBox = entry.getValue();
+			final CefBrowser browserKey = entry.getKey();
 
-            tabBox.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-                boolean isActive = (browserKey == currentBrowser);
-                Paint color = isActive ? this.parent.materialColorScheme.getSurfaceContainer().get() : this.parent.materialColorScheme.getSurface().get();
-                    
-                return new Background(new BackgroundFill(color, new CornerRadii(25), null));
-            }, this.parent.materialColorScheme.getSurfaceContainer(), this.parent.materialColorScheme.getSurface()));
-        }
-    }
+			tabBox.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
+				boolean isActive = (browserKey == currentBrowser);
+				Paint color = isActive ? this.parent.materialColorScheme.getSurfaceContainer().get()
+						: this.parent.materialColorScheme.getSurface().get();
+
+				return new Background(new BackgroundFill(color, new CornerRadii(25), null));
+			}, this.parent.materialColorScheme.getSurfaceContainer(), this.parent.materialColorScheme.getSurface()));
+		}
+	}
 }

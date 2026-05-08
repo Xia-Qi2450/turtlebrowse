@@ -33,6 +33,9 @@ dependencies {
 
     // Ollama for Java
     implementation("io.github.ollama4j:ollama4j:1.1.7")
+
+    // JFoenix library
+    implementation("com.jfoenix:jfoenix:9.0.10")
 }
 
 // Apply a specific Java toolchain. 
