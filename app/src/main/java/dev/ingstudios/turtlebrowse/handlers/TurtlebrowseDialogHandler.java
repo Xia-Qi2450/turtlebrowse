@@ -25,7 +25,7 @@ public class TurtlebrowseDialogHandler implements CefDialogHandler {
                 String rawExts = acceptExtensions.get(i);
 
                 if (desc == null || desc.trim().isEmpty()) {
-                    desc = "Supported Files"; 
+                    desc = "Supported Files";
                 }
 
                 String[] parts = rawExts.split(";");
@@ -45,7 +45,7 @@ public class TurtlebrowseDialogHandler implements CefDialogHandler {
             }
 
             final Vector<String> paths = new Vector<>();
-            
+
             if (mode == FileDialogMode.FILE_DIALOG_OPEN_MULTIPLE) {
                 final List<File> files = chooser.showOpenMultipleDialog(null);
                 if (files == null) {

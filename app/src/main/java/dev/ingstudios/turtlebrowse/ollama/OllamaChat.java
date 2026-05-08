@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import dev.ingstudios.turtlebrowse.tools.specs.FetchToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.SearXNGToolSpec;
 import io.github.ollama4j.Ollama;
 import io.github.ollama4j.exceptions.OllamaException;
@@ -17,77 +18,81 @@ import io.github.ollama4j.models.response.Model;
 import io.github.ollama4j.tools.Tools;
 
 public class OllamaChat {
-    private Ollama ollama;
-    private OllamaChatRequest builder;
-    final private List<OllamaChatMessage> history = new ArrayList<>();
+	private Ollama ollama;
+	private OllamaChatRequest builder;
+	final private List<OllamaChatMessage> history = new ArrayList<>();
 
-    public OllamaChat(String userAgent) throws OllamaException {
-        try {
-            ollama = new Ollama();
-            ollama.setRequestTimeoutSeconds(120);
+	public OllamaChat(String userAgent) throws OllamaException {
+		try {
+			ollama = new Ollama();
+			ollama.setRequestTimeoutSeconds(120);
 
-            final List<Model> models = ollama.listModels();
+			final List<Model> models = ollama.listModels();
 
-            final String chatModel = "gemma4:e2b";
+			final String chatModel = "gemma4:e2b";
 
-            final List<String> modelNames = new ArrayList<>();
-            models.forEach(model -> {
-                final String modelName = model.getName();
-                modelNames.add(modelName);
-            });
+			final List<String> modelNames = new ArrayList<>();
+			models.forEach(model -> {
+				final String modelName = model.getName();
+				modelNames.add(modelName);
+			});
 
-            if (!modelNames.contains(chatModel)) {
-                ollama.pullModel(chatModel, (model, resp) -> {
-                    System.out.printf("Pulling %s: %s\n", model, resp.getStatus());
-                });
-            }
+			if (!modelNames.contains(chatModel)) {
+				ollama.pullModel(chatModel, (model, resp) -> {
+					System.out.printf("Pulling %s: %s\n", model, resp.getStatus());
+				});
+			}
 
-            final Tools.Tool searchToolSpec = new SearXNGToolSpec(userAgent).getSpecification();
-            
-            ollama.registerTool(searchToolSpec);
+			final Tools.Tool searchToolSpec = new SearXNGToolSpec(userAgent).getSpecification();
+			final Tools.Tool fetchToolSpec = new FetchToolSpec(userAgent).getSpecification();
 
-            builder = OllamaChatRequest.builder().withModel(chatModel);
-        } catch (OllamaException e) {
-            System.out.printf("Error while initializing Ollama:", e.getMessage());
-            throw e;
-        }
-    }
+			ollama.registerTool(searchToolSpec);
+			ollama.registerTool(fetchToolSpec);
 
-    public void prompt(String prompt, Consumer<String> onThinkChunk, Consumer<String> onResponseChunk, Consumer<String> onDone, Consumer<String> onError) {
-        System.out.printf("Received prompt: %s\n", prompt);
-        System.out.printf("History: %s", history.toString());
+			builder = OllamaChatRequest.builder().withModel(chatModel);
+		} catch (OllamaException e) {
+			System.out.printf("Error while initializing Ollama:", e.getMessage());
+			throw e;
+		}
+	}
 
-        if (history.size() == 0) {
-            history.add(new OllamaChatMessage(OllamaChatMessageRole.SYSTEM, "You are Gemma, a helpful AI assistant inside the Turtlebrowse browser. Answer the user's questions in a friendly manner."));
-        }
+	public void prompt(String prompt, Consumer<String> onThinkChunk, Consumer<String> onResponseChunk,
+			Consumer<String> onDone, Consumer<String> onError) {
+		System.out.printf("Received prompt: %s\n", prompt);
+		System.out.printf("History: %s", history.toString());
 
-        history.add(new OllamaChatMessage(OllamaChatMessageRole.USER, prompt));
+		if (history.size() == 0) {
+			history.add(new OllamaChatMessage(OllamaChatMessageRole.SYSTEM,
+					"You are Gemma, a helpful AI assistant inside the Turtlebrowse browser. Answer the user's questions in a friendly manner."));
+		}
 
-        final OllamaChatRequest chatRequest = builder.withMessages(history).build();
+		history.add(new OllamaChatMessage(OllamaChatMessageRole.USER, prompt));
 
-        OllamaChatStreamObserver streamObserver = new OllamaChatStreamObserver();
-        streamObserver.setThinkingStreamHandler(new OllamaGenerateTokenHandler() {
-            @Override
-            public void accept(String message) {
-                onThinkChunk.accept(message);
-            }
-        });
-        streamObserver.setResponseStreamHandler(new OllamaGenerateTokenHandler() {
-            @Override
-            public void accept(String message) {
-                onResponseChunk.accept(message);
-            }
-        });
+		final OllamaChatRequest chatRequest = builder.withMessages(history).build();
 
-        try {
-            final OllamaChatResult result = ollama.chat(chatRequest, streamObserver);
-            final OllamaChatMessage assistantMessage = result.getResponseModel().getMessage();
-            history.add(assistantMessage);
-            System.out.printf("History: %s", history.toString());
-            onDone.accept(assistantMessage.getResponse());
-        } catch (OllamaException e) {
-            System.out.printf("Error while chatting: %s\n", e.getMessage());
-            onError.accept("An unexpected error occurred while chatting.");
-        }
-    }
+		OllamaChatStreamObserver streamObserver = new OllamaChatStreamObserver();
+		streamObserver.setThinkingStreamHandler(new OllamaGenerateTokenHandler() {
+			@Override
+			public void accept(String message) {
+				onThinkChunk.accept(message);
+			}
+		});
+		streamObserver.setResponseStreamHandler(new OllamaGenerateTokenHandler() {
+			@Override
+			public void accept(String message) {
+				onResponseChunk.accept(message);
+			}
+		});
+
+		try {
+			final OllamaChatResult result = ollama.chat(chatRequest, streamObserver);
+			final OllamaChatMessage assistantMessage = result.getResponseModel().getMessage();
+			history.add(assistantMessage);
+			System.out.printf("History: %s", history.toString());
+			onDone.accept(assistantMessage.getResponse());
+		} catch (OllamaException e) {
+			System.out.printf("Error while chatting: %s\n", e.getMessage());
+			onError.accept("An unexpected error occurred while chatting.");
+		}
+	}
 }

@@ -17,7 +17,7 @@ public class TurtlebrowseDownloadHandler extends CefDownloadHandlerAdapter {
             final FileChooser chooser = new FileChooser();
             chooser.setTitle("Save File As...");
             chooser.setInitialFileName(suggestedName);
-            
+
             final File selectedFile = chooser.showSaveDialog(null);
 
             if (selectedFile != null) {

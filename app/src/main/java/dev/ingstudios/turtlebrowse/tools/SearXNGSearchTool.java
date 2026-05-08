@@ -14,100 +14,98 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class SearXNGSearchTool {
-    private HttpClient httpClient;
-    private String userAgent;
+	private final HttpClient httpClient = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
+	private String userAgent;
 
-    public SearXNGSearchTool(String userAgent) {
-        this.userAgent = userAgent;
-        
-        httpClient = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
-    }
+	public SearXNGSearchTool(String userAgent) {
+		this.userAgent = userAgent;
+	}
 
-    public SearchResult searchWeb(String query) throws Exception {
-        String url = "http://localhost:8080/?q=" + 
-                     java.net.URLEncoder.encode(query, java.nio.charset.StandardCharsets.UTF_8) + 
-                     "&format=json";
+	public SearchResult searchWeb(String query) throws Exception {
+		String url = "http://localhost:8080/?q=" +
+				java.net.URLEncoder.encode(query, java.nio.charset.StandardCharsets.UTF_8) +
+				"&format=json";
 
-        System.out.printf("Navigated to: %s\n", url);
+		System.out.printf("Navigated to: %s\n", url);
 
-        try {
-            System.out.printf("User Agent: %s\n", userAgent);
-            System.out.println("Creating request...");
-            HttpRequest request;
-            if (userAgent != null) {
-                request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("User-Agent", userAgent)
-                .GET()
-                .build();
-            } else {
-                request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .GET()
-                .build();
-            }
-            System.out.println("After creating request.");
+		try {
+			System.out.printf("User Agent: %s\n", userAgent);
+			System.out.println("Creating request...");
+			HttpRequest request;
+			if (userAgent != null) {
+				request = HttpRequest.newBuilder()
+						.uri(URI.create(url))
+						.header("User-Agent", userAgent)
+						.GET()
+						.build();
+			} else {
+				request = HttpRequest.newBuilder()
+						.uri(URI.create(url))
+						.GET()
+						.build();
+			}
+			System.out.println("After creating request.");
 
-            System.out.printf("request is null: %b\n", request == null);
+			System.out.printf("request is null: %b\n", request == null);
 
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.printf("response is null: %b\n", response == null);
+			final HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+			System.out.printf("response is null: %b\n", response == null);
 
-            if (response != null) {
-                System.out.printf("response body is null: %b\n", response.body() == null);
-                return parseWithGson(response.body());
-            }
-        } catch (IOException e) {
-            System.err.println("Search failed (IO Exception): " + e.getMessage());
-            throw new IOException("An IO exception occurred while fetching results");
-        } catch (InterruptedException e) {
-            System.err.println("Search failed (Interrupted Exception): " + e.getMessage());
-            throw new InterruptedException("The network connection was interrupted while fetching results");
-        } catch (Exception e) {
-            System.err.println("Search failed (" + e.getClass().getSimpleName() + "): " + e.getMessage());
-            throw new Exception("An unknown error occurred while fetching results");
-        }
+			if (response != null && response.statusCode() == 200) {
+				System.out.printf("response body is null: %b\n", response.body() == null);
+				return parseWithGson(response.body());
+			}
+		} catch (IOException e) {
+			System.err.println("Search failed (IO Exception): " + e.getMessage());
+			throw new IOException("An IO exception occurred while fetching results");
+		} catch (InterruptedException e) {
+			System.err.println("Search failed (Interrupted Exception): " + e.getMessage());
+			throw new InterruptedException("The network connection was interrupted while fetching results");
+		} catch (Exception e) {
+			System.err.println("Search failed (" + e.getClass().getSimpleName() + "): " + e.getMessage());
+			throw new Exception("An unknown error occurred while fetching results");
+		}
 
-        return new SearchResult(new ArrayList<>());
-    }
+		return new SearchResult(new ArrayList<>());
+	}
 
-    private SearchResult parseWithGson(String jsonBody) {
-        System.out.printf("JSON body: %s\n", jsonBody);
+	private SearchResult parseWithGson(String jsonBody) {
+		System.out.printf("JSON body: %s\n", jsonBody);
 
-        JsonObject json = JsonParser.parseString(jsonBody).getAsJsonObject();
+		JsonObject json = JsonParser.parseString(jsonBody).getAsJsonObject();
 
-        List<ResultItem> resultItems = new ArrayList<>();
+		List<ResultItem> resultItems = new ArrayList<>();
 
-        JsonArray results = json.getAsJsonArray("results");
-        if (results != null && results.size() > 0) {
-            for (JsonElement res : results) {
-                final JsonObject jsonObject = res.getAsJsonObject();
-                final String title = jsonObject.get("title").getAsString();
-                final String content = jsonObject.get("content").getAsString();
-                final String url = jsonObject.get("url").getAsString();
-                resultItems.add(new ResultItem(title, content,url));
-            }
-        }
+		JsonArray results = json.getAsJsonArray("results");
+		if (results != null && results.size() > 0) {
+			for (JsonElement res : results) {
+				final JsonObject jsonObject = res.getAsJsonObject();
+				final String title = jsonObject.get("title").getAsString();
+				final String content = jsonObject.get("content").getAsString();
+				final String url = jsonObject.get("url").getAsString();
+				resultItems.add(new ResultItem(title, content, url));
+			}
+		}
 
-        return new SearchResult(resultItems);
-    }
+		return new SearchResult(resultItems);
+	}
 
-    public record SearchResult(List<ResultItem> links) {
-        @Override
-        public String toString() {
-            System.out.printf("Links: %s", links.toString());
-            final List<String> stringLinks = new ArrayList<>();
-            links.forEach((link) -> {
-                stringLinks.add(link.toString());
-            });
-            return stringLinks.toString();
-        }
-    }
+	public record SearchResult(List<ResultItem> links) {
+		@Override
+		public String toString() {
+			System.out.printf("Links: %s", links.toString());
+			final List<String> stringLinks = new ArrayList<>();
+			links.forEach((link) -> {
+				stringLinks.add(link.toString());
+			});
+			return stringLinks.toString();
+		}
+	}
 
-    public record ResultItem(String title, String content, String url) {
-        @Override
-        public String toString() {
-            return "{title:" + title + ",content:" + content + "url:" + url + "}";
-        }
-    }
+	public record ResultItem(String title, String content, String url) {
+		@Override
+		public String toString() {
+			return "{title:" + title + ",content:" + content + "url:" + url + "}";
+		}
+	}
 }
