@@ -1,4 +1,4 @@
-package dev.ingstudios.turtlebrowse;
+package dev.ingstudios.turtlebrowse.components;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;

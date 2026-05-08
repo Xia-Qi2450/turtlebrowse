@@ -1,4 +1,4 @@
-package dev.ingstudios.turtlebrowse;
+package dev.ingstudios.turtlebrowse.components;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package dev.ingstudios.turtlebrowse;
+package dev.ingstudios.turtlebrowse.tools;
 
 import java.io.IOException;
 import java.net.URI;

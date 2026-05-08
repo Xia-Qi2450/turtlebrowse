@@ -3,6 +3,8 @@ package dev.ingstudios.turtlebrowse;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import dev.ingstudios.turtlebrowse.components.MainWindow;
+
 public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {

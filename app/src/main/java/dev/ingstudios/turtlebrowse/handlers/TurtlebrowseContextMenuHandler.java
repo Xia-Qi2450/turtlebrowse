@@ -1,4 +1,4 @@
-package dev.ingstudios.turtlebrowse;
+package dev.ingstudios.turtlebrowse.handlers;
 
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;

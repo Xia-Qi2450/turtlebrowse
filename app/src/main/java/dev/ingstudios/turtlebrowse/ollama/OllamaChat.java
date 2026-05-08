@@ -1,9 +1,10 @@
-package dev.ingstudios.turtlebrowse;
+package dev.ingstudios.turtlebrowse.ollama;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import dev.ingstudios.turtlebrowse.tools.specs.SearXNGToolSpec;
 import io.github.ollama4j.Ollama;
 import io.github.ollama4j.exceptions.OllamaException;
 import io.github.ollama4j.models.chat.OllamaChatMessage;

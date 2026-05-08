@@ -1,7 +1,8 @@
-package dev.ingstudios.turtlebrowse;
+package dev.ingstudios.turtlebrowse.tools.specs;
 
 import java.util.Map;
 
+import dev.ingstudios.turtlebrowse.tools.SearXNGSearchTool;
 import io.github.ollama4j.tools.Tools;
 
 public class SearXNGToolSpec {

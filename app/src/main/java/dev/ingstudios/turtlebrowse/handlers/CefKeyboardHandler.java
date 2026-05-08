@@ -1,9 +1,11 @@
-package dev.ingstudios.turtlebrowse;
+package dev.ingstudios.turtlebrowse.handlers;
 
 import java.awt.event.KeyEvent;
 import org.cef.browser.CefBrowser;
 import org.cef.handler.CefKeyboardHandlerAdapter;
 import org.cef.misc.EventFlags;
+
+import dev.ingstudios.turtlebrowse.components.MainWindow;
 
 public class CefKeyboardHandler extends CefKeyboardHandlerAdapter {
     private MainWindow parent;

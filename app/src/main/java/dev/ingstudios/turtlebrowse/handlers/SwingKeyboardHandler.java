@@ -1,8 +1,11 @@
-package dev.ingstudios.turtlebrowse;
+package dev.ingstudios.turtlebrowse.handlers;
 
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
+
+import dev.ingstudios.turtlebrowse.components.MainWindow;
+
 import java.awt.AWTEvent;
 
 public class SwingKeyboardHandler {

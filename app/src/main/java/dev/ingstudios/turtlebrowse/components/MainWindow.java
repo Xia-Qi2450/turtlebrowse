@@ -1,4 +1,4 @@
-package dev.ingstudios.turtlebrowse;
+package dev.ingstudios.turtlebrowse.components;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -38,6 +38,13 @@ import org.glavo.monetfx.beans.property.SimpleColorSchemeProperty;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import dev.ingstudios.turtlebrowse.handlers.CefKeyboardHandler;
+import dev.ingstudios.turtlebrowse.handlers.SwingKeyboardHandler;
+import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseContextMenuHandler;
+import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseDialogHandler;
+import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseDownloadHandler;
+import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseSchemeHandlerFactory;
+import dev.ingstudios.turtlebrowse.ollama.OllamaChat;
 import io.github.ollama4j.exceptions.OllamaException;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -144,10 +151,10 @@ public class MainWindow extends JFrame {
                     browser.setFocus(false);
                     return;
                 }
-                
+
                 isUiFocused.set(false);
             }
-            
+
             @Override
             public boolean onSetFocus(CefBrowser browser, FocusSource source) {
                 if (isUiFocused.get()) {
@@ -180,7 +187,7 @@ public class MainWindow extends JFrame {
                 Platform.runLater(() -> {
                     tabBar.setTabTitle(browser, title);
                 });
-                
+
                 SwingUtilities.invokeLater(() -> {
                     updateWindowTitle(title);
                 });
@@ -359,7 +366,7 @@ public class MainWindow extends JFrame {
     public void closeTab(CefBrowser browser) {
         int indexToClose = openedBrowserTabs.indexOf(browser);
         if (indexToClose == -1) return;
-        
+
         openedBrowserTabs.remove(browser);
         titleMap.remove(browser);
 
@@ -413,10 +420,10 @@ public class MainWindow extends JFrame {
                 addressBar.updateUrl(browser.getURL());
                 tabBar.setCurrentTab(browser);
             });
-            
+
             browserContainer.removeAll();
             browserContainer.add(ui, BorderLayout.CENTER);
-            
+
             browserContainer.revalidate();
             browserContainer.repaint();
 
@@ -498,9 +505,9 @@ public class MainWindow extends JFrame {
 
             case "GET_THEME": {
                 final Color accentColor = Platform.getPreferences().getAccentColor();
-                String hex = String.format("#%02x%02x%02x", 
-                    (int) (accentColor.getRed() * 255), 
-                    (int) (accentColor.getGreen() * 255), 
+                String hex = String.format("#%02x%02x%02x",
+                    (int) (accentColor.getRed() * 255),
+                    (int) (accentColor.getGreen() * 255),
                     (int) (accentColor.getBlue() * 255));
                 return hex;
             }

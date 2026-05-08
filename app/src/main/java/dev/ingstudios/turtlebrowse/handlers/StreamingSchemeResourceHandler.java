@@ -1,4 +1,4 @@
-package dev.ingstudios.turtlebrowse;
+package dev.ingstudios.turtlebrowse.handlers;
 
 import java.io.IOException;
 import java.io.PipedInputStream;
@@ -15,6 +15,9 @@ import org.cef.network.CefRequest;
 import org.cef.network.CefResponse;
 
 import com.google.gson.Gson;
+
+import dev.ingstudios.turtlebrowse.components.MainWindow;
+import dev.ingstudios.turtlebrowse.ollama.OllamaChat;
 
 public class StreamingSchemeResourceHandler extends CefResourceHandlerAdapter {
     private PipedInputStream pipedIn;

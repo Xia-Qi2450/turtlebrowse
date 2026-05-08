@@ -1,4 +1,4 @@
-package dev.ingstudios.turtlebrowse;
+package dev.ingstudios.turtlebrowse.handlers;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +15,8 @@ import org.cef.network.CefPostDataElement;
 import org.cef.network.CefRequest;
 import org.cef.network.CefResponse;
 
+import dev.ingstudios.turtlebrowse.components.MainWindow;
+
 public class TurtlebrowseSchemeResourceHandler extends CefResourceHandlerAdapter {
     private byte[] data;
     private int offset = 0;
@@ -29,7 +31,7 @@ public class TurtlebrowseSchemeResourceHandler extends CefResourceHandlerAdapter
         try (var inputStream = getClass().getResourceAsStream(resourcePath)) {
             if (inputStream != null) {
                 this.data = inputStream.readAllBytes();
-                
+
                 if (resourcePath.endsWith(".js")) mimeType = "application/javascript";
                 else if (resourcePath.endsWith(".css")) mimeType = "text/css";
                 else if (resourcePath.endsWith(".svg")) mimeType = "image/svg+xml";
