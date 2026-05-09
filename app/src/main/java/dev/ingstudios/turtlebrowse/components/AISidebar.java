@@ -5,7 +5,6 @@ import java.awt.Component;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 
 import org.cef.CefClient;
 import org.cef.browser.CefBrowser;
@@ -30,23 +29,17 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Paint;
 
 public class AISidebar extends JPanel {
-	private final int MAX_WIDTH = 500;
-	private final float EASING_FACTOR = 0.15f;
-
-	private final CefBrowser browser;
 	private final Component ui;
-	private Timer animationTimer;
-	private int targetWidth = 0;
-	private float currentWidth = 0;
 	private final java.awt.Dimension preferredDim = new java.awt.Dimension(0, 800);
+	public boolean isOpen = false;
 
 	public AISidebar(CefClient client, MainWindow parent, boolean useOsr, BooleanProperty isUiFocused) {
 		this.setLayout(new java.awt.BorderLayout());
-		this.setPreferredSize(new java.awt.Dimension(MAX_WIDTH, 800));
+		this.setPreferredSize(preferredDim);
 
 		final JFXPanel actionsBarJfxPanel = new JFXPanel();
 		actionsBarJfxPanel.setFocusable(true);
-		actionsBarJfxPanel.setPreferredSize(new java.awt.Dimension(MAX_WIDTH, 50));
+		actionsBarJfxPanel.setPreferredSize(new java.awt.Dimension(preferredDim.width, 50));
 
 		Platform.runLater(() -> {
 			final HBox actionsBar = new HBox();
@@ -72,7 +65,7 @@ public class AISidebar extends JPanel {
 				closeButton.setCursor(Cursor.DEFAULT);
 			});
 			closeButton.setOnAction(event -> {
-				toggleSidebar(false);
+				closeSidebar();
 			});
 
 			actionsBar.getChildren().addAll(closeButton);
@@ -84,7 +77,6 @@ public class AISidebar extends JPanel {
 		});
 
 		final CefBrowser aiBrowser = client.createBrowser("turtlebrowse://chat", useOsr, false);
-		browser = aiBrowser;
 		final Component browserComponent = aiBrowser.getUIComponent();
 		ui = browserComponent;
 
@@ -103,41 +95,25 @@ public class AISidebar extends JPanel {
 
 		this.add(actionsBarJfxPanel, BorderLayout.NORTH);
 		this.add(browserComponent, BorderLayout.CENTER);
-
-		animationTimer = new Timer(10, e -> animate());
 	}
 
-	private void animate() {
-		final float diff = targetWidth - currentWidth;
-
-		if (Math.abs(diff) < 1.0f) {
-			currentWidth = targetWidth;
-			animationTimer.stop();
-			if (currentWidth == 0) {
-				ui.setVisible(false);
-				browser.setFocus(false);
-				this.setVisible(false);
-			}
+	public void toggleSidebar() {
+		if (isOpen) {
+			closeSidebar();
 		} else {
-			currentWidth += diff * EASING_FACTOR;
+			openSidebar();
 		}
-
-		preferredDim.width = (int) currentWidth;
-		this.setPreferredSize(preferredDim);
-		this.revalidate();
 	}
 
-	public void toggleSidebar(boolean open) {
-		targetWidth = open ? 500 : 0;
+	public void openSidebar() {
+		ui.setVisible(true);
+		preferredDim.width = 500;
+		isOpen = true;
+	}
 
-		if (open) {
-			ui.setVisible(true);
-			browser.setFocus(true);
-			this.setVisible(true);
-		}
-
-		if (!animationTimer.isRunning()) {
-			animationTimer.start();
-		}
+	public void closeSidebar() {
+		preferredDim.width = 0;
+		ui.setVisible(false);
+		isOpen = false;
 	}
 }

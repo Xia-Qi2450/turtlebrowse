@@ -162,11 +162,31 @@ public class AddressBar extends JPanel {
 				addressFieldFocused = true;
 			});
 
-			root.getChildren().addAll(backButton, forwardButton, reloadButton, addressField);
+			final Button aiButton = new JFXButton("✨");
+			aiButton.setGraphic(new FontIcon(Material2OutlinedAL.ASSISTANT));
+			aiButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+			aiButton.setStyle("-fx-padding: 10px;");
+			aiButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
+				final Paint backgroundColor = this.parent.materialColorScheme.getSurfaceContainer().get();
+				return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
+			}, this.parent.materialColorScheme.getSurfaceContainer()));
+			aiButton.setOnMouseEntered(event -> {
+				aiButton.setCursor(Cursor.HAND);
+			});
+			aiButton.setOnMouseDragExited(event -> {
+				aiButton.setCursor(Cursor.DEFAULT);
+			});
+			aiButton.setOnAction(event -> {
+				System.out.println("AI button clicked.");
+				parent.aiSidebar.toggleSidebar();
+			});
+
+			root.getChildren().addAll(backButton, forwardButton, reloadButton, addressField, aiButton);
 
 			backButton.prefWidthProperty().bind(backButton.heightProperty());
 			forwardButton.prefWidthProperty().bind(forwardButton.heightProperty());
 			reloadButton.prefWidthProperty().bind(reloadButton.heightProperty());
+			aiButton.prefWidthProperty().bind(aiButton.prefHeightProperty());
 
 			HBox.setHgrow(addressField, Priority.ALWAYS);
 			addressField.setMaxWidth(Double.MAX_VALUE);
