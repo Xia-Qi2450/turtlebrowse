@@ -4,6 +4,7 @@ import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
 import org.cef.callback.CefContextMenuParams;
 import org.cef.callback.CefMenuModel;
+import org.cef.callback.CefStringVisitor;
 import org.cef.handler.CefContextMenuHandlerAdapter;
 
 import dev.ingstudios.turtlebrowse.components.MainWindow;
@@ -49,7 +50,7 @@ public class TurtlebrowseContextMenuHandler extends CefContextMenuHandlerAdapter
 		} else if (commandId == ID_REWRITE) {
 			// TODO(developer): Add rewrite
 		} else if (commandId == ID_SUMMARIZE_PAGE) {
-			// TODO(developer): Add summarize page
+			summarizePage(browser);
 		} else if (commandId == ID_DEVTOOLS) {
 			browser.openDevTools();
 		}
@@ -59,5 +60,14 @@ public class TurtlebrowseContextMenuHandler extends CefContextMenuHandlerAdapter
 
 	private void summarizeSelection(String selection) {
 		parent.aiSidebar.summarize(selection);
+	}
+
+	private void summarizePage(CefBrowser browser) {
+		browser.getSource(new CefStringVisitor() {
+			@Override
+			public void visit(String html) {
+				TurtlebrowseContextMenuHandler.this.parent.aiSidebar.summarizePage(html);
+			}
+		});
 	}
 }

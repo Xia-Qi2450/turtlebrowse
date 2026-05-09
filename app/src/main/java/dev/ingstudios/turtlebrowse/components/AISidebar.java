@@ -145,4 +145,21 @@ public class AISidebar extends JPanel {
 			}
 		}, 500, TimeUnit.MILLISECONDS);
 	}
+
+	public void summarizePage(String html) {
+		if (!isOpen)
+			openSidebar();
+
+		scheduler.schedule(() -> {
+			try {
+				final String jsonText = new ObjectMapper().writeValueAsString("Summarize this page: " + html);
+				final JSQueueItem item = new JSQueueItem(aiBrowser.getIdentifier(),
+						"window.addPrompt(" + jsonText + ");", "turtlebrowse://chat");
+
+				aiBrowser.getMainFrame().executeJavaScript(item.code(), item.url(), 0);
+			} catch (JsonProcessingException e) {
+				System.err.println(e.getMessage());
+			}
+		}, 500, TimeUnit.MILLISECONDS);
+	}
 }

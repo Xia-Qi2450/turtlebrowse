@@ -36,6 +36,9 @@ dependencies {
 
     // JFoenix library
     implementation("com.jfoenix:jfoenix:9.0.10")
+
+    // HTML to Markdwon
+    implementation("dev.kreuzberg:html-to-markdown:3.4.0-rc.45")
 }
 
 // Apply a specific Java toolchain. 
