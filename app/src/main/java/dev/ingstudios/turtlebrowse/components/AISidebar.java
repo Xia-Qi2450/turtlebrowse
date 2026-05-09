@@ -2,6 +2,9 @@ package dev.ingstudios.turtlebrowse.components;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -37,10 +40,9 @@ public class AISidebar extends JPanel {
 	private final java.awt.Dimension preferredDim = new java.awt.Dimension(0, 800);
 	public boolean isOpen = false;
 	private final CefBrowser aiBrowser;
-	private final MainWindow parent;
+	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
 	public AISidebar(CefClient client, MainWindow parent, boolean useOsr, BooleanProperty isUiFocused) {
-		this.parent = parent;
 		this.setLayout(new java.awt.BorderLayout());
 		this.setPreferredSize(preferredDim);
 
@@ -131,18 +133,16 @@ public class AISidebar extends JPanel {
 		if (!isOpen)
 			openSidebar();
 
-		try {
-			final String jsonText = new ObjectMapper().writeValueAsString("Summarize this: " + text);
-			final JSQueueItem item = new JSQueueItem(aiBrowser.getIdentifier(),
-					"window.addPrompt(" + jsonText + ");", "turtlebrowse://chat");
+		scheduler.schedule(() -> {
+			try {
+				final String jsonText = new ObjectMapper().writeValueAsString("Summarize this: " + text);
+				final JSQueueItem item = new JSQueueItem(aiBrowser.getIdentifier(),
+						"window.addPrompt(" + jsonText + ");", "turtlebrowse://chat");
 
-			if (parent.loadHandler.isBrowserReady(aiBrowser.getIdentifier())) {
 				aiBrowser.getMainFrame().executeJavaScript(item.code(), item.url(), 0);
-			} else {
-				parent.loadHandler.addToQueueStack(item);
+			} catch (JsonProcessingException e) {
+				System.err.println(e.getMessage());
 			}
-		} catch (JsonProcessingException e) {
-			System.err.println(e.getMessage());
-		}
+		}, 500, TimeUnit.MILLISECONDS);
 	}
 }

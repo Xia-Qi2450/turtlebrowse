@@ -18,17 +18,11 @@ public class TurtlebrowseLoadHandler extends CefLoadHandlerAdapter {
 		for (JSQueueItem item : queueStack) {
 			System.out.printf("Item: %s\n", item.code);
 			if (item.isSame(browser.getIdentifier())) {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
 				browser.getMainFrame().executeJavaScript(item.code, item.url, 0);
 				toRemove.add(item);
 			}
 		}
 		queueStack.removeAll(toRemove);
-		browser.onBeforeClose();
 	}
 
 	public void addToQueueStack(JSQueueItem item) {
