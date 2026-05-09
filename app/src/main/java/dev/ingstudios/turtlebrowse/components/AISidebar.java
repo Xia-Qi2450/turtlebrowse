@@ -11,6 +11,8 @@ import org.cef.browser.CefBrowser;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2OutlinedAL;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfoenix.controls.JFXButton;
 
 import javafx.application.Platform;
@@ -32,6 +34,7 @@ public class AISidebar extends JPanel {
 	private final Component ui;
 	private final java.awt.Dimension preferredDim = new java.awt.Dimension(0, 800);
 	public boolean isOpen = false;
+	private final CefBrowser aiBrowser;
 
 	public AISidebar(CefClient client, MainWindow parent, boolean useOsr, BooleanProperty isUiFocused) {
 		this.setLayout(new java.awt.BorderLayout());
@@ -76,7 +79,7 @@ public class AISidebar extends JPanel {
 			actionsBar.prefHeightProperty().bind(actionsBarScene.heightProperty());
 		});
 
-		final CefBrowser aiBrowser = client.createBrowser("turtlebrowse://chat", useOsr, false);
+		aiBrowser = client.createBrowser("turtlebrowse://chat", useOsr, false);
 		final Component browserComponent = aiBrowser.getUIComponent();
 		ui = browserComponent;
 
@@ -106,14 +109,31 @@ public class AISidebar extends JPanel {
 	}
 
 	public void openSidebar() {
+		System.out.println("Opening sidebar...");
 		ui.setVisible(true);
 		preferredDim.width = 500;
 		isOpen = true;
+		this.revalidate();
 	}
 
 	public void closeSidebar() {
 		preferredDim.width = 0;
 		ui.setVisible(false);
 		isOpen = false;
+		this.revalidate();
+	}
+
+	public void summarize(String text) {
+		System.out.printf("Attempting to summarize %s...\n", text);
+
+		if (isOpen == false)
+			openSidebar();
+
+		try {
+			String jsonText = new ObjectMapper().writeValueAsString("Summarize this: " + text);
+			aiBrowser.getMainFrame().executeJavaScript("window.addPrompt(" + jsonText + ");", "turtlebrowse://chat", 0);
+		} catch (JsonProcessingException e) {
+			System.err.println(e.getMessage());
+		}
 	}
 }

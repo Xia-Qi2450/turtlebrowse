@@ -8,6 +8,8 @@ const prompts = ref<Conversation[]>([]);
 const isGenerating = ref<boolean>(false);
 
 function sendPrompt(conversation: Conversation) {
+	prompt.value = conversation.user;
+
 	prompts.value.push(conversation);
 
 	const currentConversation = prompts.value[prompts.value.length - 1] as Conversation;

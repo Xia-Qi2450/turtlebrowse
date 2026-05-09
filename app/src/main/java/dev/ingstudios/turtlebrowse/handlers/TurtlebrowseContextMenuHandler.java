@@ -6,10 +6,18 @@ import org.cef.callback.CefContextMenuParams;
 import org.cef.callback.CefMenuModel;
 import org.cef.handler.CefContextMenuHandlerAdapter;
 
+import dev.ingstudios.turtlebrowse.components.MainWindow;
+
 public class TurtlebrowseContextMenuHandler extends CefContextMenuHandlerAdapter {
 	private static final int ID_SUMMARIZE = CefMenuModel.MenuId.MENU_ID_USER_FIRST + 1;
 	private static final int ID_REWRITE = CefMenuModel.MenuId.MENU_ID_USER_FIRST + 2;
 	private static final int ID_SUMMARIZE_PAGE = CefMenuModel.MenuId.MENU_ID_USER_FIRST + 3;
+	private static final int ID_DEVTOOLS = CefMenuModel.MenuId.MENU_ID_USER_FIRST + 4;
+	private final MainWindow parent;
+
+	public TurtlebrowseContextMenuHandler(MainWindow parent) {
+		this.parent = parent;
+	}
 
 	@Override
 	public void onBeforeContextMenu(CefBrowser browser, CefFrame frame, CefContextMenuParams params,
@@ -26,6 +34,7 @@ public class TurtlebrowseContextMenuHandler extends CefContextMenuHandlerAdapter
 		}
 
 		model.addItem(ID_SUMMARIZE_PAGE, "Summarize page with AI");
+		model.addItem(ID_DEVTOOLS, "Open DevTools");
 	}
 
 	@Override
@@ -35,13 +44,20 @@ public class TurtlebrowseContextMenuHandler extends CefContextMenuHandlerAdapter
 
 		if (commandId == ID_SUMMARIZE) {
 			System.out.printf("Selected: %s\n", selectedText);
+			summarizeSelection(selectedText);
 			return true;
 		} else if (commandId == ID_REWRITE) {
 			// TODO(developer): Add rewrite
 		} else if (commandId == ID_SUMMARIZE_PAGE) {
 			// TODO(developer): Add summarize page
+		} else if (commandId == ID_DEVTOOLS) {
+			browser.openDevTools();
 		}
 
 		return false;
+	}
+
+	private void summarizeSelection(String selection) {
+		parent.aiSidebar.summarize(selection);
 	}
 }

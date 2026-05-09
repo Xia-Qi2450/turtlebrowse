@@ -218,7 +218,7 @@ public class MainWindow extends JFrame {
 
 		cefClient.addDownloadHandler(new TurtlebrowseDownloadHandler());
 
-		cefClient.addContextMenuHandler(new TurtlebrowseContextMenuHandler());
+		cefClient.addContextMenuHandler(new TurtlebrowseContextMenuHandler(this));
 
 		try {
 			ollamaSession = new OllamaChat(USER_AGENT);

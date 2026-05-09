@@ -2,8 +2,6 @@ import { usePrompt } from "@/composables/prompt";
 import type { AIWindow } from "@/interfaces/AIWindow";
 import type { Conversation } from "@/interfaces/Conversation";
 
-const { sendPrompt } = usePrompt();
-
 export function promptStreaming(prompt: string, onThink: (chunk: string) => void, onResponse: (chunk: string) => void, onFinish: (response: string) => void) {
     const source = new EventSource(`turtlebrowse://api/prompt-stream?prompt=${encodeURIComponent(prompt)}`);
     console.log('EventSource created:', source.readyState);
@@ -39,7 +37,10 @@ export function promptStreaming(prompt: string, onThink: (chunk: string) => void
 }
 
 export function registerChatBridge() {
+	console.log('Attempting to register chat bridge...');
+	const { sendPrompt } = usePrompt();
 	(window as unknown as AIWindow).addPrompt = (prompt) => {
+		console.log('Adding prompt:', prompt);
 		const conv: Conversation = {
 			key: window.crypto.randomUUID(),
 			user: prompt,
@@ -50,4 +51,5 @@ export function registerChatBridge() {
 		}
 		sendPrompt(conv);
 	};
+	console.log('Window add prompt:', (window as unknown as AIWindow).addPrompt);
 }
