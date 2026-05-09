@@ -3,7 +3,6 @@ package dev.ingstudios.turtlebrowse.components;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Image;
-import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -26,11 +25,7 @@ import org.cef.CefSettings;
 import org.cef.OS;
 import org.cef.CefApp.CefAppState;
 import org.cef.browser.CefBrowser;
-import org.cef.browser.CefFrame;
 import org.cef.callback.CefSchemeRegistrar;
-import org.cef.handler.CefDisplayHandlerAdapter;
-import org.cef.handler.CefFocusHandlerAdapter;
-import org.cef.handler.CefLifeSpanHandlerAdapter;
 import org.glavo.monetfx.ColorScheme;
 import org.glavo.monetfx.beans.property.ColorSchemeProperty;
 import org.glavo.monetfx.beans.property.SimpleColorSchemeProperty;
@@ -42,7 +37,11 @@ import dev.ingstudios.turtlebrowse.handlers.CefKeyboardHandler;
 import dev.ingstudios.turtlebrowse.handlers.SwingKeyboardHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseContextMenuHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseDialogHandler;
+import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseDisplayHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseDownloadHandler;
+import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseFocusHandler;
+import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseLifeSpanHandler;
+import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseLoadHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseSchemeHandlerFactory;
 import dev.ingstudios.turtlebrowse.ollama.OllamaChat;
 import io.github.ollama4j.exceptions.OllamaException;
@@ -67,13 +66,15 @@ public class MainWindow extends JFrame {
 	private JPanel root;
 	private JPanel browserContainer;
 	public AddressBar addressBar;
-	private TabBar tabBar;
-	private final Map<CefBrowser, String> titleMap = new HashMap<>();
+	public TabBar tabBar;
+	public final Map<CefBrowser, String> titleMap = new HashMap<>();
 	public final BooleanProperty isUiFocused = new SimpleBooleanProperty(false);
 	public ColorSchemeProperty materialColorScheme = new SimpleColorSchemeProperty(
 			ColorScheme.fromSeed(Color.web("#BDCF47")));
 	private OllamaChat ollamaSession;
 	public AISidebar aiSidebar;
+	private final Gson gson = new Gson();
+	public final TurtlebrowseLoadHandler loadHandler = new TurtlebrowseLoadHandler();
 
 	public MainWindow() {
 		super("Turtlebrowse");
@@ -129,42 +130,7 @@ public class MainWindow extends JFrame {
 		// Keyboard handler (Swing)
 		new SwingKeyboardHandler(this, START_URL);
 
-		cefClient.addFocusHandler(new CefFocusHandlerAdapter() {
-			@Override
-			public void onGotFocus(CefBrowser browser) {
-				if (isUiFocused.get()) {
-					browser.setFocus(false);
-					return;
-				}
-
-				SwingUtilities.invokeLater(() -> {
-					if (!isUiFocused.get()) {
-						KeyboardFocusManager.getCurrentKeyboardFocusManager().clearFocusOwner();
-						browser.setFocus(true);
-					} else {
-						browser.setFocus(false);
-					}
-				});
-			}
-
-			@Override
-			public void onTakeFocus(CefBrowser browser, boolean next) {
-				if (!isUiFocused.get()) {
-					browser.setFocus(false);
-					return;
-				}
-
-				isUiFocused.set(false);
-			}
-
-			@Override
-			public boolean onSetFocus(CefBrowser browser, FocusSource source) {
-				if (isUiFocused.get()) {
-					System.out.println("Blocked browser focus attempt while UI is active.");
-				}
-				return false;
-			}
-		});
+		cefClient.addFocusHandler(new TurtlebrowseFocusHandler(this));
 
 		// Top panel (address + tab)
 		final JPanel topPanel = new JPanel(new BorderLayout());
@@ -179,46 +145,12 @@ public class MainWindow extends JFrame {
 		root.add(topPanel, BorderLayout.NORTH);
 		root.add(bottomPanel, BorderLayout.CENTER);
 
-		cefClient.addDisplayHandler(new CefDisplayHandlerAdapter() {
-			@Override
-			public void onTitleChange(CefBrowser browser, String title) {
-				if (browser != currentBrowser)
-					return;
-
-				titleMap.put(browser, title);
-
-				Platform.runLater(() -> {
-					tabBar.setTabTitle(browser, title);
-				});
-
-				SwingUtilities.invokeLater(() -> {
-					updateWindowTitle(title);
-				});
-			}
-
-			@Override
-			public void onAddressChange(CefBrowser cefBrowser, CefFrame frame, String url) {
-				if (cefBrowser != currentBrowser)
-					return;
-				System.out.print("Navigated to:");
-				System.out.println(url);
-				Platform.runLater(() -> addressBar.updateUrl(url));
-			}
-		});
-
-		cefClient.addLifeSpanHandler(new CefLifeSpanHandlerAdapter() {
-			@Override
-			public boolean onBeforePopup(CefBrowser browser, CefFrame frame, String targetUrl, String targetFrameName) {
-				createTab(targetUrl);
-				return true;
-			}
-		});
-
+		cefClient.addDisplayHandler(new TurtlebrowseDisplayHandler(this));
+		cefClient.addLifeSpanHandler(new TurtlebrowseLifeSpanHandler(this));
 		cefClient.addDialogHandler(new TurtlebrowseDialogHandler());
-
 		cefClient.addDownloadHandler(new TurtlebrowseDownloadHandler());
-
 		cefClient.addContextMenuHandler(new TurtlebrowseContextMenuHandler(this));
+		cefClient.addLoadHandler(loadHandler);
 
 		try {
 			ollamaSession = new OllamaChat(USER_AGENT);
@@ -493,8 +425,6 @@ public class MainWindow extends JFrame {
 	}
 
 	public String handleApiFromClient(String action, String body) {
-		final Gson gson = new Gson();
-
 		@SuppressWarnings("null")
 		JsonObject params = gson.fromJson(body, JsonObject.class);
 

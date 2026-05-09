@@ -1,0 +1,43 @@
+package dev.ingstudios.turtlebrowse.handlers;
+
+import javax.swing.SwingUtilities;
+
+import org.cef.browser.CefBrowser;
+import org.cef.browser.CefFrame;
+import org.cef.handler.CefDisplayHandlerAdapter;
+
+import dev.ingstudios.turtlebrowse.components.MainWindow;
+import javafx.application.Platform;
+
+public class TurtlebrowseDisplayHandler extends CefDisplayHandlerAdapter {
+	private final MainWindow parent;
+
+	public TurtlebrowseDisplayHandler(MainWindow parent) {
+		this.parent = parent;
+	}
+
+	@Override
+	public void onTitleChange(CefBrowser browser, String title) {
+		if (browser != parent.currentBrowser)
+			return;
+
+		parent.titleMap.put(browser, title);
+
+		Platform.runLater(() -> {
+			parent.tabBar.setTabTitle(browser, title);
+		});
+
+		SwingUtilities.invokeLater(() -> {
+			parent.updateWindowTitle(title);
+		});
+	}
+
+	@Override
+	public void onAddressChange(CefBrowser cefBrowser, CefFrame frame, String url) {
+		if (cefBrowser != parent.currentBrowser)
+			return;
+		System.out.print("Navigated to:");
+		System.out.println(url);
+		Platform.runLater(() -> parent.addressBar.updateUrl(url));
+	}
+}

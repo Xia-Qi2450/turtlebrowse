@@ -30,13 +30,17 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Paint;
 
+import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseLoadHandler.JSQueueItem;
+
 public class AISidebar extends JPanel {
 	private final Component ui;
 	private final java.awt.Dimension preferredDim = new java.awt.Dimension(0, 800);
 	public boolean isOpen = false;
 	private final CefBrowser aiBrowser;
+	private final MainWindow parent;
 
 	public AISidebar(CefClient client, MainWindow parent, boolean useOsr, BooleanProperty isUiFocused) {
+		this.parent = parent;
 		this.setLayout(new java.awt.BorderLayout());
 		this.setPreferredSize(preferredDim);
 
@@ -124,14 +128,19 @@ public class AISidebar extends JPanel {
 	}
 
 	public void summarize(String text) {
-		System.out.printf("Attempting to summarize %s...\n", text);
-
-		if (isOpen == false)
+		if (!isOpen)
 			openSidebar();
 
 		try {
-			String jsonText = new ObjectMapper().writeValueAsString("Summarize this: " + text);
-			aiBrowser.getMainFrame().executeJavaScript("window.addPrompt(" + jsonText + ");", "turtlebrowse://chat", 0);
+			final String jsonText = new ObjectMapper().writeValueAsString("Summarize this: " + text);
+			final JSQueueItem item = new JSQueueItem(aiBrowser.getIdentifier(),
+					"window.addPrompt(" + jsonText + ");", "turtlebrowse://chat");
+
+			if (parent.loadHandler.isBrowserReady(aiBrowser.getIdentifier())) {
+				aiBrowser.getMainFrame().executeJavaScript(item.code(), item.url(), 0);
+			} else {
+				parent.loadHandler.addToQueueStack(item);
+			}
 		} catch (JsonProcessingException e) {
 			System.err.println(e.getMessage());
 		}
