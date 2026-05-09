@@ -1,3 +1,9 @@
+import { usePrompt } from "@/composables/prompt";
+import type { AIWindow } from "@/interfaces/AIWindow";
+import type { Conversation } from "@/interfaces/Conversation";
+
+const { sendPrompt } = usePrompt();
+
 export function promptStreaming(prompt: string, onThink: (chunk: string) => void, onResponse: (chunk: string) => void, onFinish: (response: string) => void) {
     const source = new EventSource(`turtlebrowse://api/prompt-stream?prompt=${encodeURIComponent(prompt)}`);
     console.log('EventSource created:', source.readyState);
@@ -30,4 +36,18 @@ export function promptStreaming(prompt: string, onThink: (chunk: string) => void
         console.error('SSE error:', event);
         source.close();
     });
+}
+
+export function registerChatBridge() {
+	(window as unknown as AIWindow).addPrompt = (prompt) => {
+		const conv: Conversation = {
+			key: window.crypto.randomUUID(),
+			user: prompt,
+			assistant: {
+				thinking: '',
+				response: '',
+			},
+		}
+		sendPrompt(conv);
+	};
 }

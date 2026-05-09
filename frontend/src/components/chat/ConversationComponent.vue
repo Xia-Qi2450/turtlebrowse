@@ -1,62 +1,9 @@
 <script setup lang="ts">
 import '@m3e/web/form-field';
 import ConversationBubble from './ConversationBubble.vue';
-import { ref } from 'vue';
-import { promptStreaming } from '@/utils/chat';
-import { M3eSnackbar } from '@m3e/web/snackbar';
+import { usePrompt } from '@/composables/prompt';
 
-interface Conversation {
-    key: string;
-    user: string;
-    assistant: {
-        thinking: string;
-        response: string;
-    };
-}
-
-const prompt = ref<string>('');
-const prompts = ref<Conversation[]>([]);
-const isGenerating = ref<boolean>(false);
-
-function sendPrompt(event: KeyboardEvent) {
-    if (event.key.toLowerCase() !== 'enter' || event.shiftKey) return;
-
-    isGenerating.value = true;
-
-    const conversation: Conversation = {
-        key: window.crypto.randomUUID(),
-        user: prompt.value,
-        assistant: {
-            thinking: '',
-            response: '',
-        },
-    };
-
-    prompts.value.push(conversation);
-
-    const currentConversation = prompts.value[prompts.value.length - 1] as Conversation;
-
-    try {
-        promptStreaming(prompt.value, (chunk) => {
-            console.log('Received chunk:', chunk);
-            currentConversation.assistant.thinking += chunk;
-        }, (chunk) => {
-            console.log('Received chunk:', chunk);
-            currentConversation.assistant.response += chunk;
-        }, (response) => {
-            currentConversation.assistant.response = response;
-            isGenerating.value = false;
-        });
-
-        prompt.value = '';
-    } catch (error) {
-        console.error('An error occurred while generating:', error);
-        M3eSnackbar.open((error as Error).message, {
-            duration: 4000,
-        });
-        isGenerating.value = false;
-    }
-}
+const { prompt, prompts, isGenerating, sendPromptKeyboard } = usePrompt();
 </script>
 
 <template>
@@ -69,7 +16,7 @@ function sendPrompt(event: KeyboardEvent) {
 		</div>
 		<m3e-form-field class="form-field" variant="outlined" :disabled="isGenerating">
 			<label slot="label" for="prompt-field">Ask AI</label>
-			<input id="prompt-field" v-model="prompt" @keydown="sendPrompt" />
+			<input id="prompt-field" v-model="prompt" @keydown="sendPromptKeyboard" />
 		</m3e-form-field>
 	</div>
 </template>

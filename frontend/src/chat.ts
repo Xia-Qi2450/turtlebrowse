@@ -3,9 +3,11 @@ import ChatApp from './ChatApp.vue';
 import '@/assets/main.css';
 import 'material-symbols/outlined.css';
 import { setTheme } from './utils/theme';
+import { registerChatBridge } from './utils/chat';
 
 const app = createApp(ChatApp);
 
 app.mount('#app');
 
 setTheme();
+registerChatBridge();
