@@ -38,13 +38,16 @@ dependencies {
     implementation("com.jfoenix:jfoenix:9.0.10")
 
     // HTML to Markdwon
-    implementation("dev.kreuzberg:html-to-markdown:3.4.0-rc.45")
+    implementation("dev.kreuzberg:html-to-markdown:2.29.0")
+
+    // jsoup
+    implementation("org.jsoup:jsoup:1.22.2")
 }
 
 // Apply a specific Java toolchain. 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(24)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -74,7 +77,7 @@ tasks.jpackage {
     runtimeImage = file(System.getProperty("java.home"))
 
     javaLauncher = javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(24)
+        languageVersion = JavaLanguageVersion.of(25)
     }
     
     appName = "Turtlebrowse"

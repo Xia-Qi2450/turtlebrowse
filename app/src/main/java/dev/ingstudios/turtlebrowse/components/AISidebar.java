@@ -13,6 +13,9 @@ import org.cef.CefClient;
 import org.cef.browser.CefBrowser;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2OutlinedAL;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,13 +37,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Paint;
 
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseLoadHandler.JSQueueItem;
+import dev.kreuzberg.htmltomarkdown.HtmlToMarkdown;
 
 public class AISidebar extends JPanel {
 	private final Component ui;
 	private final java.awt.Dimension preferredDim = new java.awt.Dimension(0, 800);
 	public boolean isOpen = false;
 	private final CefBrowser aiBrowser;
-	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+	private final ScheduledExecutorService summarizeScheduler = Executors.newSingleThreadScheduledExecutor();
+	private final ScheduledExecutorService summarizePageScheduler = Executors.newSingleThreadScheduledExecutor();
 
 	public AISidebar(CefClient client, MainWindow parent, boolean useOsr, BooleanProperty isUiFocused) {
 		this.setLayout(new java.awt.BorderLayout());
@@ -131,9 +136,9 @@ public class AISidebar extends JPanel {
 
 	public void summarize(String text) {
 		if (!isOpen)
-			openSidebar();
+			SwingUtilities.invokeLater(this::openSidebar);
 
-		scheduler.schedule(() -> {
+		summarizeScheduler.schedule(() -> {
 			try {
 				final String jsonText = new ObjectMapper().writeValueAsString("Summarize this: " + text);
 				final JSQueueItem item = new JSQueueItem(aiBrowser.getIdentifier(),
@@ -147,12 +152,25 @@ public class AISidebar extends JPanel {
 	}
 
 	public void summarizePage(String html) {
-		if (!isOpen)
-			openSidebar();
+		System.out.printf("Summarizing page...\n");
 
-		scheduler.schedule(() -> {
+		if (!isOpen)
+			SwingUtilities.invokeLater(this::openSidebar);
+
+		summarizePageScheduler.schedule(() -> {
 			try {
-				final String jsonText = new ObjectMapper().writeValueAsString("Summarize this page: " + html);
+				if (html == null) {
+					return;
+				}
+				final Document doc = Jsoup.parse(html);
+				doc.select("script, style, svg, canvas, iframe, noscript, img, video, audio").remove();
+				doc.select("*").forEach(Element::clearAttributes);
+				final String cleanHtml = doc.body().html();
+				System.out.printf("Clean HTML: %s\n", cleanHtml);
+				System.out.println("Attempting to convert HTML to Markdown...");
+				final String markdown = HtmlToMarkdown.convert(cleanHtml);
+				System.out.printf("Converted Markdown: %s\n", markdown);
+				final String jsonText = new ObjectMapper().writeValueAsString("Summarize this page: " + markdown);
 				final JSQueueItem item = new JSQueueItem(aiBrowser.getIdentifier(),
 						"window.addPrompt(" + jsonText + ");", "turtlebrowse://chat");
 
