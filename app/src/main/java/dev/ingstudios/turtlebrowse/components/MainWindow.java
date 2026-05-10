@@ -42,6 +42,7 @@ import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseDownloadHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseFocusHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseLifeSpanHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseLoadHandler;
+import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseRequestHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseSchemeHandlerFactory;
 import dev.ingstudios.turtlebrowse.ollama.OllamaChat;
 import io.github.ollama4j.exceptions.OllamaException;
@@ -75,6 +76,7 @@ public class MainWindow extends JFrame {
 	public AISidebar aiSidebar;
 	private final Gson gson = new Gson();
 	public final TurtlebrowseLoadHandler loadHandler = new TurtlebrowseLoadHandler();
+	public final TurtlebrowseRequestHandler requestHandler = new TurtlebrowseRequestHandler(this);
 
 	public MainWindow() {
 		super("Turtlebrowse");
@@ -151,6 +153,7 @@ public class MainWindow extends JFrame {
 		cefClient.addDownloadHandler(new TurtlebrowseDownloadHandler());
 		cefClient.addContextMenuHandler(new TurtlebrowseContextMenuHandler(this));
 		cefClient.addLoadHandler(loadHandler);
+		cefClient.addRequestHandler(requestHandler);
 
 		try {
 			ollamaSession = new OllamaChat(USER_AGENT);

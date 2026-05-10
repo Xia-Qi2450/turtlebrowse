@@ -91,6 +91,7 @@ public class AISidebar extends JPanel {
 		});
 
 		aiBrowser = client.createBrowser("turtlebrowse://chat", useOsr, false);
+		parent.requestHandler.setAiBrowser(aiBrowser);
 		final Component browserComponent = aiBrowser.getUIComponent();
 		ui = browserComponent;
 
