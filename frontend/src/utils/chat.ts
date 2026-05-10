@@ -38,7 +38,9 @@ export function promptStreaming(prompt: string, onThink: (chunk: string) => void
 
 export function registerChatBridge() {
 	console.log('Attempting to register chat bridge...');
-	const { sendPrompt } = usePrompt();
+
+	const { sendPrompt, prompt: userPrompt } = usePrompt();
+
 	(window as unknown as AIWindow).addPrompt = (prompt) => {
 		console.log('Adding prompt:', prompt);
 		const conv: Conversation = {
@@ -52,4 +54,10 @@ export function registerChatBridge() {
 		sendPrompt(conv);
 	};
 	console.log('Window add prompt:', (window as unknown as AIWindow).addPrompt);
+
+	(window as unknown as AIWindow).addPromptRewrite = (prompt) => {
+		console.log('Adding prompt rewrite:', prompt);
+		userPrompt.value = prompt;
+	};
+	console.log('Window add prompt rewrite:', (window as unknown as AIWindow).addPromptRewrite);
 }

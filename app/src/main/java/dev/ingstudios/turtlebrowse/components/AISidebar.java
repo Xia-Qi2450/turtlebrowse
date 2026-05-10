@@ -45,6 +45,7 @@ public class AISidebar extends JPanel {
 	public boolean isOpen = false;
 	private final CefBrowser aiBrowser;
 	private final ScheduledExecutorService summarizeScheduler = Executors.newSingleThreadScheduledExecutor();
+	private final ScheduledExecutorService rewriteScheduler = Executors.newSingleThreadScheduledExecutor();
 	private final ScheduledExecutorService summarizePageScheduler = Executors.newSingleThreadScheduledExecutor();
 
 	public AISidebar(CefClient client, MainWindow parent, boolean useOsr, BooleanProperty isUiFocused) {
@@ -150,6 +151,23 @@ public class AISidebar extends JPanel {
 				System.err.println(e.getMessage());
 			}
 		}, 500, TimeUnit.MILLISECONDS);
+	}
+
+	public void rewrite(String text) {
+		if (!isOpen)
+			SwingUtilities.invokeLater(this::openSidebar);
+
+		rewriteScheduler.schedule(() -> {
+			try {
+				final String jsonText = new ObjectMapper().writeValueAsString("Rewrite \'" + text + "\' to be");
+				final JSQueueItem item = new JSQueueItem(aiBrowser.getIdentifier(),
+						"window.addPromptRewrite(" + jsonText + ");", "turtlebrowse://chat");
+
+				aiBrowser.getMainFrame().executeJavaScript(item.code(), item.url(), 0);
+			} catch (JsonProcessingException e) {
+				System.err.println(e.getMessage());
+			}
+		}, 1000, TimeUnit.MILLISECONDS);
 	}
 
 	public void summarizePage(String html) {

@@ -48,7 +48,7 @@ public class TurtlebrowseContextMenuHandler extends CefContextMenuHandlerAdapter
 			summarizeSelection(selectedText);
 			return true;
 		} else if (commandId == ID_REWRITE) {
-			// TODO(developer): Add rewrite
+			rewriteSelection(selectedText);
 		} else if (commandId == ID_SUMMARIZE_PAGE) {
 			summarizePage(browser);
 		} else if (commandId == ID_DEVTOOLS) {
@@ -60,6 +60,10 @@ public class TurtlebrowseContextMenuHandler extends CefContextMenuHandlerAdapter
 
 	private void summarizeSelection(String selection) {
 		parent.aiSidebar.summarize(selection);
+	}
+
+	private void rewriteSelection(String selection) {
+		parent.aiSidebar.rewrite(selection);
 	}
 
 	private void summarizePage(CefBrowser browser) {
