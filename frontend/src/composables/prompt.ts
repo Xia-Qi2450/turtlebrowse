@@ -39,6 +39,8 @@ function sendPrompt(conversation: Conversation) {
 function sendPromptKeyboard(event: KeyboardEvent) {
 	if (event.key.toLowerCase() !== 'enter' || event.shiftKey) return;
 
+	event.preventDefault();
+
 	isGenerating.value = true;
 
 	const conversation: Conversation = {

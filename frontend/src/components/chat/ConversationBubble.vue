@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { marked } from 'marked';
 import '@m3e/web/expansion-panel';
+import { parseMessage } from '@/utils/parse';
+import { ref, watch } from 'vue';
 
 interface ComponentProps {
 	message: string;
@@ -9,22 +10,35 @@ interface ComponentProps {
 }
 
 const props = defineProps<ComponentProps>();
+
+const messageMessage = ref<string>('');
+const thinkingMessage = ref<string | null>(null);
+
+watch(() => props.message, async (message) => {
+	messageMessage.value = await parseMessage(message, props.sender);
+}, { immediate: true });
+
+watch(() => props.thinking, async (thinking) => {
+	if (!thinking) return;
+	thinkingMessage.value = await parseMessage(thinking, props.sender);
+}, { immediate: true });
 </script>
 
 <template>
 	<div class="conv-bubble" :class="props.sender === 'user' ? 'user-message' : ''">
         <m3e-expansion-panel v-if="props.thinking && props.message" class="think-expand" toggle-position="before" toggle-direction="horizontal">
             <span slot="header">Show thinking</span>
-            <span class="conv-thinking" v-html="marked.parse(props.thinking)"></span>
+            <span class="conv-thinking" v-html="thinkingMessage"></span>
         </m3e-expansion-panel>
-        <span v-else-if="props.thinking" class="conv-thinking" v-html="marked.parse(props.thinking)"></span>
+        <span v-else-if="props.thinking" class="conv-thinking" v-html="thinkingMessage"></span>
 
-		<span class="conv-message" v-html="props.sender === 'assistant' ? marked.parse(props.message) : props.message"></span>
+		<span class="conv-message" v-html="messageMessage"></span>
 	</div>
 </template>
 
 <style scoped>
 .conv-bubble {
+	min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: v-bind("props.sender === 'user' ? 'flex-end' : 'flex-start'");
@@ -60,5 +74,22 @@ const props = defineProps<ComponentProps>();
 
 .user-message {
     margin: 0;
+}
+
+:deep(.message-extract) {
+	background-color: var(--md-sys-color-secondary-container);
+	color: var(--md-sys-color-on-secondary-container);
+	padding: 10px;
+	text-align: left !important;
+	box-sizing: border-box;
+	border-radius: 10px;
+}
+
+:deep(.message-extract p) {
+	display: block;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 </style>
