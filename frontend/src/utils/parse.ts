@@ -5,7 +5,7 @@ export async function parseMessage(message: string, sender: 'user' | 'assistant'
 
 	const extractRegex = /:::extract([\s\S]*?):::/g;
 	const resultExtract = message.replace(extractRegex, (_match, content) => {
-		return `<div class="message-extract">${content.trim()}</div>`;
+		return `<div class="message-extract"><span>${content.trim()}</span></div>`;
 	});
 	result = resultExtract;
 

@@ -78,7 +78,7 @@ public class SearXNGSearchTool {
 
 		JsonArray results = json.getAsJsonArray("results");
 		if (results != null && results.size() > 0) {
-			for (JsonElement res : results) {
+			for (final JsonElement res : results) {
 				final JsonObject jsonObject = res.getAsJsonObject();
 				final String title = jsonObject.get("title").getAsString();
 				final String content = jsonObject.get("content").getAsString();

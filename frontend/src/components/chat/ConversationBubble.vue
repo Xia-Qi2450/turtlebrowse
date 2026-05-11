@@ -28,11 +28,11 @@ watch(() => props.thinking, async (thinking) => {
 	<div class="conv-bubble" :class="props.sender === 'user' ? 'user-message' : ''">
         <m3e-expansion-panel v-if="props.thinking && props.message" class="think-expand" toggle-position="before" toggle-direction="horizontal">
             <span slot="header">Show thinking</span>
-            <span class="conv-thinking" v-html="thinkingMessage"></span>
+            <div class="conv-thinking" v-html="thinkingMessage"></div>
         </m3e-expansion-panel>
-        <span v-else-if="props.thinking" class="conv-thinking" v-html="thinkingMessage"></span>
+        <div v-else-if="props.thinking" class="conv-thinking" v-html="thinkingMessage"></div>
 
-		<span class="conv-message" v-html="messageMessage"></span>
+		<div class="conv-message" v-html="messageMessage"></div>
 	</div>
 </template>
 
@@ -53,9 +53,20 @@ watch(() => props.thinking, async (thinking) => {
     color: v-bind("props.sender === 'user' ? 'var(--md-sys-color-on-primary-container)' : 'var(--md-sys-color-on-surface)'");
 }
 
+.conv-message, .conv-thinking {
+	width: 100%;
+	text-align: v-bind("props.sender === 'user' ? 'right' : 'left'");
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	overflow-wrap: normal;
+}
+
 .conv-message *, .conv-thinking * {
 	width: 100%;
 	text-align: v-bind("props.sender === 'user' ? 'right' : 'left'");
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	overflow-wrap: normal;
 }
 
 .conv-message {
@@ -85,11 +96,15 @@ watch(() => props.thinking, async (thinking) => {
 	border-radius: 10px;
 }
 
-:deep(.message-extract p) {
-	display: block;
+:deep(.message-extract span) {
     width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-line-clamp: 4;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	line-clamp: 4;
+	text-align: left !important;
+	-webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 100%);
+  	mask-image: linear-gradient(to bottom, black 20%, transparent 100%);
 }
 </style>

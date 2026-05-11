@@ -16,6 +16,7 @@ import org.kordamp.ikonli.material2.Material2OutlinedAL;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -142,7 +143,8 @@ public class AISidebar extends JPanel {
 
 		summarizeScheduler.schedule(() -> {
 			try {
-				final String jsonText = new ObjectMapper().writeValueAsString("Summarize this: " + text);
+				final String jsonText = new ObjectMapper()
+						.writeValueAsString("Summarize this:\n:::extract\n" + text + "\n:::");
 				final JSQueueItem item = new JSQueueItem(aiBrowser.getIdentifier(),
 						"window.addPrompt(" + jsonText + ");", "turtlebrowse://chat");
 
@@ -159,7 +161,8 @@ public class AISidebar extends JPanel {
 
 		rewriteScheduler.schedule(() -> {
 			try {
-				final String jsonText = new ObjectMapper().writeValueAsString("Rewrite \'" + text + "\' to be");
+				final String jsonText = new ObjectMapper()
+						.writeValueAsString("Rewrite\n:::extract" + text + "\n:::\nto be");
 				final JSQueueItem item = new JSQueueItem(aiBrowser.getIdentifier(),
 						"window.addPromptRewrite(" + jsonText + ");", "turtlebrowse://chat");
 
@@ -181,15 +184,46 @@ public class AISidebar extends JPanel {
 				if (html == null) {
 					return;
 				}
+
 				final Document doc = Jsoup.parse(html);
-				doc.select("script, style, svg, canvas, iframe, noscript, img, video, audio").remove();
-				doc.select("*").forEach(Element::clearAttributes);
-				final String cleanHtml = doc.body().html();
+
+				final String[] selectors = {
+						"article",
+						"main",
+						"#content",
+						".content",
+						"#main",
+						"#app",
+						"#root"
+				};
+
+				Element contentElement = doc.body();
+
+				for (final String selector : selectors) {
+					if (selector == null)
+						continue;
+					final Element found = doc.selectFirst(selector);
+					if (found != null && !found.text().isEmpty()) {
+						contentElement = found;
+						break;
+					}
+				}
+
+				final Elements possibleAds = contentElement
+						.select("[class*=ad], [id*=ad], [class*=advert], [id*=advert]");
+				for (final Element ad : possibleAds) {
+					ad.remove();
+				}
+
+				contentElement.select("script, style, svg, canvas, iframe, noscript, img, video, audio").remove();
+				contentElement.select("*").forEach(Element::clearAttributes);
+				final String cleanHtml = contentElement.html();
 				System.out.printf("Clean HTML: %s\n", cleanHtml);
 				System.out.println("Attempting to convert HTML to Markdown...");
 				final String markdown = HtmlToMarkdown.convert(cleanHtml);
 				System.out.printf("Converted Markdown: %s\n", markdown);
-				final String jsonText = new ObjectMapper().writeValueAsString("Summarize this page: " + markdown);
+				final String jsonText = new ObjectMapper()
+						.writeValueAsString("Summarize this page:\n:::extract" + markdown + "\n:::");
 				final JSQueueItem item = new JSQueueItem(aiBrowser.getIdentifier(),
 						"window.addPrompt(" + jsonText + ");", "turtlebrowse://chat");
 

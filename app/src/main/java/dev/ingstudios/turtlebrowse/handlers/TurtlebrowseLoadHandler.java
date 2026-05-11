@@ -15,7 +15,7 @@ public class TurtlebrowseLoadHandler extends CefLoadHandlerAdapter {
 	public void onLoadEnd(CefBrowser browser, CefFrame frame, int statusCode) {
 		readyBrowsers.add(browser.getIdentifier());
 		final List<JSQueueItem> toRemove = new ArrayList<>();
-		for (JSQueueItem item : queueStack) {
+		for (final JSQueueItem item : queueStack) {
 			System.out.printf("Item: %s\n", item.code);
 			if (item.isSame(browser.getIdentifier())) {
 				browser.getMainFrame().executeJavaScript(item.code, item.url, 0);

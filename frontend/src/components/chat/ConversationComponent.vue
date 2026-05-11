@@ -65,6 +65,7 @@ onMounted(async () => {
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
+	text-align: center;
 }
 
 .conv-group {

@@ -76,7 +76,7 @@ public class TabBar extends JPanel {
 		root.getChildren().add(createTabButton);
 
 		Platform.runLater(() -> {
-			for (CefBrowser browser : tabs) {
+			for (final CefBrowser browser : tabs) {
 				addTabToUI(browser);
 			}
 		});
@@ -160,7 +160,7 @@ public class TabBar extends JPanel {
 	}
 
 	public void setCurrentTab(CefBrowser currentBrowser) {
-		for (Map.Entry<CefBrowser, HBox> entry : tabMap.entrySet()) {
+		for (final Map.Entry<CefBrowser, HBox> entry : tabMap.entrySet()) {
 			final HBox tabBox = entry.getValue();
 			final CefBrowser browserKey = entry.getKey();
 

@@ -15,6 +15,12 @@ public class TurtlebrowseContextMenuHandler extends CefContextMenuHandlerAdapter
 	private static final int ID_SUMMARIZE_PAGE = CefMenuModel.MenuId.MENU_ID_USER_FIRST + 3;
 	private static final int ID_DEVTOOLS = CefMenuModel.MenuId.MENU_ID_USER_FIRST + 4;
 	private final MainWindow parent;
+	private final CefStringVisitor stringVisitor = new CefStringVisitor() {
+		@Override
+		public void visit(String html) {
+			TurtlebrowseContextMenuHandler.this.parent.aiSidebar.summarizePage(html);
+		}
+	};
 
 	public TurtlebrowseContextMenuHandler(MainWindow parent) {
 		this.parent = parent;
@@ -67,11 +73,6 @@ public class TurtlebrowseContextMenuHandler extends CefContextMenuHandlerAdapter
 	}
 
 	private void summarizePage(CefBrowser browser) {
-		browser.getSource(new CefStringVisitor() {
-			@Override
-			public void visit(String html) {
-				TurtlebrowseContextMenuHandler.this.parent.aiSidebar.summarizePage(html);
-			}
-		});
+		browser.getSource(stringVisitor);
 	}
 }

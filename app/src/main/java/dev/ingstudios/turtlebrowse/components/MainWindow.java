@@ -72,7 +72,7 @@ public class MainWindow extends JFrame {
 	public final BooleanProperty isUiFocused = new SimpleBooleanProperty(false);
 	public ColorSchemeProperty materialColorScheme = new SimpleColorSchemeProperty(
 			ColorScheme.fromSeed(Color.web("#BDCF47")));
-	private OllamaChat ollamaSession;
+	public OllamaChat ollamaSession;
 	public AISidebar aiSidebar;
 	private final Gson gson = new Gson();
 	public final TurtlebrowseLoadHandler loadHandler = new TurtlebrowseLoadHandler();
@@ -156,7 +156,7 @@ public class MainWindow extends JFrame {
 		cefClient.addRequestHandler(requestHandler);
 
 		try {
-			ollamaSession = new OllamaChat(USER_AGENT);
+			ollamaSession = new OllamaChat(USER_AGENT, this);
 		} catch (OllamaException e) {
 			e.printStackTrace();
 		}
@@ -393,7 +393,7 @@ public class MainWindow extends JFrame {
 	public void dispose() {
 		System.out.println("Closing...");
 
-		for (CefBrowser browser : openedBrowserTabs) {
+		for (final CefBrowser browser : openedBrowserTabs) {
 			if (browser != null)
 				browser.close(true);
 		}
