@@ -16,7 +16,7 @@ public class SnapshotImageToolSpec {
 	public Tools.Tool getSpecification() {
 		return Tools.Tool.builder().toolSpec(Tools.ToolSpec.builder()
 				.name("get_page_screenshot")
-				.description("Gets a screenshot of the current page.")
+				.description("Gets a screenshot of the current page the user is on.")
 				.build()).toolFunction(args -> {
 					try {
 						parent.ollamaSession.pageScreenshot = snapshotImageTool.takeSnapshotImage().get();

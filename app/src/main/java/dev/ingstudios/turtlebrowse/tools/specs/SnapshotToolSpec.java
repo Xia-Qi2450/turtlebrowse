@@ -14,13 +14,13 @@ public class SnapshotToolSpec {
 	public Tools.Tool getSpecification() {
 		return Tools.Tool.builder().toolSpec(Tools.ToolSpec.builder()
 				.name("get_dom_snapshot")
-				.description("Gets a snapshot of the DOM nodes on the current page.")
+				.description("Gets a snapshot of the DOM nodes on the current page the user is on.")
 				.build()).toolFunction(args -> {
 					try {
 						System.out.println("Taking snapshot...");
 						final String snapshot = snapshotTool.takeSnapshot().get();
 						System.out.printf("Snapshot: %s\n", snapshot);
-						return snapshot;
+						return "Use this YAML snapshot of the DOM to understand the page better: " + snapshot;
 					} catch (Exception e) {
 						return "Error: " + e.getMessage();
 					}
