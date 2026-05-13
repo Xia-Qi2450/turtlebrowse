@@ -230,30 +230,39 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	private String getCachePath() {
-		Path cachePath;
+	public Path getStoragePath(String... names) {
+		Path dataPath;
 
 		final String appName = "Turtlebrowse";
-		final String cacheDir = "cef-cache";
 
 		final String userHome = System.getProperty("user.home");
 
 		if (OS.isWindows()) {
 			String localAppData = System.getenv("LOCALAPPDATA");
-			cachePath = Paths.get(localAppData, "ingStudios", appName, cacheDir);
+			dataPath = Paths.get(localAppData, "ingStudios", appName);
 		} else if (OS.isLinux()) {
 			String xdgDataHome = System.getenv("XDG_DATA_HOME");
 			if (xdgDataHome == null || xdgDataHome.isEmpty()) {
 				xdgDataHome = userHome + "/.local/share";
 			}
-			cachePath = Paths.get(xdgDataHome, "ingStudios", appName, cacheDir);
+			dataPath = Paths.get(xdgDataHome, "ingStudios", appName);
 		} else if (OS.isMacintosh()) {
-			cachePath = Paths.get(userHome, "Library", "Application Support", appName, cacheDir);
+			dataPath = Paths.get(userHome, "Library", "Application Support", appName);
 		} else {
 			throw new RuntimeException("Unknown operating system");
 		}
 
-		return cachePath.toString();
+		if (names != null) {
+			for (final String name : names) {
+				dataPath = dataPath.resolve(name);
+			}
+		}
+
+		return dataPath;
+	}
+
+	public String getCachePath() {
+		return getStoragePath("cef-cache").toString();
 	}
 
 	private File getInstallDir() {

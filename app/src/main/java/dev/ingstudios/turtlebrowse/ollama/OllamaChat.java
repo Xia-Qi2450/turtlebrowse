@@ -106,6 +106,7 @@ public class OllamaChat {
 			System.out.printf("History: %s", history.toString());
 
 			List<OllamaChatToolCalls> toolCalls = result.getResponseModel().getMessage().getToolCalls();
+			System.out.printf("Tool calls: %s\n", toolCalls.toString());
 
 			boolean hasScreenshotCall = false;
 
@@ -121,6 +122,7 @@ public class OllamaChat {
 								"Here is the screenshot of the page.");
 						screenshotMessage.setImages(Collections.singletonList(pageScreenshot));
 						history.add(screenshotMessage);
+						System.out.printf("Added screenshot: %s\n", history.toString());
 						promptInternal(onThinkChunk, onResponseChunk, onDone, onError);
 					}
 				}
