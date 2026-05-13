@@ -54,6 +54,9 @@ public class SnapshotTool {
 		return yamlOutput.toString();
 	}
 
+	private static final java.util.Set<String> IGNORED_ROLES = java.util.Set.of(
+			"InlineTextBox", "StaticText", "LineBreak", "none", "generic");
+
 	private void writeNode(String nodeId, int depth, java.util.Map<String, JsonObject> nodeMap, StringBuilder sb) {
 		final JsonObject node = nodeMap.get(nodeId);
 		if (node == null)
@@ -61,38 +64,57 @@ public class SnapshotTool {
 
 		final boolean ignored = node.has("ignored") && node.get("ignored").getAsBoolean();
 
-		if (!ignored) {
+		String role = "";
+		if (node.has("role")) {
+			role = node.getAsJsonObject("role").get("value").getAsString();
+		}
+
+		final boolean skip = ignored || IGNORED_ROLES.contains(role);
+
+		if (!skip) {
 			final String indent = "    ".repeat(depth);
 			sb.append(indent).append("- nodeId:\"").append(nodeId).append("\"\n");
-
-			if (node.has("role")) {
-				sb.append(indent).append("    role: ")
-						.append(node.getAsJsonObject("role").get("value").getAsString()).append("\n");
-			}
+			sb.append(indent).append("    role: ").append(role).append("\n");
 
 			if (node.has("name")) {
-				sb.append(indent).append("    name: ")
-						.append(node.getAsJsonObject("name").get("value").getAsString()).append("\n");
+				final String name = node.getAsJsonObject("name").get("value").getAsString();
+				if (!name.isBlank()) {
+					sb.append(indent).append("    name: ").append(name).append("\n");
+				}
+			}
+
+			if (node.has("value")) {
+				final String val = node.getAsJsonObject("value").get("value").getAsString();
+				if (!val.isBlank()) {
+					sb.append(indent).append("    value: ").append(val).append("\n");
+				}
 			}
 
 			if (node.has("properties")) {
 				for (final JsonElement propEl : node.getAsJsonArray("properties")) {
 					final JsonObject prop = propEl.getAsJsonObject();
 					final String key = prop.get("name").getAsString();
+					if (!java.util.Set
+							.of("focusable", "focused", "disabled", "checked", "expanded", "required", "invalid")
+							.contains(key))
+						continue;
 					final JsonObject valObj = prop.get("value").getAsJsonObject();
 					final JsonElement val = valObj.get("value");
 					sb.append(indent).append("    ").append(key).append(": ").append(val).append("\n");
 				}
 			}
 
-			if (node.has("childIds") && node.getAsJsonArray("childIds").size() > 0) {
-				sb.append("\n");
+			if (node.has("description")) {
+				final String desc = node.getAsJsonObject("description").get("value").getAsString();
+				if (!desc.isBlank()) {
+					sb.append(indent).append("    description: ").append(desc).append("\n");
+				}
 			}
 		}
 
 		if (node.has("childIds")) {
 			for (final JsonElement childId : node.getAsJsonArray("childIds")) {
-				writeNode(childId.getAsString(), ignored ? depth : depth + 1, nodeMap, sb);
+				writeNode(childId.getAsString(), skip ? depth : depth + 1, nodeMap, sb);
 			}
 		}
 	}
