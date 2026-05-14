@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import dev.ingstudios.turtlebrowse.components.MainWindow;
 import dev.ingstudios.turtlebrowse.tools.specs.FetchToolSpec;
+import dev.ingstudios.turtlebrowse.tools.specs.InteractionToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.SearXNGToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.SnapshotImageToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.SnapshotToolSpec;
@@ -51,11 +52,13 @@ public class OllamaChat {
 			final Tools.Tool fetchToolSpec = new FetchToolSpec(userAgent).getSpecification();
 			final Tools.Tool snapshotToolSpec = new SnapshotToolSpec(parent).getSpecification();
 			final Tools.Tool snapshotImageToolSpec = new SnapshotImageToolSpec(parent).getSpecification();
+			final Tools.Tool interactionToolSpec = new InteractionToolSpec(parent).getSpecification();
 
 			ollama.registerTool(searchToolSpec);
 			ollama.registerTool(fetchToolSpec);
 			ollama.registerTool(snapshotToolSpec);
 			ollama.registerTool(snapshotImageToolSpec);
+			ollama.registerTool(interactionToolSpec);
 
 			builder = OllamaChatRequest.builder().withModel(chatModel);
 		} catch (OllamaException e) {
