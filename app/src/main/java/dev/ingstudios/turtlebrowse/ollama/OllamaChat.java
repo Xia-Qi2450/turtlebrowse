@@ -1,7 +1,6 @@
 package dev.ingstudios.turtlebrowse.ollama;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -17,7 +16,6 @@ import io.github.ollama4j.models.chat.OllamaChatMessageRole;
 import io.github.ollama4j.models.chat.OllamaChatRequest;
 import io.github.ollama4j.models.chat.OllamaChatResult;
 import io.github.ollama4j.models.chat.OllamaChatStreamObserver;
-import io.github.ollama4j.models.chat.OllamaChatToolCalls;
 import io.github.ollama4j.models.generate.OllamaGenerateTokenHandler;
 import io.github.ollama4j.models.response.Model;
 import io.github.ollama4j.tools.Tools;
@@ -105,30 +103,24 @@ public class OllamaChat {
 			history.add(assistantMessage);
 			System.out.printf("History: %s", history.toString());
 
-			List<OllamaChatToolCalls> toolCalls = result.getResponseModel().getMessage().getToolCalls();
-			System.out.printf("Tool calls: %s\n", toolCalls.toString());
+			boolean hasScreenshotCall = pageScreenshot != null;
+			System.out.printf("Has screenshot call: %b\n", hasScreenshotCall);
 
-			boolean hasScreenshotCall = false;
-
-			if (toolCalls != null)
-				for (final OllamaChatToolCalls call : toolCalls) {
-					if (call.getFunction().getName().equals("get_page_screenshot")) {
-						System.out.println("Get page screenshot called.");
-						if (pageScreenshot == null) {
-							onError.accept("No screenshot available.");
-						}
-						hasScreenshotCall = true;
-						final OllamaChatMessage screenshotMessage = new OllamaChatMessage(OllamaChatMessageRole.USER,
-								"Here is the screenshot of the page.");
-						screenshotMessage.setImages(Collections.singletonList(pageScreenshot));
-						history.add(screenshotMessage);
-						System.out.printf("Added screenshot: %s\n", history.toString());
-						promptInternal(onThinkChunk, onResponseChunk, onDone, onError);
-					}
-				}
-
-			if (!hasScreenshotCall)
+			if (!hasScreenshotCall) {
 				onDone.accept(assistantMessage.getResponse());
+				return;
+			}
+
+			System.out.println("Attaching screenshot...");
+
+			final OllamaChatMessage screenshotSuccessMessage = new OllamaChatMessage(OllamaChatMessageRole.USER,
+					"Screenshot has been attached.");
+			final List<byte[]> imagestList = new ArrayList<>();
+			imagestList.add(pageScreenshot);
+			screenshotSuccessMessage.setImages(imagestList);
+			history.add(screenshotSuccessMessage);
+			pageScreenshot = null;
+			promptInternal(onThinkChunk, onResponseChunk, onDone, onError);
 		} catch (OllamaException e) {
 			System.out.printf("Error while chatting: %s\n", e.getMessage());
 			onError.accept("An unexpected error occurred while chatting.");

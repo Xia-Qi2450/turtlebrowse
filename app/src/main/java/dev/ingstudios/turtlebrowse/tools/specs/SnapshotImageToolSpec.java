@@ -20,7 +20,8 @@ public class SnapshotImageToolSpec {
 				.build()).toolFunction(args -> {
 					try {
 						parent.ollamaSession.pageScreenshot = snapshotImageTool.takeSnapshotImage().get();
-						return "Successfully took a screenshot of the current page, attaching on next prompt.";
+						System.out.println("Attached screenshot to pageScreenshot variable.");
+						return "Successfully took a screenshot of the current page, attaching on next prompt. Do not try to elaborate further on this prompt. Provide a response like 'I have taken a screenshot, analyzing on next prompt.'.";
 					} catch (Exception e) {
 						return "Error: " + e.getMessage();
 					}
