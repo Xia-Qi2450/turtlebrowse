@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import dev.ingstudios.turtlebrowse.components.MainWindow;
 import dev.ingstudios.turtlebrowse.tools.specs.FetchToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.InteractionToolSpec;
+import dev.ingstudios.turtlebrowse.tools.specs.NavigateSiteToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.SearXNGToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.SnapshotImageToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.SnapshotToolSpec;
@@ -26,6 +27,7 @@ public class OllamaChat {
 	private OllamaChatRequest builder;
 	final private List<OllamaChatMessage> history = new ArrayList<>();
 	public byte[] pageScreenshot;
+	public String latestMessage;
 
 	public OllamaChat(String userAgent, MainWindow parent) throws OllamaException {
 		try {
@@ -48,17 +50,19 @@ public class OllamaChat {
 				});
 			}
 
-			final Tools.Tool searchToolSpec = new SearXNGToolSpec(userAgent).getSpecification();
-			final Tools.Tool fetchToolSpec = new FetchToolSpec(userAgent).getSpecification();
+			final Tools.Tool searchToolSpec = new SearXNGToolSpec(userAgent, parent).getSpecification();
+			final Tools.Tool fetchToolSpec = new FetchToolSpec(userAgent, parent).getSpecification();
 			final Tools.Tool snapshotToolSpec = new SnapshotToolSpec(parent).getSpecification();
 			final Tools.Tool snapshotImageToolSpec = new SnapshotImageToolSpec(parent).getSpecification();
 			final Tools.Tool interactionToolSpec = new InteractionToolSpec(parent).getSpecification();
+			final Tools.Tool navigateSiteToolSpec = new NavigateSiteToolSpec(parent).getSpecification();
 
 			ollama.registerTool(searchToolSpec);
 			ollama.registerTool(fetchToolSpec);
 			ollama.registerTool(snapshotToolSpec);
 			ollama.registerTool(snapshotImageToolSpec);
 			ollama.registerTool(interactionToolSpec);
+			ollama.registerTool(navigateSiteToolSpec);
 
 			builder = OllamaChatRequest.builder().withModel(chatModel);
 		} catch (OllamaException e) {
@@ -71,6 +75,8 @@ public class OllamaChat {
 			Consumer<String> onDone, Consumer<String> onError) {
 		System.out.printf("Received prompt: %s\n", prompt);
 		System.out.printf("History: %s", history.toString());
+
+		latestMessage = prompt;
 
 		if (history.isEmpty()) {
 			history.add(new OllamaChatMessage(OllamaChatMessageRole.SYSTEM,

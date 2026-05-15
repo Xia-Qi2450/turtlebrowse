@@ -24,8 +24,9 @@ public class SnapshotToolSpec {
 						System.out.println("Taking snapshot...");
 						final String snapshot = snapshotTool.takeSnapshot().get();
 						System.out.printf("Snapshot: %s\n", snapshot);
-						return "Use this YAML snapshot of the DOM to understand the page (" + url + ")better: "
-								+ snapshot;
+						return "Use this YAML snapshot of the DOM to understand the page (" + url + ") better: '"
+								+ snapshot + "'\nThe user's original prompt was: '" + parent.ollamaSession.latestMessage
+								+ "'. Use this new data to fufill the user's request.";
 					} catch (Exception e) {
 						return "Error: " + e.getMessage();
 					}

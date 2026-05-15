@@ -2,14 +2,17 @@ package dev.ingstudios.turtlebrowse.tools.specs;
 
 import java.util.Map;
 
+import dev.ingstudios.turtlebrowse.components.MainWindow;
 import dev.ingstudios.turtlebrowse.tools.FetchTool;
 import io.github.ollama4j.tools.Tools;
 
 public class FetchToolSpec {
 	private final FetchTool fetchTool;
+	private final MainWindow parent;
 
-	public FetchToolSpec(String userAgent) {
+	public FetchToolSpec(String userAgent, MainWindow parent) {
 		fetchTool = new FetchTool(userAgent);
+		this.parent = parent;
 	}
 
 	public Tools.Tool getSpecification() {
@@ -32,7 +35,9 @@ public class FetchToolSpec {
 							final String url = args.get("url").toString();
 							try {
 								final String response = fetchTool.fetch(url);
-								return response;
+								return "Fetch response: '" + response + "'\nThe user's original prompt was: '"
+										+ parent.ollamaSession.latestMessage
+										+ "'. Use this new data to fufill the user's request.";
 							} catch (Exception e) {
 								return e.getMessage();
 							}

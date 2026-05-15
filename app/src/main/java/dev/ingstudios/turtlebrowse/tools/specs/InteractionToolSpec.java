@@ -11,13 +11,16 @@ import io.github.ollama4j.tools.Tools;
 public class InteractionToolSpec {
 	private final InteractionTool interactionTool;
 	private final List<String> actions = new ArrayList<>();
+	private final MainWindow parent;
 
 	public InteractionToolSpec(MainWindow parent) {
+		this.parent = parent;
 		interactionTool = new InteractionTool(parent);
 	}
 
 	public final Tools.Tool getSpecification() {
 		actions.add("click");
+		actions.add("type");
 		return Tools.Tool.builder().toolSpec(Tools.ToolSpec.builder()
 				.name("interact_with_page")
 				.description(
@@ -44,7 +47,11 @@ public class InteractionToolSpec {
 					switch (action) {
 						case "click": {
 							final String snapshot = interactionTool.clickAndReturnTree(nodeId);
-							return snapshot;
+							return "Use this YAML snapshot of the updated DOM after the action was performed to understand the page ("
+									+ parent.currentBrowser.getURL() + ") better: '"
+									+ snapshot + "'\nThe user's original prompt was: '"
+									+ parent.ollamaSession.latestMessage
+									+ "'. Use this new data to fufill the user's request.";
 						}
 
 						default: {

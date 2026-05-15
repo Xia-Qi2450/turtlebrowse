@@ -2,14 +2,17 @@ package dev.ingstudios.turtlebrowse.tools.specs;
 
 import java.util.Map;
 
+import dev.ingstudios.turtlebrowse.components.MainWindow;
 import dev.ingstudios.turtlebrowse.tools.SearXNGSearchTool;
 import io.github.ollama4j.tools.Tools;
 
 public class SearXNGToolSpec {
 	private final SearXNGSearchTool searchTool;
+	private final MainWindow parent;
 
-	public SearXNGToolSpec(String userAgent) {
+	public SearXNGToolSpec(String userAgent, MainWindow parent) {
 		searchTool = new SearXNGSearchTool(userAgent);
+		this.parent = parent;
 	}
 
 	public Tools.Tool getSpecification() {
@@ -31,7 +34,9 @@ public class SearXNGToolSpec {
 							try {
 								final String searchResult = searchTool.searchWeb(searchQuery).toString();
 								System.out.printf("Search result: %s\n", searchResult);
-								return searchResult;
+								return "Search result: '" + searchResult + "'\nThe user's original prompt was: '"
+										+ parent.ollamaSession.latestMessage
+										+ "'. Use this new data to fufill the user's request.";
 							} catch (Exception e) {
 								e.printStackTrace();
 								return e.getMessage();

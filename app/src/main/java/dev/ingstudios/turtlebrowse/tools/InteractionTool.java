@@ -10,11 +10,9 @@ import dev.ingstudios.turtlebrowse.components.MainWindow;
 
 public class InteractionTool {
 	private final MainWindow parent;
-	private final SnapshotTool snapshotTool;
 
 	public InteractionTool(MainWindow parent) {
 		this.parent = parent;
-		snapshotTool = new SnapshotTool(parent);
 	}
 
 	public String clickAndReturnTree(String backendNodeId) {
@@ -23,37 +21,28 @@ public class InteractionTool {
 		System.out.printf("Backend node ID: %s\n", backendNodeId);
 
 		try {
-			final JsonObject boxModel = devToolsClient
+			final JsonObject resolveResult = devToolsClient
 					.executeDevToolsMethod("DOM.getBoxModel", "{\"backendNodeId\":" + backendNodeId + "}")
-					.thenApply(response -> {
-						System.out.printf("Box model response: %s\n", response);
+					.thenApply(response -> JsonParser.parseString(response).getAsJsonObject())
+					.get();
 
-						final JsonObject responseJson = JsonParser.parseString(response).getAsJsonObject();
-						final JsonObject model = responseJson.get("model").getAsJsonObject();
+			final JsonArray content = resolveResult.get("model").getAsJsonObject().get("content").getAsJsonArray();
+			final double x = (content.get(0).getAsDouble() + content.get(2).getAsDouble()) / 2;
+			final double y = (content.get(1).getAsDouble() + content.get(5).getAsDouble()) / 2;
 
-						return model;
-					}).get();
-			final JsonArray content = boxModel.get("content").getAsJsonArray();
-
-			final float width = boxModel.get("width").getAsFloat();
-			final float heignt = boxModel.get("height").getAsFloat();
-
-			final float x = Float.parseFloat(content.get(0).getAsString()) + (width / 2);
-			final float y = Float.parseFloat(content.get(1).getAsString()) + (heignt / 2);
-
-			System.out.printf("X: %f\nY: %f\nWidth: %f\nHeight:%f\n", x, y, width, heignt);
-
-			final String clickScript = """
-					const element = document.elementFromPoint(%s, %s);
-					element.click();
-										""".formatted(String.valueOf(x), String.valueOf(y));
-
-			parent.currentBrowser.executeJavaScript(clickScript, parent.currentBrowser.getURL(), 0);
+			final String[] types = { "mousePressed", "mouseReleased" };
+			for (String type : types) {
+				JsonObject p = new JsonObject();
+				p.addProperty("type", type);
+				p.addProperty("x", x);
+				p.addProperty("y", y);
+				p.addProperty("button", "left");
+				p.addProperty("clickCount", 1);
+				devToolsClient.executeDevToolsMethod("Input.dispatchMouseEvent", p.toString());
+			}
 
 			try {
-				Thread.sleep(500);
-				final String snapshot = snapshotTool.takeSnapshot().get();
-				return snapshot;
+				return "Successfully clicked the element. You may need to call get_dom_snapshot again to get the latest changes if needed.";
 			} catch (Exception e) {
 				e.printStackTrace();
 				return "An unexpected error occurred while taking a snapshot.";
