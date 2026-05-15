@@ -1,8 +1,5 @@
 package dev.ingstudios.turtlebrowse.tools;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.cef.browser.CefDevToolsClient;
 
 import com.google.gson.JsonArray;
@@ -20,41 +17,38 @@ public class InteractionTool {
 		snapshotTool = new SnapshotTool(parent);
 	}
 
-	public String clickAndReturnTree(String nodeId) {
+	public String clickAndReturnTree(String backendNodeId) {
 		final CefDevToolsClient devToolsClient = parent.currentBrowser.getDevToolsClient();
 
-		System.out.printf("Node ID: %s\n", nodeId);
+		System.out.printf("Backend node ID: %s\n", backendNodeId);
 
 		try {
-			final JsonArray boxModelContent = devToolsClient
-					.executeDevToolsMethod("DOM.getBoxModel", "{\"nodeId\":" + nodeId + "}").thenApply(response -> {
+			final JsonObject boxModel = devToolsClient
+					.executeDevToolsMethod("DOM.getBoxModel", "{\"backendNodeId\":" + backendNodeId + "}")
+					.thenApply(response -> {
 						System.out.printf("Box model response: %s\n", response);
 
 						final JsonObject responseJson = JsonParser.parseString(response).getAsJsonObject();
 						final JsonObject model = responseJson.get("model").getAsJsonObject();
-						final JsonArray content = model.get("content").getAsJsonArray();
 
-						return content;
+						return model;
 					}).get();
-			final String x = boxModelContent.get(0).getAsString();
-			final String y = boxModelContent.get(1).getAsString();
+			final JsonArray content = boxModel.get("content").getAsJsonArray();
 
-			System.out.printf("X: %s\nY: %s\n", x, y);
+			final float width = boxModel.get("width").getAsFloat();
+			final float heignt = boxModel.get("height").getAsFloat();
 
-			final String command = "Input.dispatchMouseEvent";
+			final float x = Float.parseFloat(content.get(0).getAsString()) + (width / 2);
+			final float y = Float.parseFloat(content.get(1).getAsString()) + (heignt / 2);
 
-			final Map<String, String> params = new HashMap<>();
-			params.put("type", "mousePressed");
-			params.put("x", x);
-			params.put("y", y);
-			params.put("button", "left");
-			params.put("clickCount", "1");
+			System.out.printf("X: %f\nY: %f\nWidth: %f\nHeight:%f\n", x, y, width, heignt);
 
-			devToolsClient.executeDevToolsMethod(command, params.toString());
+			final String clickScript = """
+					const element = document.elementFromPoint(%s, %s);
+					element.click();
+										""".formatted(String.valueOf(x), String.valueOf(y));
 
-			params.put("type", "mouseReleased");
-
-			devToolsClient.executeDevToolsMethod(command, params.toString());
+			parent.currentBrowser.executeJavaScript(clickScript, parent.currentBrowser.getURL(), 0);
 
 			try {
 				Thread.sleep(500);

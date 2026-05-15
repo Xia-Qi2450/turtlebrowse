@@ -21,7 +21,7 @@ public class InteractionToolSpec {
 		return Tools.Tool.builder().toolSpec(Tools.ToolSpec.builder()
 				.name("interact_with_page")
 				.description(
-						"Creates an interaction with the current page or element (e.g. click an element). Call get_dom_snapshot to get context on the node ID and the current page. This tool returns the DOM snapshot after the action has been performed.")
+						"Creates an interaction with the current page or element (e.g. click an element). Call get_dom_snapshot to get context on the backend node ID and the current page. This tool returns the DOM snapshot after the action has been performed.")
 				.parameters(
 						Tools.Parameters.of(
 								Map.of(
@@ -31,15 +31,16 @@ public class InteractionToolSpec {
 												.description("The action you want to perform on the element.")
 												.required(true)
 												.build(),
-										"nodeId",
+										"backendNodeId",
 										Tools.Property.builder()
 												.type("string")
-												.description("The node ID element you want to perform an action on.")
+												.description(
+														"The backend node ID element you want to perform an action on.")
 												.required(true)
 												.build())))
 				.build()).toolFunction(args -> {
 					final String action = args.get("action").toString();
-					final String nodeId = args.get("nodeId").toString();
+					final String nodeId = args.get("backendNodeId").toString();
 					switch (action) {
 						case "click": {
 							final String snapshot = interactionTool.clickAndReturnTree(nodeId);

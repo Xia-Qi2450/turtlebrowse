@@ -31,9 +31,13 @@ public class SnapshotTool {
 
 		final java.util.Map<String, JsonObject> nodeMap = new java.util.LinkedHashMap<>();
 
+		System.out.println("Before JSON element iteration...");
+
 		for (final JsonElement el : nodes) {
 			final JsonObject node = el.getAsJsonObject();
-			nodeMap.put(node.get("nodeId").getAsString(), node);
+			if (!node.has("backendDOMNodeId"))
+				continue;
+			nodeMap.put(node.get("backendDOMNodeId").getAsString(), node);
 		}
 
 		String rootId = null;
@@ -57,8 +61,9 @@ public class SnapshotTool {
 	private static final java.util.Set<String> IGNORED_ROLES = java.util.Set.of(
 			"InlineTextBox", "StaticText", "LineBreak", "none", "generic");
 
-	private void writeNode(String nodeId, int depth, java.util.Map<String, JsonObject> nodeMap, StringBuilder sb) {
-		final JsonObject node = nodeMap.get(nodeId);
+	private void writeNode(String backendNodeId, int depth, java.util.Map<String, JsonObject> nodeMap,
+			StringBuilder sb) {
+		final JsonObject node = nodeMap.get(backendNodeId);
 		if (node == null)
 			return;
 
@@ -73,7 +78,7 @@ public class SnapshotTool {
 
 		if (!skip) {
 			final String indent = "    ".repeat(depth);
-			sb.append(indent).append("- nodeId:\"").append(nodeId).append("\"\n");
+			sb.append(indent).append("- backendNodeId:\"").append(backendNodeId).append("\"\n");
 			sb.append(indent).append("    role: ").append(role).append("\n");
 
 			if (node.has("name")) {
