@@ -21,10 +21,12 @@ public class InteractionToolSpec {
 	public final Tools.Tool getSpecification() {
 		actions.add("click");
 		actions.add("input");
+		actions.add("enter");
 		return Tools.Tool.builder().toolSpec(Tools.ToolSpec.builder()
 				.name("interact_with_page")
 				.description(
-						"Creates an interaction with the current page or element (e.g. click an element). Call get_dom_snapshot to get context on the backend node ID and the current page. This tool returns the DOM snapshot after the action has been performed.")
+						"Creates an interaction with the current page or element (e.g. click an element). Call get_dom_snapshot to get context on the backend node ID and the current page. The valid actions are: "
+								+ actions.toString())
 				.parameters(
 						Tools.Parameters.of(
 								Map.of(
@@ -67,6 +69,15 @@ public class InteractionToolSpec {
 								return "The input is empty. An input must be provided.";
 							}
 							final String result = interactionTool.typeElement(nodeId, input);
+							return "Response from action executed on "
+									+ parent.currentBrowser.getURL() + ": '"
+									+ result + "'\nThe user's original prompt was: '"
+									+ parent.ollamaSession.latestMessage
+									+ "'. Use this new data to fufill the user's request.";
+						}
+
+						case "enter": {
+							final String result = interactionTool.pressEnter();
 							return "Response from action executed on "
 									+ parent.currentBrowser.getURL() + ": '"
 									+ result + "'\nThe user's original prompt was: '"

@@ -1,11 +1,7 @@
 package dev.ingstudios.turtlebrowse.tools;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.cef.browser.CefDevToolsClient;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -63,15 +59,38 @@ public class InteractionTool {
 		try {
 			devToolsClient.executeDevToolsMethod("DOM.focus", "{\"backendNodeId\":" + backendNodeId + "}");
 			Thread.sleep(500);
-			Map<String, String> params = new HashMap<>();
-			params.put("text", input);
-			String jsonPayload = new Gson().toJson(params);
-			devToolsClient.executeDevToolsMethod("Input.insertText", jsonPayload);
+			final JsonObject params = new JsonObject();
+			params.addProperty("text", input);
+			devToolsClient.executeDevToolsMethod("Input.insertText", params.toString());
+			return "Successfully typed '" + input
+					+ "' in the element. Use the 'enter' action if you need to press enter to trigger a follow up action.";
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "An unexpected error occurred while inputting in the element.";
 		}
+	}
 
-		return "Successfully typed '" + input + "' in the element.";
+	public String pressEnter() {
+		final CefDevToolsClient devToolsClient = parent.currentBrowser.getDevToolsClient();
+
+		try {
+			final JsonObject params = new JsonObject();
+			params.addProperty("key", "Enter");
+			params.addProperty("code", "Enter");
+			params.addProperty("windowsVirtualKeyCode", 13);
+			params.addProperty("nativeVirtualKeyCode", 13);
+
+			params.addProperty("type", "keyDown");
+			devToolsClient.executeDevToolsMethod("Input.dispatchKeyEvent", params.toString());
+
+			Thread.sleep(100);
+
+			params.addProperty("type", "keyUp");
+
+			return "Succesafully executed enter event.";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "An unexpected error occurred while pressing enter.";
+		}
 	}
 }
