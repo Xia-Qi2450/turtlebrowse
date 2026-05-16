@@ -1,7 +1,11 @@
 package dev.ingstudios.turtlebrowse.tools;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.cef.browser.CefDevToolsClient;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -15,7 +19,7 @@ public class InteractionTool {
 		this.parent = parent;
 	}
 
-	public String clickAndReturnTree(String backendNodeId) {
+	public String clickElement(String backendNodeId) {
 		final CefDevToolsClient devToolsClient = parent.currentBrowser.getDevToolsClient();
 
 		System.out.printf("Backend node ID: %s\n", backendNodeId);
@@ -51,5 +55,23 @@ public class InteractionTool {
 			e.printStackTrace();
 			return "An unexpected error occurred while clicking the element.";
 		}
+	}
+
+	public String typeElement(String backendNodeId, String input) {
+		final CefDevToolsClient devToolsClient = parent.currentBrowser.getDevToolsClient();
+
+		try {
+			devToolsClient.executeDevToolsMethod("DOM.focus", "{\"backendNodeId\":" + backendNodeId + "}");
+			Thread.sleep(500);
+			Map<String, String> params = new HashMap<>();
+			params.put("text", input);
+			String jsonPayload = new Gson().toJson(params);
+			devToolsClient.executeDevToolsMethod("Input.insertText", jsonPayload);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "An unexpected error occurred while inputting in the element.";
+		}
+
+		return "Successfully typed '" + input + "' in the element.";
 	}
 }

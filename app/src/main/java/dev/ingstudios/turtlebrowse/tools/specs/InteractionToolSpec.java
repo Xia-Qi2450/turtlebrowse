@@ -20,7 +20,7 @@ public class InteractionToolSpec {
 
 	public final Tools.Tool getSpecification() {
 		actions.add("click");
-		actions.add("type");
+		actions.add("input");
 		return Tools.Tool.builder().toolSpec(Tools.ToolSpec.builder()
 				.name("interact_with_page")
 				.description(
@@ -40,23 +40,44 @@ public class InteractionToolSpec {
 												.description(
 														"The backend node ID element you want to perform an action on.")
 												.required(true)
+												.build(),
+										"inputText",
+										Tools.Property.builder()
+												.type("string")
+												.description("The text you want to type if you want to input text.")
+												.required(false)
 												.build())))
 				.build()).toolFunction(args -> {
 					final String action = args.get("action").toString();
 					final String nodeId = args.get("backendNodeId").toString();
+
 					switch (action) {
 						case "click": {
-							final String snapshot = interactionTool.clickAndReturnTree(nodeId);
-							return "Use this YAML snapshot of the updated DOM after the action was performed to understand the page ("
-									+ parent.currentBrowser.getURL() + ") better: '"
-									+ snapshot + "'\nThe user's original prompt was: '"
+							final String result = interactionTool.clickElement(nodeId);
+							return "Response from action executed on "
+									+ parent.currentBrowser.getURL() + ": '"
+									+ result + "'\nThe user's original prompt was: '"
+									+ parent.ollamaSession.latestMessage
+									+ "'. Use this new data to fufill the user's request.";
+						}
+
+						case "input": {
+							final String input = args.get("inputText").toString();
+							if (input == null) {
+								return "The input is empty. An input must be provided.";
+							}
+							final String result = interactionTool.typeElement(nodeId, input);
+							return "Response from action executed on "
+									+ parent.currentBrowser.getURL() + ": '"
+									+ result + "'\nThe user's original prompt was: '"
 									+ parent.ollamaSession.latestMessage
 									+ "'. Use this new data to fufill the user's request.";
 						}
 
 						default: {
 							System.err.printf("A valid action was not provided: %s\n", action);
-							return "A valid action was not provided.";
+							return "A valid action was not provided. Hint: the valid actions are: "
+									+ actions.toString();
 						}
 					}
 				}).build();
