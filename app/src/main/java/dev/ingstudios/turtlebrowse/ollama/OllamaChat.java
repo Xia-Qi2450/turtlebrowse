@@ -1,7 +1,10 @@
 package dev.ingstudios.turtlebrowse.ollama;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 import dev.ingstudios.turtlebrowse.components.MainWindow;
@@ -79,8 +82,20 @@ public class OllamaChat {
 		latestMessage = prompt;
 
 		if (history.isEmpty()) {
-			history.add(new OllamaChatMessage(OllamaChatMessageRole.SYSTEM,
-					"You are Gemma, a helpful AI assistant inside the Turtlebrowse browser. Answer the user's questions in a friendly manner."));
+			final String directive = """
+					Current date: %s
+
+					Context:
+					You are Tutel, an AI agent operating inside the Turtlebrowse browser.
+
+					Rules:
+					1. If the user does not specify where the action should be performed and there is ambiquity, always try to call get_dom_snapshot to try to find context on the page the user is currently on.
+					2. Try to use tools whenever possible and if required. For example, if the user wants you to search the web, use the search_web tool.
+					3. If the user asks you to repeat the steps, do not try to tell the user that you have already performed the action. You should re-perform the action instead.
+					"""
+					.formatted(getCurrentDate());
+
+			history.add(new OllamaChatMessage(OllamaChatMessageRole.SYSTEM, directive));
 		}
 
 		history.add(new OllamaChatMessage(OllamaChatMessageRole.USER, prompt));
@@ -134,5 +149,16 @@ public class OllamaChat {
 			System.out.printf("Error while chatting: %s\n", e.getMessage());
 			onError.accept("An unexpected error occurred while chatting.");
 		}
+	}
+
+	private String getCurrentDate() {
+		final LocalDateTime now = LocalDateTime.now();
+
+		final String month = now.format(DateTimeFormatter.ofPattern("MMMM", Locale.ENGLISH));
+		final String yearAndTime = now.format(DateTimeFormatter.ofPattern("yyyy h:mm a", Locale.ENGLISH));
+		final int day = now.getDayOfMonth();
+		final String formattedDate = month + " " + day + " " + yearAndTime;
+
+		return formattedDate;
 	}
 }
