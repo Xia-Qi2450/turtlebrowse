@@ -68,7 +68,7 @@ public class AddressBar extends JPanel {
 			});
 			backButton.setOnAction(event -> {
 				System.out.println("Back button clicked.");
-				CefBrowser browser = this.parent.getBrowserInstance();
+				CefBrowser browser = this.parent.currentBrowser;
 				if (browser.canGoBack())
 					browser.goBack();
 			});
@@ -89,7 +89,7 @@ public class AddressBar extends JPanel {
 			});
 			forwardButton.setOnAction(event -> {
 				System.out.println("Forward button clicked.");
-				CefBrowser browser = this.parent.getBrowserInstance();
+				CefBrowser browser = this.parent.currentBrowser;
 				if (browser.canGoForward())
 					browser.goForward();
 			});
@@ -110,7 +110,7 @@ public class AddressBar extends JPanel {
 			});
 			reloadButton.setOnAction(event -> {
 				System.out.println("Reload button clicked.");
-				CefBrowser browser = this.parent.getBrowserInstance();
+				CefBrowser browser = this.parent.currentBrowser;
 				browser.reload();
 			});
 
@@ -121,7 +121,7 @@ public class AddressBar extends JPanel {
 				return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
 			}, this.parent.materialColorScheme.getSurfaceContainer()));
 			addressField.setOnAction(event -> {
-				CefBrowser browser = this.parent.getBrowserInstance();
+				CefBrowser browser = this.parent.currentBrowser;
 
 				String enteredUrl = this.parent.formatURL(addressField.getText(), false);
 
@@ -154,7 +154,7 @@ public class AddressBar extends JPanel {
 				addressField.selectAll();
 
 				SwingUtilities.invokeLater(() -> {
-					CefBrowser browser = this.parent.getBrowserInstance();
+					CefBrowser browser = this.parent.currentBrowser;
 					if (browser != null)
 						browser.setFocus(false);
 				});
@@ -223,7 +223,7 @@ public class AddressBar extends JPanel {
 			addressField.selectAll();
 
 			SwingUtilities.invokeLater(() -> {
-				CefBrowser browser = this.parent.getBrowserInstance();
+				CefBrowser browser = this.parent.currentBrowser;
 				if (browser != null)
 					browser.setFocus(false);
 			});

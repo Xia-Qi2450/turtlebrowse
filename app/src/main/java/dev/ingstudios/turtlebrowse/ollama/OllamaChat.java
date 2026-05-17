@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import dev.ingstudios.turtlebrowse.components.MainWindow;
 import dev.ingstudios.turtlebrowse.tools.specs.FetchToolSpec;
+import dev.ingstudios.turtlebrowse.tools.specs.FindElementToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.InteractionToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.NavigateSiteToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.SearXNGToolSpec;
@@ -67,6 +68,13 @@ public class OllamaChat {
 			ollama.registerTool(interactionToolSpec);
 			ollama.registerTool(navigateSiteToolSpec);
 
+			try {
+				final Tools.Tool findElementToolSpec = new FindElementToolSpec(parent).getSpecification();
+				ollama.registerTool(findElementToolSpec);
+			} catch (OllamaException e) {
+				System.out.printf("Failed to register findElementTool: %s\n", e.getMessage());
+			}
+
 			builder = OllamaChatRequest.builder().withModel(chatModel);
 		} catch (OllamaException e) {
 			System.out.printf("Error while initializing Ollama:", e.getMessage());
@@ -92,6 +100,10 @@ public class OllamaChat {
 					1. If the user does not specify where the action should be performed and there is ambiquity, always try to call get_dom_snapshot to try to find context on the page the user is currently on.
 					2. Try to use tools whenever possible and if required. For example, if the user wants you to search the web, use the search_web tool.
 					3. If the user asks you to repeat the steps, do not try to tell the user that you have already performed the action. You should re-perform the action instead.
+
+					Helpful Information:
+					If you need to perform an action on the page, call find_element to find the element to interact with.
+					Use interact_with_page to interact with elements on the page.
 					"""
 					.formatted(getCurrentDate());
 

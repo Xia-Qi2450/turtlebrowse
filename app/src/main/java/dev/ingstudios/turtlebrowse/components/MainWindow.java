@@ -381,10 +381,6 @@ public class MainWindow extends JFrame {
 		});
 	}
 
-	public CefBrowser getBrowserInstance() {
-		return currentBrowser;
-	}
-
 	private void setMaterialColorSchemeFromSystem() {
 		final Color accentColor = Platform.getPreferences().getAccentColor();
 		if (accentColor == null) {
