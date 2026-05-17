@@ -43,14 +43,17 @@ public class SnapshotTool {
 			String role = "";
 			if (node.has("role")) {
 				role = node.getAsJsonObject("role").get("value").getAsString();
+			} else {
+				continue;
 			}
+
 			if (IGNORED_ROLES.contains(role))
 				continue;
 
 			boolean isFocusable = false;
 			final JsonObject elementJson = new JsonObject();
 
-			elementJson.addProperty("id", node.get("backendDOMNodeId").getAsString());
+			elementJson.addProperty("backendNodeId", node.get("backendDOMNodeId").getAsString());
 			elementJson.addProperty("role", role);
 
 			if (node.has("name")) {
