@@ -14,6 +14,7 @@ import dev.ingstudios.turtlebrowse.tools.specs.InteractionToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.NavigateSiteToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.SearXNGToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.SnapshotImageToolSpec;
+import dev.ingstudios.turtlebrowse.tools.specs.SnapshotToolSpec;
 import io.github.ollama4j.Ollama;
 import io.github.ollama4j.exceptions.OllamaException;
 import io.github.ollama4j.models.chat.OllamaChatMessage;
@@ -55,12 +56,14 @@ public class OllamaChat {
 
 			final Tools.Tool searchToolSpec = new SearXNGToolSpec(userAgent, parent).getSpecification();
 			final Tools.Tool fetchToolSpec = new FetchToolSpec(userAgent, parent).getSpecification();
+			final Tools.Tool snapshotToolSpec = new SnapshotToolSpec(parent).getSpecification();
 			final Tools.Tool snapshotImageToolSpec = new SnapshotImageToolSpec(parent).getSpecification();
 			final Tools.Tool interactionToolSpec = new InteractionToolSpec(parent).getSpecification();
 			final Tools.Tool navigateSiteToolSpec = new NavigateSiteToolSpec(parent).getSpecification();
 
 			ollama.registerTool(searchToolSpec);
 			ollama.registerTool(fetchToolSpec);
+			ollama.registerTool(snapshotToolSpec);
 			ollama.registerTool(snapshotImageToolSpec);
 			ollama.registerTool(interactionToolSpec);
 			ollama.registerTool(navigateSiteToolSpec);
