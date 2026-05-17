@@ -14,7 +14,6 @@ import dev.ingstudios.turtlebrowse.tools.specs.InteractionToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.NavigateSiteToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.SearXNGToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.SnapshotImageToolSpec;
-import dev.ingstudios.turtlebrowse.tools.specs.SnapshotToolSpec;
 import io.github.ollama4j.Ollama;
 import io.github.ollama4j.exceptions.OllamaException;
 import io.github.ollama4j.models.chat.OllamaChatMessage;
@@ -56,14 +55,12 @@ public class OllamaChat {
 
 			final Tools.Tool searchToolSpec = new SearXNGToolSpec(userAgent, parent).getSpecification();
 			final Tools.Tool fetchToolSpec = new FetchToolSpec(userAgent, parent).getSpecification();
-			final Tools.Tool snapshotToolSpec = new SnapshotToolSpec(parent).getSpecification();
 			final Tools.Tool snapshotImageToolSpec = new SnapshotImageToolSpec(parent).getSpecification();
 			final Tools.Tool interactionToolSpec = new InteractionToolSpec(parent).getSpecification();
 			final Tools.Tool navigateSiteToolSpec = new NavigateSiteToolSpec(parent).getSpecification();
 
 			ollama.registerTool(searchToolSpec);
 			ollama.registerTool(fetchToolSpec);
-			ollama.registerTool(snapshotToolSpec);
 			ollama.registerTool(snapshotImageToolSpec);
 			ollama.registerTool(interactionToolSpec);
 			ollama.registerTool(navigateSiteToolSpec);
@@ -97,9 +94,9 @@ public class OllamaChat {
 					You are Tutel, an AI agent operating inside the Turtlebrowse browser.
 
 					Rules:
-					1. If the user does not specify where the action should be performed and there is ambiquity, always try to call get_dom_snapshot to try to find context on the page the user is currently on.
-					2. Try to use tools whenever possible and if required. For example, if the user wants you to search the web, use the search_web tool.
-					3. If the user asks you to repeat the steps, do not try to tell the user that you have already performed the action. You should re-perform the action instead.
+					1. Try to use tools whenever possible and if required. For example, if the user wants you to search the web, use the search_web tool.
+					2. If the user asks you to repeat the steps, do not try to tell the user that you have already performed the action. You should re-perform the action instead.
+					3. Assume that the user wants to perform an action on the current page and browser context unlesss explicitly stated and use find_element if needed to find an element on the current page.
 
 					Helpful Information:
 					If you need to perform an action on the page, call find_element to find the element to interact with.

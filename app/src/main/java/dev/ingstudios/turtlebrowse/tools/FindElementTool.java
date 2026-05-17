@@ -4,19 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.ingstudios.turtlebrowse.components.MainWindow;
-import dev.ingstudios.turtlebrowse.tools.specs.SnapshotToolSpec;
 import io.github.ollama4j.Ollama;
 import io.github.ollama4j.exceptions.OllamaException;
 import io.github.ollama4j.models.generate.OllamaGenerateRequest;
 import io.github.ollama4j.models.response.Model;
 import io.github.ollama4j.models.response.OllamaResult;
-import io.github.ollama4j.tools.Tools;
 
 public class FindElementTool {
+	private final SnapshotTool snapshotTool;
 	private final Ollama ollama = new Ollama();
 	private final OllamaGenerateRequest builder;
 
 	public FindElementTool(MainWindow parent) throws OllamaException {
+		snapshotTool = new SnapshotTool(parent);
+
 		ollama.setRequestTimeoutSeconds(120);
 
 		try {
@@ -36,10 +37,6 @@ public class FindElementTool {
 				});
 			}
 
-			final Tools.Tool snapshotToolSpec = new SnapshotToolSpec(parent).getSpecification();
-
-			ollama.registerTool(snapshotToolSpec);
-
 			builder = OllamaGenerateRequest.builder().withModel(chatModel);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -48,16 +45,16 @@ public class FindElementTool {
 	}
 
 	public String findElement(String element) {
-
-		final OllamaGenerateRequest chatRequest = builder.withUseTools(true)
-				.withPrompt(
-						"Find the backendNodeId of the elment: '%s'. Return the backendNodeId number and nothing else."
-								.formatted(element))
-				.build();
-
 		try {
+			final String snapshot = snapshotTool.takeSnapshot().get();
+
+			final OllamaGenerateRequest chatRequest = builder.withPrompt(
+					"Use the snapshot '%s' to find the backendNodeId of the elment: '%s'. Return the backendNodeId number and nothing else."
+							.formatted(snapshot, element))
+					.build();
 			final OllamaResult result = ollama.generate(chatRequest, null);
 			final String response = result.getResponse();
+			System.out.printf("Backend node ID: %s\n", response);
 			return response;
 		} catch (Exception e) {
 			e.printStackTrace();
