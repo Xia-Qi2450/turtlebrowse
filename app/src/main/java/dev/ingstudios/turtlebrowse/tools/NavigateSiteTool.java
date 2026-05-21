@@ -1,6 +1,6 @@
 package dev.ingstudios.turtlebrowse.tools;
 
-import dev.ingstudios.turtlebrowse.components.MainWindow;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
 
 public class NavigateSiteTool {
 	final MainWindow parent;

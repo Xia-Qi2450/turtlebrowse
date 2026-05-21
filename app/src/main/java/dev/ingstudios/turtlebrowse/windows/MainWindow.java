@@ -1,4 +1,4 @@
-package dev.ingstudios.turtlebrowse.components;
+package dev.ingstudios.turtlebrowse.windows;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -27,12 +27,14 @@ import org.cef.CefApp.CefAppState;
 import org.cef.browser.CefBrowser;
 import org.cef.callback.CefSchemeRegistrar;
 import org.glavo.monetfx.ColorScheme;
-import org.glavo.monetfx.beans.property.ColorSchemeProperty;
-import org.glavo.monetfx.beans.property.SimpleColorSchemeProperty;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import dev.ingstudios.turtlebrowse.Main;
+import dev.ingstudios.turtlebrowse.components.AISidebar;
+import dev.ingstudios.turtlebrowse.components.AddressBar;
+import dev.ingstudios.turtlebrowse.components.TabBar;
 import dev.ingstudios.turtlebrowse.handlers.CefKeyboardHandler;
 import dev.ingstudios.turtlebrowse.handlers.SwingKeyboardHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseContextMenuHandler;
@@ -70,8 +72,6 @@ public class MainWindow extends JFrame {
 	public TabBar tabBar;
 	public final Map<CefBrowser, String> titleMap = new HashMap<>();
 	public final BooleanProperty isUiFocused = new SimpleBooleanProperty(false);
-	public ColorSchemeProperty materialColorScheme = new SimpleColorSchemeProperty(
-			ColorScheme.fromSeed(Color.web("#BDCF47")));
 	public OllamaChat ollamaSession;
 	public AISidebar aiSidebar;
 	private final Gson gson = new Gson();
@@ -81,8 +81,6 @@ public class MainWindow extends JFrame {
 	public MainWindow() {
 		super("Turtlebrowse");
 
-		Platform.startup(() -> {
-		});
 		Platform.runLater(() -> {
 			Font.loadFont(getClass().getResourceAsStream("/fonts/google_sans_flex.ttf"), 10);
 			Font.loadFont(getClass().getResourceAsStream("/fonts/material_icons_outlined.otf"), 10);
@@ -384,9 +382,9 @@ public class MainWindow extends JFrame {
 	private void setMaterialColorSchemeFromSystem() {
 		final Color accentColor = Platform.getPreferences().getAccentColor();
 		if (accentColor == null) {
-			materialColorScheme.set(ColorScheme.fromSeed(Color.web("#BDCF47")));
+			Main.materialColorScheme.set(ColorScheme.fromSeed(Color.web("#BDCF47")));
 		} else {
-			materialColorScheme.set(ColorScheme.fromSeed(accentColor));
+			Main.materialColorScheme.set(ColorScheme.fromSeed(accentColor));
 		}
 	}
 

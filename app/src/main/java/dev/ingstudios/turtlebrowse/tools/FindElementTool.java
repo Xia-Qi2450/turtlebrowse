@@ -3,7 +3,7 @@ package dev.ingstudios.turtlebrowse.tools;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.ingstudios.turtlebrowse.components.MainWindow;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
 import io.github.ollama4j.Ollama;
 import io.github.ollama4j.exceptions.OllamaException;
 import io.github.ollama4j.models.generate.OllamaGenerateRequest;

@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import dev.ingstudios.turtlebrowse.components.MainWindow;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
 
 public class SnapshotImageTool {
 	private final MainWindow parent;

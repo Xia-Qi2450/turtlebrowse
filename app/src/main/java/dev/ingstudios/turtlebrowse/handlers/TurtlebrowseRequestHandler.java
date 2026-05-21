@@ -5,7 +5,7 @@ import org.cef.browser.CefFrame;
 import org.cef.handler.CefRequestHandlerAdapter;
 import org.cef.network.CefRequest;
 
-import dev.ingstudios.turtlebrowse.components.MainWindow;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
 
 public class TurtlebrowseRequestHandler extends CefRequestHandlerAdapter {
 	private CefBrowser aiSidebarBrowser;

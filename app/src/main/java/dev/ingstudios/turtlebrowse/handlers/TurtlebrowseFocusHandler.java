@@ -7,7 +7,7 @@ import javax.swing.SwingUtilities;
 import org.cef.browser.CefBrowser;
 import org.cef.handler.CefFocusHandlerAdapter;
 
-import dev.ingstudios.turtlebrowse.components.MainWindow;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
 
 public class TurtlebrowseFocusHandler extends CefFocusHandlerAdapter {
 	private final MainWindow parent;

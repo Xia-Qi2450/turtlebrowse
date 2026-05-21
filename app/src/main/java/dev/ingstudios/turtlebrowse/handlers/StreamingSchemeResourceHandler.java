@@ -16,8 +16,8 @@ import org.cef.network.CefResponse;
 
 import com.google.gson.Gson;
 
-import dev.ingstudios.turtlebrowse.components.MainWindow;
 import dev.ingstudios.turtlebrowse.ollama.OllamaChat;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
 
 public class StreamingSchemeResourceHandler extends CefResourceHandlerAdapter {
     private PipedInputStream pipedIn;
@@ -36,11 +36,16 @@ public class StreamingSchemeResourceHandler extends CefResourceHandlerAdapter {
         Thread.ofVirtual().start(() -> {
             final OllamaChat chat = parent.getOllamaSession();
             chat.prompt(prompt,
-                chunk -> writeSSE("think", chunk),
-                chunk -> writeSSE("response", chunk),
-                result -> { writeSSE("done", result); closeStream(); },
-                error  -> { writeSSE("error", error);  closeStream(); }
-            );
+                    chunk -> writeSSE("think", chunk),
+                    chunk -> writeSSE("response", chunk),
+                    result -> {
+                        writeSSE("done", result);
+                        closeStream();
+                    },
+                    error -> {
+                        writeSSE("error", error);
+                        closeStream();
+                    });
         });
     }
 
@@ -49,11 +54,15 @@ public class StreamingSchemeResourceHandler extends CefResourceHandlerAdapter {
             String json = "{\"type\":\"" + type + "\",\"data\":" + gson.toJson(data) + "}";
             pipedOut.write(("data: " + json + "\n\n").getBytes(StandardCharsets.UTF_8));
             pipedOut.flush();
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
     }
 
     private void closeStream() {
-        try { pipedOut.close(); } catch (IOException ignored) {}
+        try {
+            pipedOut.close();
+        } catch (IOException ignored) {
+        }
     }
 
     @Override

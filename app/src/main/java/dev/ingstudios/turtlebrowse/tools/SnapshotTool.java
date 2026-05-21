@@ -7,7 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import dev.ingstudios.turtlebrowse.components.MainWindow;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
 
 public class SnapshotTool {
 	private final MainWindow parent;
@@ -80,11 +80,11 @@ public class SnapshotTool {
 					final JsonElement val = prop.get("value").getAsJsonObject().get("value");
 					if (key.equals("focusable") && val.getAsBoolean())
 						isFocusable = true;
-					elementJson.add(key, val);
 				}
 			}
 
-			if (!isFocusable && java.util.Set.of("listitem", "heading", "generic").contains(role))
+			if (!isFocusable || java.util.Set.of("listitem", "heading", "generic", "region").contains(role)
+					|| !node.has("name"))
 				continue;
 
 			jsonlOutput.append(elementJson.toString()).append("\n");

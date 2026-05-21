@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import dev.ingstudios.turtlebrowse.components.MainWindow;
 import dev.ingstudios.turtlebrowse.tools.InteractionTool;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
 import io.github.ollama4j.tools.Tools;
 
 public class InteractionToolSpec {

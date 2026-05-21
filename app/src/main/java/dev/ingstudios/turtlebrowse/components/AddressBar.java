@@ -28,6 +28,9 @@ import org.kordamp.ikonli.material2.Material2OutlinedMZ;
 
 import com.jfoenix.controls.JFXButton;
 
+import dev.ingstudios.turtlebrowse.Main;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
+
 public class AddressBar extends JPanel {
 	private TextField addressField;
 	private MainWindow parent;
@@ -47,9 +50,9 @@ public class AddressBar extends JPanel {
 			root.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
 			root.setStyle("-fx-spacing: 10px; -fx-padding: 10px;");
 			root.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-				final Paint backgroundColor = this.parent.materialColorScheme.getSurface().get();
+				final Paint backgroundColor = Main.materialColorScheme.getSurface().get();
 				return new Background(new BackgroundFill(backgroundColor, null, null));
-			}, this.parent.materialColorScheme.getSurface()));
+			}, Main.materialColorScheme.getSurface()));
 			root.setAlignment(Pos.CENTER);
 
 			final Button backButton = new JFXButton("<");
@@ -57,9 +60,9 @@ public class AddressBar extends JPanel {
 			backButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 			backButton.setStyle("-fx-padding: 10px;");
 			backButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-				final Paint backgroundColor = this.parent.materialColorScheme.getSurfaceContainer().get();
+				final Paint backgroundColor = Main.materialColorScheme.getSurfaceContainer().get();
 				return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
-			}, this.parent.materialColorScheme.getSurfaceContainer()));
+			}, Main.materialColorScheme.getSurfaceContainer()));
 			backButton.setOnMouseEntered(event -> {
 				backButton.setCursor(Cursor.HAND);
 			});
@@ -78,9 +81,9 @@ public class AddressBar extends JPanel {
 			forwardButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 			forwardButton.setStyle("-fx-padding: 10px;");
 			forwardButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-				final Paint backgroundColor = this.parent.materialColorScheme.getSurfaceContainer().get();
+				final Paint backgroundColor = Main.materialColorScheme.getSurfaceContainer().get();
 				return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
-			}, this.parent.materialColorScheme.getSurfaceContainer()));
+			}, Main.materialColorScheme.getSurfaceContainer()));
 			forwardButton.setOnMouseEntered(event -> {
 				forwardButton.setCursor(Cursor.HAND);
 			});
@@ -99,9 +102,9 @@ public class AddressBar extends JPanel {
 			reloadButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 			reloadButton.setStyle("-fx-padding: 10px;");
 			reloadButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-				final Paint backgroundColor = this.parent.materialColorScheme.getSurfaceContainer().get();
+				final Paint backgroundColor = Main.materialColorScheme.getSurfaceContainer().get();
 				return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
-			}, this.parent.materialColorScheme.getSurfaceContainer()));
+			}, Main.materialColorScheme.getSurfaceContainer()));
 			reloadButton.setOnMouseEntered(event -> {
 				reloadButton.setCursor(Cursor.HAND);
 			});
@@ -117,9 +120,9 @@ public class AddressBar extends JPanel {
 			addressField = new TextField(startUrl);
 			addressField.setStyle("-fx-padding: 10px;");
 			addressField.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-				final Paint backgroundColor = this.parent.materialColorScheme.getSurfaceContainer().get();
+				final Paint backgroundColor = Main.materialColorScheme.getSurfaceContainer().get();
 				return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
-			}, this.parent.materialColorScheme.getSurfaceContainer()));
+			}, Main.materialColorScheme.getSurfaceContainer()));
 			addressField.setOnAction(event -> {
 				CefBrowser browser = this.parent.currentBrowser;
 
@@ -167,9 +170,9 @@ public class AddressBar extends JPanel {
 			aiButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 			aiButton.setStyle("-fx-padding: 10px;");
 			aiButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-				final Paint backgroundColor = this.parent.materialColorScheme.getSurfaceContainer().get();
+				final Paint backgroundColor = Main.materialColorScheme.getSurfaceContainer().get();
 				return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
-			}, this.parent.materialColorScheme.getSurfaceContainer()));
+			}, Main.materialColorScheme.getSurfaceContainer()));
 			aiButton.setOnMouseEntered(event -> {
 				aiButton.setCursor(Cursor.HAND);
 			});

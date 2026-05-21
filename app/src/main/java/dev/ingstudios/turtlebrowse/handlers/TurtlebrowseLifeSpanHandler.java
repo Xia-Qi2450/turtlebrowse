@@ -4,7 +4,7 @@ import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
 import org.cef.handler.CefLifeSpanHandlerAdapter;
 
-import dev.ingstudios.turtlebrowse.components.MainWindow;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
 
 public class TurtlebrowseLifeSpanHandler extends CefLifeSpanHandlerAdapter {
 	private final MainWindow parent;

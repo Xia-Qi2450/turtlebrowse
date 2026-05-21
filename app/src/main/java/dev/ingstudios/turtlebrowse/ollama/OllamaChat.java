@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 
-import dev.ingstudios.turtlebrowse.components.MainWindow;
 import dev.ingstudios.turtlebrowse.tools.specs.FetchToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.FindElementToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.InteractionToolSpec;
@@ -15,6 +14,7 @@ import dev.ingstudios.turtlebrowse.tools.specs.NavigateSiteToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.SearXNGToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.SnapshotImageToolSpec;
 import dev.ingstudios.turtlebrowse.tools.specs.SnapshotToolSpec;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
 import io.github.ollama4j.Ollama;
 import io.github.ollama4j.exceptions.OllamaException;
 import io.github.ollama4j.models.chat.OllamaChatMessage;

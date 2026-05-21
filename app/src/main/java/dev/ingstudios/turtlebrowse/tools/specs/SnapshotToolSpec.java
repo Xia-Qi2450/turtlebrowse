@@ -1,7 +1,7 @@
 package dev.ingstudios.turtlebrowse.tools.specs;
 
-import dev.ingstudios.turtlebrowse.components.MainWindow;
 import dev.ingstudios.turtlebrowse.tools.SnapshotTool;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
 import io.github.ollama4j.tools.Tools;
 
 public class SnapshotToolSpec {

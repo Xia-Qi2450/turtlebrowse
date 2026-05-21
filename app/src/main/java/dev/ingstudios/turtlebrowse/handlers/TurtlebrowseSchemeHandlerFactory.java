@@ -9,7 +9,7 @@ import org.cef.callback.CefSchemeHandlerFactory;
 import org.cef.handler.CefResourceHandler;
 import org.cef.network.CefRequest;
 
-import dev.ingstudios.turtlebrowse.components.MainWindow;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
 
 public class TurtlebrowseSchemeHandlerFactory implements CefSchemeHandlerFactory {
     private MainWindow parent;

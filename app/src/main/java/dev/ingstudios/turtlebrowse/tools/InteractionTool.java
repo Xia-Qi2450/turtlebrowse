@@ -6,7 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import dev.ingstudios.turtlebrowse.components.MainWindow;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
 
 public class InteractionTool {
 	private final MainWindow parent;
@@ -63,7 +63,7 @@ public class InteractionTool {
 			params.addProperty("text", input);
 			devToolsClient.executeDevToolsMethod("Input.insertText", params.toString());
 			return "Successfully typed '" + input
-					+ "' in the element. Use the 'enter' action if you need to press enter to trigger a follow up action.";
+					+ "' in the element. Use the interact_with_page tool and 'enter' action if you need to press enter to trigger a follow up action.";
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "An unexpected error occurred while inputting in the element.";

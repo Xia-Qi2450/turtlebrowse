@@ -7,7 +7,7 @@ import org.cef.callback.CefMenuModel;
 import org.cef.callback.CefStringVisitor;
 import org.cef.handler.CefContextMenuHandlerAdapter;
 
-import dev.ingstudios.turtlebrowse.components.MainWindow;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
 
 public class TurtlebrowseContextMenuHandler extends CefContextMenuHandlerAdapter {
 	private static final int ID_SUMMARIZE = CefMenuModel.MenuId.MENU_ID_USER_FIRST + 1;

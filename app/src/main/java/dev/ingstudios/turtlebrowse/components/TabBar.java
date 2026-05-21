@@ -14,6 +14,8 @@ import org.kordamp.ikonli.material2.Material2OutlinedAL;
 
 import com.jfoenix.controls.JFXButton;
 
+import dev.ingstudios.turtlebrowse.Main;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.embed.swing.JFXPanel;
@@ -50,9 +52,9 @@ public class TabBar extends JPanel {
 		root.setFillHeight(true);
 		root.setStyle("-fx-spacing: 10px; -fx-padding: 10px;");
 		root.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-			final Paint backgroundColor = this.parent.materialColorScheme.getSurface().get();
+			final Paint backgroundColor = Main.materialColorScheme.getSurface().get();
 			return new Background(new BackgroundFill(backgroundColor, null, null));
-		}, this.parent.materialColorScheme.getSurface()));
+		}, Main.materialColorScheme.getSurface()));
 		root.setAlignment(Pos.CENTER_LEFT);
 
 		final Button createTabButton = new JFXButton("+");
@@ -60,9 +62,9 @@ public class TabBar extends JPanel {
 		createTabButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		createTabButton.setStyle("-fx-padding: 10px;");
 		createTabButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-			final Paint backgroundColor = this.parent.materialColorScheme.getSurfaceContainer().get();
+			final Paint backgroundColor = Main.materialColorScheme.getSurfaceContainer().get();
 			return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
-		}, this.parent.materialColorScheme.getSurfaceContainer()));
+		}, Main.materialColorScheme.getSurfaceContainer()));
 		createTabButton.setMaxHeight(Double.MAX_VALUE);
 		createTabButton.setOnMouseEntered(event -> {
 			createTabButton.setCursor(Cursor.HAND);
@@ -102,9 +104,9 @@ public class TabBar extends JPanel {
 		final HBox tabBox = new HBox(10);
 		tabBox.setStyle("-fx-padding: 10px; -fx-pref-width: 150px;");
 		tabBox.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-			final Paint backgroundColor = this.parent.materialColorScheme.getSurfaceContainer().get();
+			final Paint backgroundColor = Main.materialColorScheme.getSurfaceContainer().get();
 			return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
-		}, this.parent.materialColorScheme.getSurfaceContainer()));
+		}, Main.materialColorScheme.getSurfaceContainer()));
 		tabBox.setMaxHeight(Double.MAX_VALUE);
 		final Region tabSpacer = new Region();
 		tabBox.setAlignment(Pos.CENTER);
@@ -166,11 +168,11 @@ public class TabBar extends JPanel {
 
 			tabBox.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
 				boolean isActive = (browserKey == currentBrowser);
-				Paint color = isActive ? this.parent.materialColorScheme.getSurfaceContainer().get()
-						: this.parent.materialColorScheme.getSurface().get();
+				Paint color = isActive ? Main.materialColorScheme.getSurfaceContainer().get()
+						: Main.materialColorScheme.getSurface().get();
 
 				return new Background(new BackgroundFill(color, new CornerRadii(25), null));
-			}, this.parent.materialColorScheme.getSurfaceContainer(), this.parent.materialColorScheme.getSurface()));
+			}, Main.materialColorScheme.getSurfaceContainer(), Main.materialColorScheme.getSurface()));
 		}
 	}
 }

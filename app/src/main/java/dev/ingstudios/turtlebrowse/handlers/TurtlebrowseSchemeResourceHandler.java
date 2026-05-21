@@ -15,7 +15,7 @@ import org.cef.network.CefPostDataElement;
 import org.cef.network.CefRequest;
 import org.cef.network.CefResponse;
 
-import dev.ingstudios.turtlebrowse.components.MainWindow;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
 
 public class TurtlebrowseSchemeResourceHandler extends CefResourceHandlerAdapter {
     private byte[] data;
@@ -32,12 +32,18 @@ public class TurtlebrowseSchemeResourceHandler extends CefResourceHandlerAdapter
             if (inputStream != null) {
                 this.data = inputStream.readAllBytes();
 
-                if (resourcePath.endsWith(".js")) mimeType = "application/javascript";
-                else if (resourcePath.endsWith(".css")) mimeType = "text/css";
-                else if (resourcePath.endsWith(".svg")) mimeType = "image/svg+xml";
-                else if (resourcePath.endsWith(".png")) mimeType = "image/png";
-                else if (resourcePath.endsWith(".jpeg") || resourcePath.endsWith(".jpg")) mimeType = "image/jpeg";
-                else mimeType = "text/html";
+                if (resourcePath.endsWith(".js"))
+                    mimeType = "application/javascript";
+                else if (resourcePath.endsWith(".css"))
+                    mimeType = "text/css";
+                else if (resourcePath.endsWith(".svg"))
+                    mimeType = "image/svg+xml";
+                else if (resourcePath.endsWith(".png"))
+                    mimeType = "image/png";
+                else if (resourcePath.endsWith(".jpeg") || resourcePath.endsWith(".jpg"))
+                    mimeType = "image/jpeg";
+                else
+                    mimeType = "text/html";
             } else {
                 this.data = "<html><body>404 Resource Not Found</body></html>".getBytes(StandardCharsets.UTF_8);
             }
