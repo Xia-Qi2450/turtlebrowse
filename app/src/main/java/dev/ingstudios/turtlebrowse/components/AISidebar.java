@@ -90,6 +90,8 @@ public class AISidebar extends JPanel {
 			actionsBarJfxPanel.setScene(actionsBarScene);
 			actionsBar.prefWidthProperty().bind(actionsBarScene.widthProperty());
 			actionsBar.prefHeightProperty().bind(actionsBarScene.heightProperty());
+
+			parent.refeshSwingLayout();
 		});
 
 		aiBrowser = client.createBrowser("turtlebrowse://chat", useOsr, false);

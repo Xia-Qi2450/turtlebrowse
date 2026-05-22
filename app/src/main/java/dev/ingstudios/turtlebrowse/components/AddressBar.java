@@ -201,6 +201,8 @@ public class AddressBar extends JPanel {
 			addressBarPanel.setScene(addressBarScene);
 			root.prefWidthProperty().bind(addressBarScene.widthProperty());
 			root.prefHeightProperty().bind(addressBarScene.heightProperty());
+
+			parent.refeshSwingLayout();
 		});
 
 		this.add(addressBarPanel);

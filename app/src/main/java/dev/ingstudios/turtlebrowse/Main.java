@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import org.cef.OS;
@@ -11,6 +12,8 @@ import org.glavo.monetfx.ColorScheme;
 import org.glavo.monetfx.beans.property.ColorSchemeProperty;
 import org.glavo.monetfx.beans.property.SimpleColorSchemeProperty;
 
+import dev.ingstudios.turtlebrowse.db.NitriteDatabase;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
 import dev.ingstudios.turtlebrowse.windows.SetupWindow;
 import dev.ingstudios.turtlebrowse.wizard.WizardData;
 import javafx.application.Platform;
@@ -21,6 +24,7 @@ import javafx.scene.paint.Color;
 public class Main {
 	public static ColorSchemeProperty materialColorScheme = new SimpleColorSchemeProperty(
 			ColorScheme.fromSeed(Color.web("#BDCF47")));
+	public final static NitriteDatabase db = NitriteDatabase.getInstance();
 
 	public static void main(String[] args) {
 		Platform.startup(() -> {
@@ -28,34 +32,46 @@ public class Main {
 
 		setMaterialColorSchemeFromSystem();
 
+		final boolean noProfile = db.getAllProfiles().isEmpty();
+
 		SwingUtilities.invokeLater(() -> {
 			new JFXPanel();
 
 			Platform.runLater(() -> {
-				final SetupWindow setupWindow = new SetupWindow();
-				Optional<ButtonType> result = setupWindow.showAndWait();
+				if (noProfile) {
+					final SetupWindow setupWindow = new SetupWindow();
+					Optional<ButtonType> result = setupWindow.showAndWait();
 
-				final WizardData wizardData = setupWindow.wizardData;
+					final WizardData wizardData = setupWindow.wizardData;
 
-				if (result.get() == ButtonType.FINISH) {
-					System.out.printf("""
-							Finished wizard:
-							Name: %s
-							Theme: %s
-							AI enabled: %s
-							""", wizardData.name, wizardData.themeColor.toString(),
-							String.valueOf(wizardData.enableAI));
+					if (result.get() == ButtonType.FINISH) {
+						System.out.printf("""
+								Finished wizard:
+								Name: %s
+								Theme: %s
+								AI enabled: %s
+								""", wizardData.name, wizardData.themeColor.toString(),
+								String.valueOf(wizardData.enableAI));
+
+						wizardData.saveData();
+
+						SwingUtilities.invokeLater(() -> initBrowser());
+					}
 				}
 			});
-			/*
-			 * final MainWindow mainWindow = new MainWindow();
-			 *
-			 * mainWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
-			 * mainWindow.setUndecorated(false);
-			 *
-			 * mainWindow.setVisible(true);
-			 */
+
+			if (!noProfile)
+				initBrowser();
 		});
+	}
+
+	private static void initBrowser() {
+		final MainWindow mainWindow = new MainWindow();
+
+		mainWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		mainWindow.setUndecorated(false);
+
+		mainWindow.setVisible(true);
 	}
 
 	private static void setMaterialColorSchemeFromSystem() {

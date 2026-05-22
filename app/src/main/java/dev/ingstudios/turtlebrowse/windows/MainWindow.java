@@ -419,4 +419,13 @@ public class MainWindow extends JFrame {
 	public OllamaChat getOllamaSession() {
 		return ollamaSession;
 	}
+
+	public void refeshSwingLayout() {
+		SwingUtilities.invokeLater(() -> {
+			if (root != null) {
+				root.revalidate();
+				root.repaint();
+			}
+		});
+	}
 }

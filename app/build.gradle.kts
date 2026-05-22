@@ -47,8 +47,9 @@ dependencies {
     implementation("org.controlsfx:controlsfx:11.2.1")
 
     // Nitrite DB
-    implementation("org.dizitart:nitrite-bom:4.3.2")
-    implementation("org.dizitart.no2:nitrite-mvstore-adapter:4.3.2")
+    implementation(platform("org.dizitart:nitrite-bom:4.3.2"))
+    implementation("org.dizitart:nitrite")
+    implementation("org.dizitart:nitrite-mvstore-adapter:4.3.2")
 }
 
 // Apply a specific Java toolchain. 

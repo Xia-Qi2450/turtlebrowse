@@ -36,7 +36,7 @@ import javafx.scene.paint.Paint;
 
 public class TabBar extends JPanel {
 	private final Map<CefBrowser, HBox> tabMap = new HashMap<>();
-	private final HBox root = new HBox();
+	private HBox root;
 	private MainWindow parent;
 
 	public TabBar(CefClient client, ArrayList<CefBrowser> tabs, MainWindow parent) {
@@ -47,46 +47,47 @@ public class TabBar extends JPanel {
 		final JFXPanel tabPanel = new JFXPanel();
 		tabPanel.setPreferredSize(new java.awt.Dimension(1200, 50));
 
-		root.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
-		root.setFillHeight(true);
-		root.setStyle("-fx-spacing: 10px; -fx-padding: 10px;");
-		root.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-			final Paint backgroundColor = Main.materialColorScheme.getSurface().get();
-			return new Background(new BackgroundFill(backgroundColor, null, null));
-		}, Main.materialColorScheme.getSurface()));
-		root.setAlignment(Pos.CENTER_LEFT);
-
-		final JFXButton createTabButton = new JFXButton("+");
-		createTabButton.setGraphic(new FontIcon(Material2OutlinedAL.ADD));
-		createTabButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-		createTabButton.setStyle("-fx-padding: 10px;");
-		createTabButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-			final Paint backgroundColor = Main.materialColorScheme.getSurfaceContainer().get();
-			return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
-		}, Main.materialColorScheme.getSurfaceContainer()));
-		createTabButton.setMaxHeight(Double.MAX_VALUE);
-		createTabButton.setOnMouseEntered(event -> {
-			createTabButton.setCursor(Cursor.HAND);
-		});
-		createTabButton.setOnMouseDragExited(event -> {
-			createTabButton.setCursor(Cursor.DEFAULT);
-		});
-		createTabButton.setOnAction(event -> {
-			this.parent.createTab(this.parent.START_URL);
-		});
-		root.getChildren().add(createTabButton);
-
 		Platform.runLater(() -> {
+			root = new HBox();
+			root.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
+			root.setFillHeight(true);
+			root.setStyle("-fx-spacing: 10px; -fx-padding: 10px;");
+			root.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
+				final Paint backgroundColor = Main.materialColorScheme.getSurface().get();
+				return new Background(new BackgroundFill(backgroundColor, null, null));
+			}, Main.materialColorScheme.getSurface()));
+			root.setAlignment(Pos.CENTER_LEFT);
+
+			final JFXButton createTabButton = new JFXButton("+");
+			createTabButton.setGraphic(new FontIcon(Material2OutlinedAL.ADD));
+			createTabButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+			createTabButton.setStyle("-fx-padding: 10px;");
+			createTabButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
+				final Paint backgroundColor = Main.materialColorScheme.getSurfaceContainer().get();
+				return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
+			}, Main.materialColorScheme.getSurfaceContainer()));
+			createTabButton.setMaxHeight(Double.MAX_VALUE);
+			createTabButton.setOnMouseEntered(event -> {
+				createTabButton.setCursor(Cursor.HAND);
+			});
+			createTabButton.setOnMouseDragExited(event -> {
+				createTabButton.setCursor(Cursor.DEFAULT);
+			});
+			createTabButton.setOnAction(event -> {
+				this.parent.createTab(this.parent.START_URL);
+			});
+			root.getChildren().add(createTabButton);
+
 			for (final CefBrowser browser : tabs) {
 				addTabToUI(browser);
 			}
-		});
 
-		final Scene tabBarScene = new Scene(root);
-		tabPanel.setScene(tabBarScene);
-		Platform.runLater(() -> {
+			final Scene tabBarScene = new Scene(root);
+			tabPanel.setScene(tabBarScene);
 			root.prefWidthProperty().bind(tabBarScene.widthProperty());
 			root.prefHeightProperty().bind(tabBarScene.heightProperty());
+
+			parent.refeshSwingLayout();
 		});
 
 		this.add(tabPanel);
