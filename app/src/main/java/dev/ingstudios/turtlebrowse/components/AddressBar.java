@@ -6,7 +6,6 @@ import javafx.embed.swing.JFXPanel;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Background;
@@ -55,7 +54,7 @@ public class AddressBar extends JPanel {
 			}, Main.materialColorScheme.getSurface()));
 			root.setAlignment(Pos.CENTER);
 
-			final Button backButton = new JFXButton("<");
+			final JFXButton backButton = new JFXButton("<");
 			backButton.setGraphic(new FontIcon(Material2OutlinedAL.ARROW_BACK));
 			backButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 			backButton.setStyle("-fx-padding: 10px;");
@@ -76,7 +75,7 @@ public class AddressBar extends JPanel {
 					browser.goBack();
 			});
 
-			final Button forwardButton = new JFXButton(">");
+			final JFXButton forwardButton = new JFXButton(">");
 			forwardButton.setGraphic(new FontIcon(Material2OutlinedAL.ARROW_FORWARD));
 			forwardButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 			forwardButton.setStyle("-fx-padding: 10px;");
@@ -97,7 +96,7 @@ public class AddressBar extends JPanel {
 					browser.goForward();
 			});
 
-			final Button reloadButton = new JFXButton("↻");
+			final JFXButton reloadButton = new JFXButton("↻");
 			reloadButton.setGraphic(new FontIcon(Material2OutlinedMZ.REFRESH));
 			reloadButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 			reloadButton.setStyle("-fx-padding: 10px;");
@@ -165,7 +164,7 @@ public class AddressBar extends JPanel {
 				addressFieldFocused = true;
 			});
 
-			final Button aiButton = new JFXButton("✨");
+			final JFXButton aiButton = new JFXButton("✨");
 			aiButton.setGraphic(new FontIcon(Material2OutlinedAL.ASSISTANT));
 			aiButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 			aiButton.setStyle("-fx-padding: 10px;");

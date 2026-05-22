@@ -1,0 +1,10 @@
+.dialog-pane, .dialog-pane * {
+    -fx-font-family: "Google Sans Flex";
+    -fx-font-size: 15px;
+}
+
+.dialog-pane > .header-panel > .label {
+	-fx-font-family: "Google Sans Flex";
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}

@@ -9,6 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import dev.ingstudios.turtlebrowse.Main;
 import dev.ingstudios.turtlebrowse.windows.MainWindow;
 
 public class SnapshotImageTool {
@@ -32,7 +33,7 @@ public class SnapshotImageTool {
 
 	private void saveImageToDisk(byte[] bytes) {
 		System.out.println("Saving image to disk...");
-		final Path imagePath = parent.getStoragePath("debug", "ai", "latest-screenshot.png");
+		final Path imagePath = Main.getStoragePath("debug", "ai", "latest-screenshot.png");
 		final Path parentDir = imagePath.getParent();
 		try {
 			if (parentDir != null && Files.notExists(parentDir)) {

@@ -42,6 +42,13 @@ dependencies {
 
     // jsoup
     implementation("org.jsoup:jsoup:1.22.2")
+
+    // ControlsFX
+    implementation("org.controlsfx:controlsfx:11.2.1")
+
+    // Nitrite DB
+    implementation("org.dizitart:nitrite-bom:4.3.2")
+    implementation("org.dizitart.no2:nitrite-mvstore-adapter:4.3.2")
 }
 
 // Apply a specific Java toolchain. 
@@ -66,7 +73,10 @@ application {
         "-Djava.library.path=build/natives",
         "-Dsun.java2d.opengl=false",
         "-Dsun.java2d.xrender=false",
-        "-Dswing.defaultlaf=javax.swing.plaf.metal.MetalLookAndFeel"
+        "-Dswing.defaultlaf=javax.swing.plaf.metal.MetalLookAndFeel",
+        "--add-opens=javafx.graphics/javafx.scene=ALL-UNNAMED",
+        "--add-opens=javafx.controls/com.sun.javafx.scene.control=ALL-UNNAMED",
+        "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED"
     )
 }
 

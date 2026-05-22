@@ -29,7 +29,6 @@ import javafx.embed.swing.JFXPanel;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -67,7 +66,7 @@ public class AISidebar extends JPanel {
 			}, Main.materialColorScheme.getSurface()));
 			actionsBar.setAlignment(Pos.CENTER_RIGHT);
 
-			final Button closeButton = new JFXButton("X");
+			final JFXButton closeButton = new JFXButton("X");
 			closeButton.setGraphic(new FontIcon(Material2OutlinedAL.CLOSE));
 			closeButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 			closeButton.setStyle("-fx-padding: 10px;");

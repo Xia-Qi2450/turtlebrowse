@@ -23,7 +23,6 @@ import javafx.event.Event;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseButton;
@@ -57,7 +56,7 @@ public class TabBar extends JPanel {
 		}, Main.materialColorScheme.getSurface()));
 		root.setAlignment(Pos.CENTER_LEFT);
 
-		final Button createTabButton = new JFXButton("+");
+		final JFXButton createTabButton = new JFXButton("+");
 		createTabButton.setGraphic(new FontIcon(Material2OutlinedAL.ADD));
 		createTabButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		createTabButton.setStyle("-fx-padding: 10px;");
@@ -96,7 +95,7 @@ public class TabBar extends JPanel {
 	public void addTabToUI(CefBrowser browser) {
 		final Label tabTitle = new Label("Loading...");
 
-		final Button closeButton = new JFXButton("X");
+		final JFXButton closeButton = new JFXButton("X");
 		closeButton.setGraphic(new FontIcon(Material2OutlinedAL.CLOSE));
 		closeButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		closeButton.setStyle("-fx-background-color: transparent;");

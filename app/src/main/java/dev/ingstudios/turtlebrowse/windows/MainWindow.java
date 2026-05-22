@@ -26,7 +26,6 @@ import org.cef.OS;
 import org.cef.CefApp.CefAppState;
 import org.cef.browser.CefBrowser;
 import org.cef.callback.CefSchemeRegistrar;
-import org.glavo.monetfx.ColorScheme;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -83,14 +82,11 @@ public class MainWindow extends JFrame {
 
 		Platform.runLater(() -> {
 			Font.loadFont(getClass().getResourceAsStream("/fonts/google_sans_flex.ttf"), 10);
-			Font.loadFont(getClass().getResourceAsStream("/fonts/material_icons_outlined.otf"), 10);
 		});
 
 		System.out.println("AWT Toolkit: " + java.awt.Toolkit.getDefaultToolkit().getClass().getName());
 		System.out.println("DISPLAY: " + System.getenv("DISPLAY"));
 		System.out.println("WAYLAND_DISPLAY: " + System.getenv("WAYLAND_DISPLAY"));
-
-		setMaterialColorSchemeFromSystem();
 
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setLayout(new BorderLayout());
@@ -228,39 +224,8 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public Path getStoragePath(String... names) {
-		Path dataPath;
-
-		final String appName = "Turtlebrowse";
-
-		final String userHome = System.getProperty("user.home");
-
-		if (OS.isWindows()) {
-			String localAppData = System.getenv("LOCALAPPDATA");
-			dataPath = Paths.get(localAppData, "ingStudios", appName);
-		} else if (OS.isLinux()) {
-			String xdgDataHome = System.getenv("XDG_DATA_HOME");
-			if (xdgDataHome == null || xdgDataHome.isEmpty()) {
-				xdgDataHome = userHome + "/.local/share";
-			}
-			dataPath = Paths.get(xdgDataHome, "ingStudios", appName);
-		} else if (OS.isMacintosh()) {
-			dataPath = Paths.get(userHome, "Library", "Application Support", appName);
-		} else {
-			throw new RuntimeException("Unknown operating system");
-		}
-
-		if (names != null) {
-			for (final String name : names) {
-				dataPath = dataPath.resolve(name);
-			}
-		}
-
-		return dataPath;
-	}
-
 	public String getCachePath() {
-		return getStoragePath("cef-cache").toString();
+		return Main.getStoragePath("cef-cache").toString();
 	}
 
 	private File getInstallDir() {
@@ -377,15 +342,6 @@ public class MainWindow extends JFrame {
 
 			browser.setFocus(true);
 		});
-	}
-
-	private void setMaterialColorSchemeFromSystem() {
-		final Color accentColor = Platform.getPreferences().getAccentColor();
-		if (accentColor == null) {
-			Main.materialColorScheme.set(ColorScheme.fromSeed(Color.web("#BDCF47")));
-		} else {
-			Main.materialColorScheme.set(ColorScheme.fromSeed(accentColor));
-		}
 	}
 
 	public void createDevTools() {
