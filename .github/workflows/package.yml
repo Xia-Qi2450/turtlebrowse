@@ -1,0 +1,124 @@
+name: Build multi-platform binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-jar:
+    name: Build Shadow JAR
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-name: shadow-jar
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build Shadow JAR
+        run: ./gradlew shadowJar
+
+      - name: Upload Shadow JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shadow-jar
+          path: build/libs/app-all.jar
+
+  jpackage:
+    name: Package for ${{ matrix.os-name }} (${{ matrix.arch }})
+    needs: build-jar
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            os-name: macOS
+            arch: ARM64
+          - os: macos-13
+            os-name: macOS
+            arch: AMD64
+
+          - os: windows-latest
+            os-name: Windows
+            arch: AMD64
+          - os: windows-11-arm
+            os-name: Windows
+            arch: ARM64
+
+          - os: ubuntu-latest
+            os-name: Ubuntu
+            arch: AMD64
+            pkg-type: deb
+          - os: ubuntu-24.04-arm
+            os-name: Ubuntu
+            arch: ARM64
+            pkg-type: deb
+
+          - os: ubuntu-latest
+            os-name: Fedora
+            arch: AMD64
+            pkg-type: rpm
+          - os: ubuntu-24.04-arm
+            os-name: Fedora
+            arch: ARM64
+            pkg-type: rpm
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Install Linux Packaging Tools (Fedora/Ubuntu specific)
+        if: runner.os == 'Linux'
+        run: |
+            sudo apt-get update
+            if [ "${{ matrix.os-name }}" = "Fedora" ]; then
+                sudo apt-get install -y rpm
+            else
+                sudo apt-get install -y dpkg devscripts
+            fi
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Download Built Shadow JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: shadow-jar
+          path: build/libs/
+
+      - name: Run jpackage via Gradle
+        shell: bash
+        run: |
+            ./gradlew jpackage \
+                -PtargetOs="${{ matrix.os-name }}" \
+                -PtargetArch="${{ matrix.arch }}" \
+                -PtargetPkgType="${{ matrix.pkg-type }}"
+
+      - name: Upload Native Distribution Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: turtlebrowse_${{ matrix.os-name }}_${{ matrix.arch }}
+          path: |
+              build/distributions/*.deb
+              build/distributions/*.rpm
+              build/distributions/*.exe
+              build/distributions/*.msi
+              build/distributions/*.dmg
+              build/distributions/*.pkg
