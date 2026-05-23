@@ -33,6 +33,7 @@ jobs:
         with:
           name: shadow-jar
           path: build/libs/app-all.jar
+          retention-days: 1
 
   jpackage:
     name: Package for ${{ matrix.os-name }} (${{ matrix.arch }})
@@ -116,6 +117,7 @@ jobs:
         with:
           name: turtlebrowse_${{ matrix.os-name }}_${{ matrix.arch }}
           path: |
+              build/libs/app-all.jar
               build/distributions/*.deb
               build/distributions/*.rpm
               build/distributions/*.exe
@@ -135,21 +137,21 @@ jobs:
       - name: Create Work Directory
         run: mkdir release-artifacts
 
-      - name: Download Standalone Shadow JAR
-        uses: actions/download-artifact@v4
-        with:
-          name: shadow-jar
-          path: release-artifacts/
-
-      - name: Rename Shadow JAR
-        run: mv release-artifacts/app-all.jar release-artifacts/turtlebrowse_jar.jar
-
-      - name: Download All Native Installers
+      - name: Download All Native Installers and Jars
         uses: actions/download-artifact@v4
         with:
           path: release-artifacts/
           pattern: turtlebrowse_*
           merge-multiple: true
+
+      - name: Rename Shadow JAR
+        run: |
+            if [ -f "release-artifacts/app-all.jar" ]; then
+                mv release-artifacts/app-all.jar release-artifacts/turtlebrowse_jar.jar
+            else
+                echo "Error: app-all.jar not found in collected assets"
+                exit 1
+            fi
 
       - name: Display Collected Assets
         run: ls -R release-artifacts/
