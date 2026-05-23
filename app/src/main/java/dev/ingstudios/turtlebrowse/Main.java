@@ -2,6 +2,7 @@ package dev.ingstudios.turtlebrowse;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 
 import javax.swing.JFrame;
@@ -13,6 +14,7 @@ import org.glavo.monetfx.beans.property.ColorSchemeProperty;
 import org.glavo.monetfx.beans.property.SimpleColorSchemeProperty;
 
 import dev.ingstudios.turtlebrowse.db.NitriteDatabase;
+import dev.ingstudios.turtlebrowse.db.NitriteDatabase.ProfileStructure;
 import dev.ingstudios.turtlebrowse.windows.MainWindow;
 import dev.ingstudios.turtlebrowse.windows.SetupWindow;
 import dev.ingstudios.turtlebrowse.wizard.WizardData;
@@ -22,17 +24,21 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.paint.Color;
 
 public class Main {
-	public static ColorSchemeProperty materialColorScheme = new SimpleColorSchemeProperty(
+	public static ColorSchemeProperty mainMaterialColorScheme = new SimpleColorSchemeProperty(
 			ColorScheme.fromSeed(Color.web("#BDCF47")));
 	public final static NitriteDatabase db = NitriteDatabase.getInstance();
+	private static int numProfiles;
 
 	public static void main(String[] args) {
 		Platform.startup(() -> {
+			Platform.setImplicitExit(false);
 		});
 
 		setMaterialColorSchemeFromSystem();
 
-		final boolean noProfile = db.getAllProfiles().isEmpty();
+		final List<ProfileStructure> profiles = db.getAllProfiles();
+		numProfiles = profiles.size();
+		final boolean noProfile = profiles.isEmpty();
 
 		SwingUtilities.invokeLater(() -> {
 			new JFXPanel();
@@ -66,7 +72,17 @@ public class Main {
 	}
 
 	private static void initBrowser() {
-		final MainWindow mainWindow = new MainWindow();
+		ProfileStructure profile;
+
+		if (numProfiles <= 1) {
+			profile = db.getFirstProfile();
+		} else {
+			// TODO(developer): Implement profile switching
+			// Placeholder until multiple profile implementation
+			profile = db.getFirstProfile();
+		}
+
+		final MainWindow mainWindow = new MainWindow(profile);
 
 		mainWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		mainWindow.setUndecorated(false);
@@ -77,9 +93,9 @@ public class Main {
 	private static void setMaterialColorSchemeFromSystem() {
 		final Color accentColor = Platform.getPreferences().getAccentColor();
 		if (accentColor == null) {
-			Main.materialColorScheme.set(ColorScheme.fromSeed(Color.web("#BDCF47")));
+			Main.mainMaterialColorScheme.set(ColorScheme.fromSeed(Color.web("#BDCF47")));
 		} else {
-			Main.materialColorScheme.set(ColorScheme.fromSeed(accentColor));
+			Main.mainMaterialColorScheme.set(ColorScheme.fromSeed(accentColor));
 		}
 	}
 

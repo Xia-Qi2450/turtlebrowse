@@ -20,9 +20,9 @@ public class PersonalizationWizardPane extends WizardPane {
 	public PersonalizationWizardPane(WizardData wizardData) {
 		setHeaderText("Browser Personalization");
 		backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-			final Paint backgroundColor = Main.materialColorScheme.getSurface().get();
+			final Paint backgroundColor = Main.mainMaterialColorScheme.getSurface().get();
 			return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
-		}, Main.materialColorScheme.getSurface()));
+		}, Main.mainMaterialColorScheme.getSurface()));
 		getStylesheets().add(getClass().getResource("/css/wizard.css").toExternalForm());
 
 		final VBox mainBox = new VBox();
@@ -36,9 +36,9 @@ public class PersonalizationWizardPane extends WizardPane {
 		nameTextField.setText(wizardData.name);
 		nameTextField.setStyle("-fx-padding: 10px;");
 		nameTextField.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-			final Paint backgroundColor = Main.materialColorScheme.getSurfaceContainer().get();
+			final Paint backgroundColor = Main.mainMaterialColorScheme.getSurfaceContainer().get();
 			return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
-		}, Main.materialColorScheme.getSurfaceContainer()));
+		}, Main.mainMaterialColorScheme.getSurfaceContainer()));
 		nameTextField.setPromptText("Enter your preferred name");
 		nameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
 			wizardData.name = newValue;

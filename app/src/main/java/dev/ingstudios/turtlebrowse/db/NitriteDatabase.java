@@ -90,13 +90,18 @@ public class NitriteDatabase {
 		return profileStructures;
 	}
 
+	public ProfileStructure getFirstProfile() {
+		final Document profileDocument = profileCollection.find().firstOrNull();
+		return parseProfile(profileDocument);
+	}
+
 	public ProfileStructure getProfile(NitriteId id) {
 		final Document profileDocument = profileCollection.getById(id);
 		return parseProfile(profileDocument);
 	}
 
 	private ProfileStructure parseProfile(Document document) {
-		final @Nullable String colorHex = document.get("theme", String.class);
+		final @Nullable String colorHex = document.get("seedColor", String.class);
 		final ProfileStructure profileStructure = new ProfileStructure(document.get("name", String.class),
 				colorHex != null ? Color.valueOf(colorHex) : null);
 		return profileStructure;

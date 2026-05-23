@@ -18,9 +18,9 @@ public class StartWizardPane extends WizardPane {
 	public StartWizardPane() {
 		setHeaderText("Set Turtlebrowse Up");
 		backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-			final Paint backgroundColor = Main.materialColorScheme.getSurface().get();
+			final Paint backgroundColor = Main.mainMaterialColorScheme.getSurface().get();
 			return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
-		}, Main.materialColorScheme.getSurface()));
+		}, Main.mainMaterialColorScheme.getSurface()));
 		getStylesheets().add(getClass().getResource("/css/wizard.css").toExternalForm());
 
 		final VBox mainBox = new VBox();

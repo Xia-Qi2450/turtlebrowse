@@ -26,6 +26,9 @@ import org.cef.OS;
 import org.cef.CefApp.CefAppState;
 import org.cef.browser.CefBrowser;
 import org.cef.callback.CefSchemeRegistrar;
+import org.glavo.monetfx.ColorScheme;
+import org.glavo.monetfx.beans.property.ColorSchemeProperty;
+import org.glavo.monetfx.beans.property.SimpleColorSchemeProperty;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -34,6 +37,7 @@ import dev.ingstudios.turtlebrowse.Main;
 import dev.ingstudios.turtlebrowse.components.AISidebar;
 import dev.ingstudios.turtlebrowse.components.AddressBar;
 import dev.ingstudios.turtlebrowse.components.TabBar;
+import dev.ingstudios.turtlebrowse.db.NitriteDatabase.ProfileStructure;
 import dev.ingstudios.turtlebrowse.handlers.CefKeyboardHandler;
 import dev.ingstudios.turtlebrowse.handlers.SwingKeyboardHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseContextMenuHandler;
@@ -76,8 +80,13 @@ public class MainWindow extends JFrame {
 	private final Gson gson = new Gson();
 	public final TurtlebrowseLoadHandler loadHandler = new TurtlebrowseLoadHandler();
 	public final TurtlebrowseRequestHandler requestHandler = new TurtlebrowseRequestHandler(this);
+	public final ProfileStructure currentProfile;
+	public ColorSchemeProperty profileMaterialColorScheme = new SimpleColorSchemeProperty(
+			ColorScheme.fromSeed(Color.web("#BDCF47")));;
 
-	public MainWindow() {
+	public MainWindow(ProfileStructure profile) {
+		currentProfile = profile;
+
 		super("Turtlebrowse");
 
 		Platform.runLater(() -> {
@@ -99,6 +108,8 @@ public class MainWindow extends JFrame {
 
 		setSize(1200, 800);
 		setLocationRelativeTo(null);
+
+		setMaterialColorSchemeFromProfile();
 
 		browserContainer = new JPanel(new BorderLayout());
 
@@ -393,7 +404,7 @@ public class MainWindow extends JFrame {
 		switch (action) {
 			case "GET_NAME": {
 				System.out.println("GET_NAME called.");
-				return "Ethan Lee";
+				return currentProfile.name();
 			}
 
 			case "SEARCH_WEB": {
@@ -403,11 +414,12 @@ public class MainWindow extends JFrame {
 			}
 
 			case "GET_THEME": {
-				final Color accentColor = Platform.getPreferences().getAccentColor();
-				String hex = String.format("#%02x%02x%02x",
-						(int) (accentColor.getRed() * 255),
-						(int) (accentColor.getGreen() * 255),
-						(int) (accentColor.getBlue() * 255));
+				final Color profileColor = currentProfile.seedColor();
+				System.out.printf("Profile color: %s", profileColor);
+				final String hex = String.format("#%02x%02x%02x",
+						(int) (profileColor.getRed() * 255),
+						(int) (profileColor.getGreen() * 255),
+						(int) (profileColor.getBlue() * 255));
 				return hex;
 			}
 
@@ -427,5 +439,15 @@ public class MainWindow extends JFrame {
 				root.repaint();
 			}
 		});
+	}
+
+	private void setMaterialColorSchemeFromProfile() {
+		final Color accentColor = currentProfile.seedColor();
+		if (accentColor == null) {
+			profileMaterialColorScheme.set(ColorScheme.fromSeed(Color.web("#BDCF47")));
+		} else {
+			profileMaterialColorScheme
+					.set(ColorScheme.fromSeed(accentColor));
+		}
 	}
 }

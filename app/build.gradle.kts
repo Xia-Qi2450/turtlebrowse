@@ -65,22 +65,23 @@ javafx {
     modules("javafx.controls", "javafx.graphics", "javafx.base", "javafx.swing")
 }
 
+val jvmArgs = listOf(
+    "--enable-native-access=ALL-UNNAMED,javafx.graphics",
+    "--add-modules=jdk.incubator.vector",
+    "-Dglass.platform=gtk",
+    "-Djava.library.path=build/natives",
+    "-Dsun.java2d.opengl=false",
+    "-Dsun.java2d.xrender=false",
+    "-Dswing.defaultlaf=javax.swing.plaf.metal.MetalLookAndFeel",
+    "--add-opens=javafx.graphics/javafx.scene=ALL-UNNAMED",
+    "--add-opens=javafx.controls/com.sun.javafx.scene.control=ALL-UNNAMED",
+    "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED"
+)
+
 application {
     mainClass.set("dev.ingstudios.turtlebrowse.Main")
-    applicationDefaultJvmArgs = listOf(
-        "--enable-native-access=ALL-UNNAMED,javafx.graphics",
-        "--add-modules=jdk.incubator.vector",
-        "-Dglass.platform=gtk",
-        "-Djava.library.path=build/natives",
-        "-Dsun.java2d.opengl=false",
-        "-Dsun.java2d.xrender=false",
-        "-Dswing.defaultlaf=javax.swing.plaf.metal.MetalLookAndFeel",
-        "--add-opens=javafx.graphics/javafx.scene=ALL-UNNAMED",
-        "--add-opens=javafx.controls/com.sun.javafx.scene.control=ALL-UNNAMED",
-        "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED"
-    )
+    applicationDefaultJvmArgs = jvmArgs
 }
-
 
 tasks.jpackage {
     verbose = true
@@ -93,7 +94,7 @@ tasks.jpackage {
     
     appName = "Turtlebrowse"
     vendor = "(ing) Studios"
-    appVersion = "0.1.0"
+    appVersion = "0.2.0"
     copyright = "2026 (ing) Studios and Ethan Lee"
 
     input = layout.buildDirectory.dir("libs")
@@ -113,15 +114,7 @@ tasks.jpackage {
             layout.projectDirectory.file("src/main/resources/logo_full_trans.png")
     }
 
-    javaOptions = listOf("--enable-native-access=ALL-UNNAMED,javafx.graphics",
-        "--add-modules=jdk.incubator.vector",
-        "-Dglass.platform=gtk",
-        "-Djava.library.path=build/natives",
-        "-Dsun.java2d.opengl=false",
-        "-Dsun.java2d.xrender=false",
-        "-Dswing.defaultlaf=javax.swing.plaf.metal.MetalLookAndFeel",
-        "-Dapp.dir=\$APPDIR",
-        )
+    javaOptions = jvmArgs
 
     windows {
         type = org.panteleyev.jpackage.ImageType.EXE
@@ -141,9 +134,10 @@ tasks.jpackage {
     }
 
     linux {
-        type = org.panteleyev.jpackage.ImageType.DEB
+        type = org.panteleyev.jpackage.ImageType.RPM
         linuxShortcut = true
-        linuxAppCategory = "Network;WebBrowser;"
+        linuxMenuGroup = "Network;WebBrowser;"
+        linuxAppCategory = "web" 
         linuxPackageName = "turtlebrowse"
         linuxDebMaintainer = "contact@ingstudios.dev"
     }

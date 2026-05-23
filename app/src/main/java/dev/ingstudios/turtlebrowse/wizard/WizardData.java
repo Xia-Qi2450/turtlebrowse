@@ -8,7 +8,7 @@ import javafx.scene.paint.Color;
 public class WizardData {
 	private final NitriteDatabase db = NitriteDatabase.getInstance();
 	public String name = "";
-	public Color themeColor = Main.materialColorScheme.getPrimary().get();
+	public Color themeColor = Main.mainMaterialColorScheme.getPrimary().get();
 	public boolean enableAI = false;
 
 	public WizardData() {

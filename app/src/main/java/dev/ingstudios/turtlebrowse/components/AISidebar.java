@@ -35,7 +35,6 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Paint;
-import dev.ingstudios.turtlebrowse.Main;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseLoadHandler.JSQueueItem;
 import dev.ingstudios.turtlebrowse.windows.MainWindow;
 import dev.kreuzberg.htmltomarkdown.HtmlToMarkdown;
@@ -61,9 +60,9 @@ public class AISidebar extends JPanel {
 			final HBox actionsBar = new HBox();
 			actionsBar.setStyle("-fx-spacing: 10px; -fx-padding: 10px;");
 			actionsBar.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-				final Paint backgroundColor = Main.materialColorScheme.getSurface().get();
+				final Paint backgroundColor = parent.profileMaterialColorScheme.getSurface().get();
 				return new Background(new BackgroundFill(backgroundColor, null, null));
-			}, Main.materialColorScheme.getSurface()));
+			}, parent.profileMaterialColorScheme.getSurface()));
 			actionsBar.setAlignment(Pos.CENTER_RIGHT);
 
 			final JFXButton closeButton = new JFXButton("X");
@@ -71,9 +70,9 @@ public class AISidebar extends JPanel {
 			closeButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 			closeButton.setStyle("-fx-padding: 10px;");
 			closeButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-				final Paint backgroundColor = Main.materialColorScheme.getSurfaceContainer().get();
+				final Paint backgroundColor = parent.profileMaterialColorScheme.getSurfaceContainer().get();
 				return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
-			}, Main.materialColorScheme.getSurfaceContainer()));
+			}, parent.profileMaterialColorScheme.getSurfaceContainer()));
 			closeButton.setOnMouseEntered(event -> {
 				closeButton.setCursor(Cursor.HAND);
 			});

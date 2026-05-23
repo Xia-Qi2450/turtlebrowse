@@ -20,9 +20,9 @@ public class ThemeWizardPane extends WizardPane {
 	public ThemeWizardPane(WizardData wizardData) {
 		setHeaderText("Browser Theme");
 		backgroundProperty().bind(Bindings.createObjectBinding(() -> {
-			final Paint backgroundColor = Main.materialColorScheme.getSurface().get();
+			final Paint backgroundColor = Main.mainMaterialColorScheme.getSurface().get();
 			return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
-		}, Main.materialColorScheme.getSurface()));
+		}, Main.mainMaterialColorScheme.getSurface()));
 		getStylesheets().add(getClass().getResource("/css/wizard.css").toExternalForm());
 
 		final VBox mainBox = new VBox();
@@ -34,7 +34,8 @@ public class ThemeWizardPane extends WizardPane {
 
 		final ColorPicker seedColorPicker = new ColorPicker(wizardData.themeColor);
 		seedColorPicker.setBackground(new Background(
-				new BackgroundFill(Main.materialColorScheme.getSurfaceContainer().get(), new CornerRadii(25), null)));
+				new BackgroundFill(Main.mainMaterialColorScheme.getSurfaceContainer().get(), new CornerRadii(25),
+						null)));
 		seedColorPicker.setOnAction(event -> {
 			wizardData.themeColor = seedColorPicker.getValue();
 		});

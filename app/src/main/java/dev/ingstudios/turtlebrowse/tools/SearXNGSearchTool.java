@@ -22,7 +22,7 @@ public class SearXNGSearchTool {
 	}
 
 	public SearchResult searchWeb(String query) throws Exception {
-		String url = "http://localhost:8080/?q=" +
+		String url = "https://searxng.ingstudios.dev/search?q=" +
 				java.net.URLEncoder.encode(query, java.nio.charset.StandardCharsets.UTF_8) +
 				"&format=json";
 
