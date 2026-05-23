@@ -143,10 +143,15 @@ jobs:
 
       - name: Rename Shadow JAR
         run: |
-          if [ -f "app/build/libs/app-all.jar" ]; then
-            mv release-artifacts/app-all.jar release-artifacts/turtlebrowse_jar.jar
+          TARGET_JAR="release-artifacts/app/build/libs/app-all.jar"
+          
+          if [ -f "$TARGET_JAR" ]; then
+            mv "$TARGET_JAR" release-artifacts/turtlebrowse_jar.jar
+            echo "Successfully found and renamed shadow JAR."
           else
-            echo "Error: app-all.jar not found in collected assets"
+            echo "Error: app-all.jar not found at $TARGET_JAR"
+            echo "Current directory structure for debugging:"
+            ls -R release-artifacts/
             exit 1
           fi
 
@@ -162,9 +167,9 @@ jobs:
           prerelease: ${{ startsWith(github.ref_name, '0.') || startsWith(github.ref_name, 'v0.') }}
           files: |
             release-artifacts/turtlebrowse_jar.jar
-            release-artifacts/*.deb
-            release-artifacts/*.rpm
-            release-artifacts/*.exe
-            release-artifacts/*.msi
-            release-artifacts/*.dmg
-            release-artifacts/*.pkg
+            release-artifacts/app/build/dist/*.deb
+            release-artifacts/app/build/dist/*.rpm
+            release-artifacts/app/build/dist/*.exe
+            release-artifacts/app/build/dist/*.msi
+            release-artifacts/app/build/dist/*.dmg
+            release-artifacts/app/build/dist/*.pkg
