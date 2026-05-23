@@ -143,7 +143,7 @@ jobs:
 
       - name: Rename Shadow JAR
         run: |
-          TARGET_JAR="release-artifacts/app/build/libs/app-all.jar"
+          TARGET_JAR="release-artifacts/app-all.jar"
           
           if [ -f "$TARGET_JAR" ]; then
             mv "$TARGET_JAR" release-artifacts/turtlebrowse_jar.jar
