@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '25'
-          distribution: 'corretto'
+          distribution: 'temurin'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -92,7 +92,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '25'
-          distribution: 'corretto'
+          distribution: 'temurin'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -116,13 +116,13 @@ jobs:
         with:
           name: turtlebrowse_${{ matrix.os-name }}_${{ matrix.arch }}
           path: |
-            build/libs/app-all.jar
-            build/distributions/*.deb
-            build/distributions/*.rpm
-            build/distributions/*.exe
-            build/distributions/*.msi
-            build/distributions/*.dmg
-            build/distributions/*.pkg
+            app/build/libs/app-all.jar
+            app/build/dist/*.deb
+            app/build/dist/*.rpm
+            app/build/dist/*.exe
+            app/build/dist/*.msi
+            app/build/dist/*.dmg
+            app/build/dist/*.pkg
           if-no-files-found: error
 
   release:
