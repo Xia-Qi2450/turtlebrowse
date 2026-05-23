@@ -133,7 +133,16 @@ jobs:
       - name: Create Work Directory
         run: mkdir release-artifacts
 
-      - name: Download All Installers
+      - name: Download Standalone Shadow JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: shadow-jar
+          path: release-artifacts/
+
+      - name: Rename Shadow JAR
+        run: mv release-artifacts/app-all.jar release-artifacts/turtlebrowse_jar.jar
+
+      - name: Download All Native Installers
         uses: actions/download-artifact@v4
         with:
           path: release-artifacts/
@@ -151,6 +160,7 @@ jobs:
           draft: false
           prerelease: ${{ startsWith(github.ref_name, '0.') || startsWith(github.ref_name, 'v0.') }}
           files: |
+              release-artifacts/turtlebrowse_jar.jar
               release-artifacts/*.deb
               release-artifacts/*.rpm
               release-artifacts/*.exe
