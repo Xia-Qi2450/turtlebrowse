@@ -11,7 +11,7 @@ jobs:
     name: Build Shadow JAR
     runs-on: ubuntu-latest
     outputs:
-      artifact-name: shadow-jar
+      artifact-name: shadow-jar-${{ github.run_id }}
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
@@ -31,7 +31,7 @@ jobs:
       - name: Upload Shadow JAR Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: shadow-jar
+          name: shadow-jar-${{ github.run_id }}
           path: build/libs/app-all.jar
           retention-days: 1
 
@@ -82,12 +82,12 @@ jobs:
       - name: Install Linux Packaging Tools (Fedora/Ubuntu specific)
         if: runner.os == 'Linux'
         run: |
-            sudo apt-get update
-            if [ "${{ matrix.os-name }}" = "Fedora" ]; then
-                sudo apt-get install -y rpm
-            else
-                sudo apt-get install -y dpkg devscripts
-            fi
+          sudo apt-get update
+          if [ "${{ matrix.os-name }}" = "Fedora" ]; then
+            sudo apt-get install -y rpm
+          else
+            sudo apt-get install -y dpkg devscripts
+          fi
 
       - name: Set up JDK 25
         uses: actions/setup-java@v4
@@ -101,29 +101,29 @@ jobs:
       - name: Download Built Shadow JAR
         uses: actions/download-artifact@v4
         with:
-          name: shadow-jar
+          name: ${{ needs.build-jar.outputs.artifact-name }}
           path: build/libs/
 
       - name: Run jpackage via Gradle
         shell: bash
         run: |
-            ./gradlew jpackage \
-                -PtargetOs="${{ matrix.os-name }}" \
-                -PtargetArch="${{ matrix.arch }}" \
-                -PtargetPkgType="${{ matrix.pkg-type }}"
+          ./gradlew jpackage \
+            -PtargetOs="${{ matrix.os-name }}" \
+            -PtargetArch="${{ matrix.arch }}" \
+            -PtargetPkgType="${{ matrix.pkg-type }}"
 
       - name: Upload Native Distribution Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: turtlebrowse_${{ matrix.os-name }}_${{ matrix.arch }}
           path: |
-              build/libs/app-all.jar
-              build/distributions/*.deb
-              build/distributions/*.rpm
-              build/distributions/*.exe
-              build/distributions/*.msi
-              build/distributions/*.dmg
-              build/distributions/*.pkg
+            build/libs/app-all.jar
+            build/distributions/*.deb
+            build/distributions/*.rpm
+            build/distributions/*.exe
+            build/distributions/*.msi
+            build/distributions/*.dmg
+            build/distributions/*.pkg
           if-no-files-found: error
 
   release:
@@ -146,12 +146,12 @@ jobs:
 
       - name: Rename Shadow JAR
         run: |
-            if [ -f "release-artifacts/app-all.jar" ]; then
-                mv release-artifacts/app-all.jar release-artifacts/turtlebrowse_jar.jar
-            else
-                echo "Error: app-all.jar not found in collected assets"
-                exit 1
-            fi
+          if [ -f "release-artifacts/app-all.jar" ]; then
+            mv release-artifacts/app-all.jar release-artifacts/turtlebrowse_jar.jar
+          else
+            echo "Error: app-all.jar not found in collected assets"
+            exit 1
+          fi
 
       - name: Display Collected Assets
         run: ls -R release-artifacts/
@@ -164,10 +164,10 @@ jobs:
           draft: false
           prerelease: ${{ startsWith(github.ref_name, '0.') || startsWith(github.ref_name, 'v0.') }}
           files: |
-              release-artifacts/turtlebrowse_jar.jar
-              release-artifacts/*.deb
-              release-artifacts/*.rpm
-              release-artifacts/*.exe
-              release-artifacts/*.msi
-              release-artifacts/*.dmg
-              release-artifacts/*.pkg
+            release-artifacts/turtlebrowse_jar.jar
+            release-artifacts/*.deb
+            release-artifacts/*.rpm
+            release-artifacts/*.exe
+            release-artifacts/*.msi
+            release-artifacts/*.dmg
+            release-artifacts/*.pkg
