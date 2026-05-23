@@ -37,6 +37,7 @@ jobs:
   jpackage:
     name: Package for ${{ matrix.os-name }} (${{ matrix.arch }})
     needs: build-jar
+    continue-on-error: true
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -45,9 +46,6 @@ jobs:
           - os: macos-latest
             os-name: macOS
             arch: ARM64
-          - os: macos-13
-            os-name: macOS
-            arch: AMD64
 
           - os: windows-latest
             os-name: Windows
@@ -129,7 +127,7 @@ jobs:
     name: Publish GitHub Release
     needs: [build-jar, jpackage]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
+    if: always() && startsWith(github.ref, 'refs/tags/') && (needs.build-jar.result == 'success')
     permissions:
       contents: write
     steps:
