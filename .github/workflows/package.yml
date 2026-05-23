@@ -28,6 +28,9 @@ jobs:
       - name: Build Shadow JAR
         run: ./gradlew shadowJar
 
+      - name: List build output
+        run: find . -name "*.jar" 2>/dev/null
+
       - name: Upload Shadow JAR Artifact
         uses: actions/upload-artifact@v4
         with:
