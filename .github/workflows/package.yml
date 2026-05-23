@@ -122,9 +122,11 @@ jobs:
               build/distributions/*.msi
               build/distributions/*.dmg
               build/distributions/*.pkg
+          if-no-files-found: error
+
   release:
     name: Publish GitHub Release
-    needs: jpackage
+    needs: [build-jar, jpackage]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     permissions:
