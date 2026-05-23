@@ -28,15 +28,11 @@ jobs:
       - name: Build Shadow JAR
         run: ./gradlew shadowJar
 
-      - name: List build output
-        run: find . -name "*.jar" 2>/dev/null
-
       - name: Upload Shadow JAR Artifact
         uses: actions/upload-artifact@v4
         with:
           name: shadow-jar-${{ github.run_id }}
-          path: build/libs/*.jar
-          retention-days: 1
+          path: app/build/libs/app-all.jar
 
   jpackage:
     name: Package for ${{ matrix.os-name }} (${{ matrix.arch }})
