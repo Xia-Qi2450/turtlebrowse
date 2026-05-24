@@ -167,9 +167,9 @@ jobs:
           prerelease: ${{ startsWith(github.ref_name, '0.') || startsWith(github.ref_name, 'v0.') }}
           files: |
             release-artifacts/turtlebrowse_jar.jar
-            release-artifacts/app/build/dist/*.deb
-            release-artifacts/app/build/dist/*.rpm
-            release-artifacts/app/build/dist/*.exe
-            release-artifacts/app/build/dist/*.msi
-            release-artifacts/app/build/dist/*.dmg
-            release-artifacts/app/build/dist/*.pkg
+            release-artifacts/dist/*.deb
+            release-artifacts/dist/*.rpm
+            release-artifacts/dist/*.exe
+            release-artifacts/dist/*.msi
+            release-artifacts/dist/*.dmg
+            release-artifacts/dist/*.pkg
