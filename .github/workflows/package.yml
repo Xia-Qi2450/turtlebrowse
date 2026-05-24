@@ -139,7 +139,7 @@ jobs:
         with:
           path: release-artifacts/
           pattern: turtlebrowse_*
-          merge-multiple: true
+          merge-multiple: false
 
       - name: Rename Shadow JAR
         run: |
@@ -166,8 +166,8 @@ jobs:
             ext="${file##*.}"
             
             case "$ext" in
-              deb)  os_arch="linux_amd64" ;;
-              rpm)  os_arch="linux_amd64" ;;
+              deb)  os_arch="debian_amd64" ;;
+              rpm)  os_arch="fedora_amd64" ;;
               exe)  os_arch="windows_amd64" ;;
               msi)  os_arch="windows_amd64" ;;
               dmg)  os_arch="macos_amd64" ;;
