@@ -6,7 +6,27 @@
             <h2 class="section-title">Powered by the</h2>
             <h2 class="section-title">latest <span class="gemma-emph">Gemma 4</span> models</h2>
         </div>
-        <img class="ai-sidebar-img" src="/ai_sidebar.png" loading="lazy" />
+        <div class="ai-summary">
+            <div class="feature-box" style="text-align: left">
+                <h3 class="feature-header">Explore the web with Gemma</h3>
+                <p class="feature-text">
+                    Get Gemma to summarize entire pages for you with its 128k context window (E2B
+                    variant).
+                </p>
+            </div>
+            <img class="ai-summary-img" src="/ai_sidebar.png" loading="lazy" />
+        </div>
+        <div class="agentic-ai">
+            <video class="agentic-ai-img" src="/agentic.mp4" loading="lazy" autoplay muted loop />
+            <div class="feature-box" style="text-align: right">
+                <h3 class="feature-header">Automate everyday tasks with Gemma</h3>
+                <p class="feature-text">
+                    Use Gemma 4's native tool calling and multimodal input capabilities to browse
+                    the web for you. Gemma can take screenshots, page snapshots, click buttons, and
+                    more to understand and navigate the page.
+                </p>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -33,19 +53,48 @@
     font-weight: 500;
 }
 
-.ai-sidebar-img {
-    width: 30%;
+.ai-summary,
+.agentic-ai {
+    width: 70%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.ai-summary {
     will-change: transform;
-    animation: aiSidebarScale linear both;
+    animation: aiSidebarSlide ease-in-out both;
     animation-timeline: view();
 }
 
-@keyframes aiSidebarScale {
+.ai-summary-img,
+.agentic-ai-img {
+    width: 70%;
+}
+
+.agentic-ai {
+    will-change: transform;
+    animation: aiSidebarSlideReverse ease-in-out both;
+    animation-timeline: view();
+}
+
+@keyframes aiSidebarSlide {
     0% {
-        transform: scale(0.25);
+        transform: translateX(-50svw);
     }
     100% {
-        transform: scale(1);
+        transform: translateX(50svw);
+    }
+}
+
+@keyframes aiSidebarSlideReverse {
+    0% {
+        transform: translateX(50svw);
+    }
+    100% {
+        transform: translateX(-50svw);
     }
 }
 </style>

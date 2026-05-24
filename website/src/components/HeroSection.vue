@@ -1,6 +1,11 @@
 <script setup lang="ts">
+import router from '@/router';
 import '@m3e/web/button';
 import '@m3e/web/icon';
+
+function openGithub() {
+    window.open('https://github.com/ingStudiosOfficial/turtlebrowse', '_blank');
+}
 </script>
 
 <template>
@@ -10,9 +15,13 @@ import '@m3e/web/icon';
             <h1 class="hero-title">The browser</h1>
             <h1 class="hero-title">built to be <span class="browser-feat">agentic</span></h1>
         </div>
-        <m3e-button variant="filled" size="medium">
+        <m3e-button variant="filled" size="medium" @click="router.push({ name: 'download' })">
             <m3e-icon slot="icon" name="download"></m3e-icon>
             Download Turtlebrowse
+        </m3e-button>
+        <m3e-button variant="text" size="medium" @click="openGithub()">
+            <i slot="icon" class="devicon-github-original"></i>
+            View project on GitHub
         </m3e-button>
         <img class="newtab-image" src="/newtab.png" loading="lazy" />
     </div>
@@ -21,10 +30,11 @@ import '@m3e/web/icon';
 <style scoped>
 .hero-wrapper {
     width: 100%;
+    min-height: 100svh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     padding: 20px;
     box-sizing: border-box;
     gap: 30px;
@@ -63,9 +73,9 @@ import '@m3e/web/icon';
 }
 
 .newtab-image {
-    width: 50%;
+    width: 70%;
     will-change: transform;
-    animation: imageScale linear both;
+    animation: imageScale ease-in both;
     animation-timeline: view();
 }
 
@@ -73,8 +83,14 @@ import '@m3e/web/icon';
     0% {
         transform: scale(0.25);
     }
-    100% {
+    30% {
         transform: scale(1);
+    }
+    70% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(0.25);
     }
 }
 </style>
