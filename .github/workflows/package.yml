@@ -155,16 +155,36 @@ jobs:
             exit 1
           fi
 
+      - name: Rename Dist Artifacts (Matrix Mode)
+        shell: bash
+        run: |
+          cd release-artifacts/dist/
+          
+          OS=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
+          ARCH=$(echo "${{ runner.arch }}" | tr '[:upper:]' '[:lower:]')
+          
+          for file in *; do
+            [ -f "$file" ] || continue
+            ext="${file##*.}"
+            mv "$file" "turtlebrowse_${OS}_${ARCH}.${ext}"
+          done
+
       - name: Display Collected Assets
         run: ls -R release-artifacts/
+
+      - name: Parse Version Tag
+        id: version_parser
+        run: |
+          CLEAN_VERSION="${{ github.ref_name }}"
+          echo "clean=${CLEAN_VERSION#v}" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release and Upload Assets
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: Version ${{ github.ref_name }}
+          name: Version ${{ steps.version_parser.outputs.clean }}${{ case(startsWith(github.ref_name, '0.'), ' Beta', '') }}
           draft: false
-          prerelease: ${{ startsWith(github.ref_name, '0.') || startsWith(github.ref_name, 'v0.') }}
+          prerelease: ${{ startsWith(github.ref_name, 'v0.') }}
           files: |
             release-artifacts/turtlebrowse_jar.jar
             release-artifacts/dist/*.deb
