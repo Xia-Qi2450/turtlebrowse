@@ -2,9 +2,12 @@
 import '@m3e/web/list';
 import '@m3e/web/card';
 
+const RELEASE_VERSION = 'v0.2.0';
+
 function download(url: string) {
     window.open(
-        `https://github.com/ingStudiosOfficial/turtlebrowse/releases/latest/download/turtlebrowse_${url}`,
+        `https://github.com/ingStudiosOfficial/turtlebrowse/releases/download/${RELEASE_VERSION}/turtlebrowse_${url}`,
+        '_self',
     );
 }
 </script>
@@ -27,7 +30,7 @@ function download(url: string) {
                 <m3e-list-action @click="download('fedora_arm64.rpm')"
                     >Fedora Linux arm64</m3e-list-action
                 >
-                <m3e-list-action @click="download('windows_arm64.deb')"
+                <m3e-list-action @click="download('windows_amd64.exe')"
                     >Windows 10/11 amd64</m3e-list-action
                 >
             </m3e-action-list>
@@ -36,7 +39,7 @@ function download(url: string) {
         <p>
             Can't find your operating system? Use the
             <a
-                href="https://github.com/ingStudiosOfficial/turtlebrowse/releases/latest/download/turtlebrowse_jar.jar"
+                :href="`https://github.com/ingStudiosOfficial/turtlebrowse/releases/download/${RELEASE_VERSION}/turtlebrowse_jar.jar`"
                 >JAR</a
             >
             if you have JDK 25 installed on your system instead.

@@ -17,12 +17,11 @@ import ThemeSection from '@/components/ThemeSection.vue';
 <style scoped>
 .home-wrapper {
     width: 100svw;
-    height: 100svh;
+    height: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    overflow-y: scroll;
     padding: 20px;
     box-sizing: border-box;
 }
