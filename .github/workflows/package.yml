@@ -132,7 +132,8 @@ jobs:
       contents: write
     steps:
       - name: Create Work Directory
-        run: mkdir release-artifacts
+        run: |
+          mkdir -p release-artifacts/final-assets
 
       - name: Download All Native Installers and Jars
         uses: actions/download-artifact@v4
@@ -143,13 +144,13 @@ jobs:
 
       - name: Rename Shadow JAR
         run: |
-          TARGET_JAR="release-artifacts/libs/app-all.jar"
+          ANY_JAR=$(find release-artifacts/ -name "app-all.jar" | head -n 1)
           
-          if [ -f "$TARGET_JAR" ]; then
-            mv "$TARGET_JAR" release-artifacts/turtlebrowse_jar.jar
-            echo "Successfully found and renamed shadow JAR."
+          if [ -f "$ANY_JAR" ]; then
+            cp "$ANY_JAR" release-artifacts/final-assets/turtlebrowse_jar.jar
+            echo "Successfully found and copied shadow JAR."
           else
-            echo "Error: app-all.jar not found at $TARGET_JAR"
+            echo "Error: app-all.jar not found anywhere in downloaded artifacts."
             echo "Current directory structure for debugging:"
             ls -R release-artifacts/
             exit 1
@@ -157,32 +158,33 @@ jobs:
 
       - name: Rename Dist Artifacts
         run: |
-          cd release-artifacts/dist/
+          cd release-artifacts/
           
-          for file in *; do
-            [ -f "$file" ] || continue
-            [[ "$file" == turtlebrowse_* ]] && continue
+          for dir in turtlebrowse_*; do
+            [ -d "$dir" ] || continue
             
-            ext="${file##*.}"
+            IFS='_' read -r _ os_name arch_name <<< "$dir"
             
-            case "$ext" in
-              deb)  os_arch="debian_amd64" ;;
-              rpm)  os_arch="fedora_amd64" ;;
-              exe)  os_arch="windows_amd64" ;;
-              msi)  os_arch="windows_amd64" ;;
-              dmg)  os_arch="macos_amd64" ;;
-              pkg)  os_arch="macos_amd64" ;;
-              *)    os_arch="unknown" ;;
-            esac
+            os_lower=$(echo "$os_name" | tr '[:upper:]' '[:lower:]')
+            arch_lower=$(echo "$arch_name" | tr '[:upper:]' '[:lower:]')
             
-            if [ "$os_arch" != "unknown" ]; then
-              echo "Renaming $file to turtlebrowse_${os_arch}.${ext}"
-              mv "$file" "turtlebrowse_${os_arch}.${ext}"
+            if [ "$os_lower" = "ubuntu" ]; then
+              os_lower="debian"
+            fi
+            
+            if [ -d "$dir/dist" ]; then
+              find "$dir/dist" -type f | while read -r file; do
+                ext="${file##*.}"
+                
+                new_filename="turtlebrowse_${os_lower}_${arch_lower}.${ext}"
+                echo "Moving $file to final-assets/$new_filename"
+                cp "$file" "final-assets/$new_filename"
+              done
             fi
           done
 
       - name: Display Collected Assets
-        run: ls -R release-artifacts/
+        run: ls -R release-artifacts/final-assets/
 
       - name: Parse Version Tag
         id: version_parser
@@ -194,16 +196,10 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: Version ${{ steps.version_parser.outputs.clean }}${{ case(startsWith(github.ref_name, 'v0.'), ' Beta', '') }}
+          name: "Version ${{ steps.version_parser.outputs.clean }}${{ startsWith(github.ref_name, 'v0.') && ' Beta' || '' }}"
           draft: false
           make_latest: true
           prerelease: ${{ startsWith(github.ref_name, 'v0.') }}
           fail_on_unmatched_files: false
           files: |
-            release-artifacts/turtlebrowse_jar.jar
-            release-artifacts/dist/*.deb
-            release-artifacts/dist/*.rpm
-            release-artifacts/dist/*.exe
-            release-artifacts/dist/*.msi
-            release-artifacts/dist/*.dmg
-            release-artifacts/dist/*.pkg
+            release-artifacts/final-assets/*
