@@ -107,7 +107,7 @@ jobs:
           ./gradlew jpackage \
             -PtargetOs="${{ matrix.os-name }}" \
             -PtargetArch="${{ matrix.arch }}" \
-            -PtargetPkgType="${{ matrix.pkg-type }}"
+            -PtargetPkgType="${{ matrix.pkg-type }}" --info
 
       - name: Upload Native Distribution Artifacts
         uses: actions/upload-artifact@v4
@@ -155,18 +155,30 @@ jobs:
             exit 1
           fi
 
-      - name: Rename Dist Artifacts (Matrix Mode)
-        shell: bash
+      - name: Rename Dist Artifacts
         run: |
           cd release-artifacts/dist/
           
-          OS=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
-          ARCH=$(echo "${{ runner.arch }}" | tr '[:upper:]' '[:lower:]')
-          
           for file in *; do
             [ -f "$file" ] || continue
+            [[ "$file" == turtlebrowse_* ]] && continue
+            
             ext="${file##*.}"
-            mv "$file" "turtlebrowse_${OS}_${ARCH}.${ext}"
+            
+            case "$ext" in
+              deb)  os_arch="linux_amd64" ;;
+              rpm)  os_arch="linux_amd64" ;;
+              exe)  os_arch="windows_amd64" ;;
+              msi)  os_arch="windows_amd64" ;;
+              dmg)  os_arch="macos_amd64" ;;
+              pkg)  os_arch="macos_amd64" ;;
+              *)    os_arch="unknown" ;;
+            esac
+            
+            if [ "$os_arch" != "unknown" ]; then
+              echo "Renaming $file to turtlebrowse_${os_arch}.${ext}"
+              mv "$file" "turtlebrowse_${os_arch}.${ext}"
+            fi
           done
 
       - name: Display Collected Assets
@@ -182,7 +194,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: Version ${{ steps.version_parser.outputs.clean }}${{ case(startsWith(github.ref_name, '0.'), ' Beta', '') }}
+          name: Version ${{ steps.version_parser.outputs.clean }}${{ case(startsWith(github.ref_name, 'v0.'), ' Beta', '') }}
           draft: false
           prerelease: ${{ startsWith(github.ref_name, 'v0.') }}
           files: |

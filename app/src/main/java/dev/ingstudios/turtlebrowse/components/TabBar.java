@@ -117,6 +117,8 @@ public class TabBar extends JPanel {
 			tabBox.setCursor(Cursor.DEFAULT);
 		});
 		tabBox.setOnMouseClicked(event -> {
+			event.consume();
+
 			if (event.getButton() == MouseButton.PRIMARY)
 				this.parent.showTab(browser);
 			else if (event.getButton() == MouseButton.MIDDLE)
