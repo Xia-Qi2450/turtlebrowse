@@ -1,0 +1,36 @@
+@import url('./base.css');
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--md-ref-typeface-plain);
+    background-color: var(--md-sys-color-background);
+    color: var(--md-sys-color-on-background);
+    overflow: hidden;
+    width: 100svw;
+    height: 100svh;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+.section-title-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.section-title {
+    font-size: 3.5rem;
+    font-weight: 600;
+    margin: 0;
+    text-align: center;
+}
