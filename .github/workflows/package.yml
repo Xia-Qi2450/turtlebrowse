@@ -196,7 +196,9 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: Version ${{ steps.version_parser.outputs.clean }}${{ case(startsWith(github.ref_name, 'v0.'), ' Beta', '') }}
           draft: false
+          make_latest: true
           prerelease: ${{ startsWith(github.ref_name, 'v0.') }}
+          fail_on_unmatched_files: false
           files: |
             release-artifacts/turtlebrowse_jar.jar
             release-artifacts/dist/*.deb
