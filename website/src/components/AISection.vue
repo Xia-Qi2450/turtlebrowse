@@ -80,6 +80,27 @@
     animation-timeline: view();
 }
 
+@media (max-width: 768px) {
+    .ai-summary,
+    .agentic-ai {
+        flex-direction: column;
+        width: 90%;
+    }
+
+    .ai-summary {
+        align-items: flex-start;
+    }
+
+    .agentic-ai {
+        align-items: flex-end;
+    }
+
+    .ai-summary-img,
+    .agentic-ai-img {
+        width: 100%;
+    }
+}
+
 @keyframes aiSidebarSlide {
     0% {
         transform: translateX(-50svw);

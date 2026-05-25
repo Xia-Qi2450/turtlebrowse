@@ -24,5 +24,6 @@ import ThemeSection from '@/components/ThemeSection.vue';
     justify-content: flex-start;
     padding: 20px;
     box-sizing: border-box;
+    overflow-x: clip;
 }
 </style>

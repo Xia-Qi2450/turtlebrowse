@@ -72,14 +72,15 @@ function download(url: string) {
 <style scoped>
 .download-wrapper {
     width: 100svw;
-    height: 100svh;
+    min-height: 100svh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     overflow-y: scroll;
     padding: 20px;
     box-sizing: border-box;
+    text-align: center;
 }
 
 .download-title {

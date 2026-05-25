@@ -10,7 +10,7 @@
         </div>
 
         <div class="personalization" style="text-align: left">
-            <div class="feature-box" style="width: 30%">
+            <div class="feature-box">
                 <h3 class="feature-header">Personalize Turtlebrowse to your liking</h3>
                 <p class="feature-text">
                     Turtlebrowse dynamically generates a Material You theme from your system accent
@@ -78,6 +78,26 @@
     object-position: left center;
     border-radius: 25px;
     box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.2);
+}
+
+.feature-box {
+    width: 30%;
+}
+
+@media (max-width: 768px) {
+    .personalization {
+        width: 90%;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .feature-box {
+        width: 100%;
+    }
+
+    .theme-combo {
+        width: 100%;
+    }
 }
 
 .theme-img:nth-child(1) {

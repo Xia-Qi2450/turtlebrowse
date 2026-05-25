@@ -74,9 +74,15 @@ function openGithub() {
 
 .newtab-image {
     width: 70%;
-    will-change: transform;
+    will-change: transform opacity;
     animation: imageScale ease-in both;
     animation-timeline: view();
+}
+
+@media (max-width: 768px) {
+    .newtab-image {
+        width: 90%;
+    }
 }
 
 @keyframes imageScale {
