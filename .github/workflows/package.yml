@@ -203,3 +203,40 @@ jobs:
           fail_on_unmatched_files: false
           files: |
             release-artifacts/final-assets/*
+            generate_release_notes: true
+          body: >
+            # Turtlebrowse Version ${{ steps.version_parser.outputs.clean }}${{ startsWith(github.ref_name, 'v0.') && ' Beta' || '' }}
+
+            - Agentic features
+            - Browser setup
+            - Cross platform fixes
+
+            ## Installation
+
+            ### Windows
+
+            Download the executable and follow the setup wizard. Open Turtlebrowse. Complete the browser personalization wizard and wait for Java CEF to download. Turtlebrowse will launch once downloaded.
+
+            ### Linux
+
+            ### Debian/Ubuntu
+
+            Download the ```.deb``` file and run ```sudo apt install ./turtlebrowse_debian_[arch].deb```. Complete the browser personalization wizard and wait for Java CEF to download. Turtlebrowse will launch once downloaded.
+
+            ### Fedora/openSUSE
+
+            Download the ```.rpm``` file.
+
+            #### Fedora
+
+            Run ```sudo dnf install ./turtlebrowse_fedora_[arch].rpm```.
+
+            #### openSUSE
+
+            Run ```sudo zypper install ./turtlebrowse_fedora[arch].rpm```.
+
+            Complete the browser personalization wizard and wait for Java CEF to download. Turtlebrowse will launch once downloaded.
+
+            ### Executing from JAR
+
+            Download the JAR file and run ```java -jar turtlebrowse_jar.jar```. Complete the browser personalization wizard and wait for Java CEF to download. Turtlebrowse will launch once downloaded.
