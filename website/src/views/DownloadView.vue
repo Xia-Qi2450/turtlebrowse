@@ -2,7 +2,7 @@
 import '@m3e/web/list';
 import '@m3e/web/card';
 
-const RELEASE_VERSION = 'v0.2.0';
+const RELEASE_VERSION = 'latest';
 
 function download(url: string) {
     window.open(

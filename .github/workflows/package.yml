@@ -83,7 +83,7 @@ jobs:
           if [ "${{ matrix.os-name }}" = "Fedora" ]; then
             sudo apt-get install -y rpm
           else
-            sudo apt-get install -y dpkg devscripts
+            sudo apt-get install -y fakeroot dpkg devscripts
           fi
 
       - name: Set up JDK 25

@@ -75,7 +75,8 @@ val jvmArgs = listOf(
     "-Dswing.defaultlaf=javax.swing.plaf.metal.MetalLookAndFeel",
     "--add-opens=javafx.graphics/javafx.scene=ALL-UNNAMED",
     "--add-opens=javafx.controls/com.sun.javafx.scene.control=ALL-UNNAMED",
-    "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED"
+    "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
+    "-Dapp.dir=\$APPDIR"
 )
 
 application {
@@ -94,7 +95,7 @@ tasks.jpackage {
     
     appName = "Turtlebrowse"
     vendor = "(ing) Studios"
-    appVersion = "0.2.0"
+    appVersion = "1.0.0"
     copyright = "2026 (ing) Studios and Ethan Lee"
 
     input = layout.buildDirectory.dir("libs")
@@ -134,7 +135,12 @@ tasks.jpackage {
     }
 
     linux {
-        type = org.panteleyev.jpackage.ImageType.RPM
+        val pkgType = project.property("targetPkgType").toString().lowercase()
+        type = if (pkgType == "rpm") {
+            org.panteleyev.jpackage.ImageType.RPM
+        } else {
+            org.panteleyev.jpackage.ImageType.DEB
+        }
         linuxShortcut = true
         linuxMenuGroup = "Network;WebBrowser;"
         linuxAppCategory = "web" 
