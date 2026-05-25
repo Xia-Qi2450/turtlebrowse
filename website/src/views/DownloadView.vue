@@ -61,7 +61,7 @@ function download(url: string) {
         <p>
             Can't find your operating system? Use the
             <a
-                :href="`https://github.com/ingStudiosOfficial/turtlebrowse/releases/download/${RELEASE_VERSION}/turtlebrowse_jar.jar`"
+                :href="`https://github.com/ingStudiosOfficial/turtlebrowse/release/${RELEASE_VERSION}/download/turtlebrowse_jar.jar`"
                 >JAR</a
             >
             if you have JDK 25 installed on your system instead.
