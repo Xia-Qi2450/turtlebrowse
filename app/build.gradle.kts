@@ -65,7 +65,9 @@ javafx {
     modules("javafx.controls", "javafx.graphics", "javafx.base", "javafx.swing")
 }
 
-val jvmArgs = listOf(
+val isLinux = System.getProperty("os.name").lowercase().contains("linux")
+
+val baseJvmArgs = listOf(
     "--enable-native-access=ALL-UNNAMED,javafx.graphics",
     "--add-modules=jdk.incubator.vector",
     "-Dglass.platform=gtk",
@@ -78,6 +80,12 @@ val jvmArgs = listOf(
     "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
     "-Dapp.dir=\$APPDIR"
 )
+
+val jvmArgs = if (isLinux) {
+    baseJvmArgs + "-Dglass.platform=gtk"
+} else {
+    baseJvmArgs
+}
 
 application {
     mainClass.set("dev.ingstudios.turtlebrowse.Main")
