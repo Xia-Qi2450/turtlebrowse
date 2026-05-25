@@ -207,10 +207,6 @@ jobs:
           body: >
             # Turtlebrowse Version ${{ steps.version_parser.outputs.clean }}${{ startsWith(github.ref_name, 'v0.') && ' Beta' || '' }}
 
-            - Agentic features
-            - Browser setup
-            - Cross platform fixes
-
             ## Installation
 
             ### Windows
