@@ -35,13 +35,13 @@ function download(url: string) {
                     <m3e-avatar slot="leading">
                         <i class="devicon-fedora-plain"></i>
                     </m3e-avatar>
-                    Fedora Linux amd64
+                    Fedora/openSUSE Linux amd64
                 </m3e-list-action>
                 <m3e-list-action @click="download('fedora_arm64.rpm')">
                     <m3e-avatar slot="leading">
                         <i class="devicon-fedora-plain"></i>
                     </m3e-avatar>
-                    Fedora Linux arm64
+                    Fedora/openSUSE Linux arm64
                 </m3e-list-action>
                 <m3e-list-action @click="download('windows_amd64.exe')">
                     <m3e-avatar slot="leading">
