@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import '@m3e/web/list';
 import '@m3e/web/card';
+import '@m3e/web/avatar';
 
 const RELEASE_VERSION = 'latest';
 
 function download(url: string) {
     window.open(
-        `https://github.com/ingStudiosOfficial/turtlebrowse/releases/download/${RELEASE_VERSION}/turtlebrowse_${url}`,
+        `https://github.com/ingStudiosOfficial/turtlebrowse/releases/${RELEASE_VERSION}/download/turtlebrowse_${url}`,
         '_self',
     );
 }
@@ -18,21 +19,42 @@ function download(url: string) {
         <p>Download Turtlebrowse for your respective operating system and CPU architecture.</p>
         <m3e-card>
             <m3e-action-list slot="content" variant="segmented">
-                <m3e-list-action @click="download('debian_amd64.deb')"
-                    >Debian/Ubuntu Linux amd64</m3e-list-action
+                <m3e-list-action @click="download('debian_amd64.deb')">
+                    <m3e-avatar slot="leading">
+                        <i class="devicon-debian-plain"></i>
+                    </m3e-avatar>
+                    Debian/Ubuntu Linux amd64</m3e-list-action
                 >
-                <m3e-list-action @click="download('debian_arm64.deb')"
-                    >Debian/Ubuntu Linux arm64</m3e-list-action
-                >
-                <m3e-list-action @click="download('fedora_amd64.rpm')"
-                    >Fedora Linux amd64</m3e-list-action
-                >
-                <m3e-list-action @click="download('fedora_arm64.rpm')"
-                    >Fedora Linux arm64</m3e-list-action
-                >
-                <m3e-list-action @click="download('windows_amd64.exe')"
-                    >Windows 10/11 amd64</m3e-list-action
-                >
+                <m3e-list-action @click="download('debian_arm64.deb')">
+                    <m3e-avatar slot="leading">
+                        <i class="devicon-debian-plain"></i>
+                    </m3e-avatar>
+                    Debian/Ubuntu Linux arm64
+                </m3e-list-action>
+                <m3e-list-action @click="download('fedora_amd64.rpm')">
+                    <m3e-avatar slot="leading">
+                        <i class="devicon-fedora-plain"></i>
+                    </m3e-avatar>
+                    Fedora Linux amd64
+                </m3e-list-action>
+                <m3e-list-action @click="download('fedora_arm64.rpm')">
+                    <m3e-avatar slot="leading">
+                        <i class="devicon-fedora-plain"></i>
+                    </m3e-avatar>
+                    Fedora Linux arm64
+                </m3e-list-action>
+                <m3e-list-action @click="download('windows_amd64.exe')">
+                    <m3e-avatar slot="leading">
+                        <i class="devicon-windows11-original"></i>
+                    </m3e-avatar>
+                    Windows 10/11 amd64
+                </m3e-list-action>
+                <m3e-list-action @click="download('macos_arm64.pkg')">
+                    <m3e-avatar slot="leading">
+                        <i class="devicon-apple-original"></i>
+                    </m3e-avatar>
+                    macOS arm64
+                </m3e-list-action>
             </m3e-action-list>
         </m3e-card>
 
@@ -44,7 +66,6 @@ function download(url: string) {
             >
             if you have JDK 25 installed on your system instead.
         </p>
-        <p>macOS amd64/arm64 and Windows arm64 builds coming soon.</p>
     </div>
 </template>
 
