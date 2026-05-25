@@ -144,10 +144,14 @@ tasks.jpackage {
 
     linux {
         val pkgType = project.property("targetPkgType").toString().lowercase()
-        type = if (pkgType == "rpm") {
-            org.panteleyev.jpackage.ImageType.RPM
+        if (pkgType != null) {
+            type = if (pkgType == "rpm") {
+                org.panteleyev.jpackage.ImageType.RPM
+            } else {
+                org.panteleyev.jpackage.ImageType.DEB
+            }
         } else {
-            org.panteleyev.jpackage.ImageType.DEB
+            type = org.panteleyev.jpackage.ImageType.RPM
         }
         linuxShortcut = true
         linuxMenuGroup = "Network;WebBrowser;"
