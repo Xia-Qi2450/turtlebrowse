@@ -55,7 +55,6 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import me.friwi.jcefmaven.*;
 
 public class MainWindow extends JFrame {
@@ -88,10 +87,6 @@ public class MainWindow extends JFrame {
 		currentProfile = profile;
 
 		super("Turtlebrowse");
-
-		Platform.runLater(() -> {
-			Font.loadFont(getClass().getResourceAsStream("/fonts/google_sans_flex.ttf"), 10);
-		});
 
 		System.out.println("AWT Toolkit: " + java.awt.Toolkit.getDefaultToolkit().getClass().getName());
 		System.out.println("DISPLAY: " + System.getenv("DISPLAY"));
@@ -377,6 +372,7 @@ public class MainWindow extends JFrame {
 
 		System.out.println("Successfully closed browser.");
 
+		Platform.exit();
 		System.exit(0);
 	}
 
@@ -431,15 +427,6 @@ public class MainWindow extends JFrame {
 
 	public OllamaChat getOllamaSession() {
 		return ollamaSession;
-	}
-
-	public void refeshSwingLayout() {
-		SwingUtilities.invokeLater(() -> {
-			if (root != null) {
-				root.revalidate();
-				root.repaint();
-			}
-		});
 	}
 
 	private void setMaterialColorSchemeFromProfile() {

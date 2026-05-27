@@ -1,4 +1,7 @@
+@font-face {
+    src: url('/fonts/google_sans_flex.ttf');
+}
+
 .root {
-    font-family: 'Google Sans Flex';
-    -fx-font-family: 'Google Sans Flex';
+    -fx-font-family: 'Google Sans Flex Regular';
 }

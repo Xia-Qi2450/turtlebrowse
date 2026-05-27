@@ -65,6 +65,12 @@ public class AISidebar extends JPanel {
 			}, parent.profileMaterialColorScheme.getSurface()));
 			actionsBar.setAlignment(Pos.CENTER_RIGHT);
 
+			final Scene actionsBarScene = new Scene(actionsBar);
+			actionsBarScene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
+			actionsBarJfxPanel.setScene(actionsBarScene);
+			actionsBar.prefWidthProperty().bind(actionsBarScene.widthProperty());
+			actionsBar.prefHeightProperty().bind(actionsBarScene.heightProperty());
+
 			final JFXButton closeButton = new JFXButton("X");
 			closeButton.setGraphic(new FontIcon(Material2OutlinedAL.CLOSE));
 			closeButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
@@ -84,13 +90,6 @@ public class AISidebar extends JPanel {
 			});
 
 			actionsBar.getChildren().addAll(closeButton);
-
-			final Scene actionsBarScene = new Scene(actionsBar);
-			actionsBarJfxPanel.setScene(actionsBarScene);
-			actionsBar.prefWidthProperty().bind(actionsBarScene.widthProperty());
-			actionsBar.prefHeightProperty().bind(actionsBarScene.heightProperty());
-
-			parent.refeshSwingLayout();
 		});
 
 		aiBrowser = client.createBrowser("turtlebrowse://chat", useOsr, false);

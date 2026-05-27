@@ -21,6 +21,7 @@ public class StartWizardPane extends WizardPane {
 			final Paint backgroundColor = Main.mainMaterialColorScheme.getSurface().get();
 			return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
 		}, Main.mainMaterialColorScheme.getSurface()));
+		getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
 		getStylesheets().add(getClass().getResource("/css/wizard.css").toExternalForm());
 
 		final VBox mainBox = new VBox();

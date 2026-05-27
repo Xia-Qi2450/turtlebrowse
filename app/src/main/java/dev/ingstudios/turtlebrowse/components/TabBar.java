@@ -57,6 +57,12 @@ public class TabBar extends JPanel {
 			}, parent.profileMaterialColorScheme.getSurface()));
 			root.setAlignment(Pos.CENTER_LEFT);
 
+			final Scene tabBarScene = new Scene(root);
+			tabBarScene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
+			tabPanel.setScene(tabBarScene);
+			root.prefWidthProperty().bind(tabBarScene.widthProperty());
+			root.prefHeightProperty().bind(tabBarScene.heightProperty());
+
 			final JFXButton createTabButton = new JFXButton("+");
 			createTabButton.setGraphic(new FontIcon(Material2OutlinedAL.ADD));
 			createTabButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
@@ -80,13 +86,6 @@ public class TabBar extends JPanel {
 			for (final CefBrowser browser : tabs) {
 				addTabToUI(browser);
 			}
-
-			final Scene tabBarScene = new Scene(root);
-			tabPanel.setScene(tabBarScene);
-			root.prefWidthProperty().bind(tabBarScene.widthProperty());
-			root.prefHeightProperty().bind(tabBarScene.heightProperty());
-
-			parent.refeshSwingLayout();
 		});
 
 		this.add(tabPanel);

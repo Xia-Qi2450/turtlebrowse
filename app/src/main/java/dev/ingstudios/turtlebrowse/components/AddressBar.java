@@ -53,6 +53,12 @@ public class AddressBar extends JPanel {
 			}, parent.profileMaterialColorScheme.getSurface()));
 			root.setAlignment(Pos.CENTER);
 
+			final Scene addressBarScene = new Scene(root);
+			addressBarScene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
+			addressBarPanel.setScene(addressBarScene);
+			root.prefWidthProperty().bind(addressBarScene.widthProperty());
+			root.prefHeightProperty().bind(addressBarScene.heightProperty());
+
 			final JFXButton backButton = new JFXButton("<");
 			backButton.setGraphic(new FontIcon(Material2OutlinedAL.ARROW_BACK));
 			backButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
@@ -195,13 +201,6 @@ public class AddressBar extends JPanel {
 			root.setOnMouseClicked(event -> {
 				addressField.requestFocus();
 			});
-
-			final Scene addressBarScene = new Scene(root);
-			addressBarPanel.setScene(addressBarScene);
-			root.prefWidthProperty().bind(addressBarScene.widthProperty());
-			root.prefHeightProperty().bind(addressBarScene.heightProperty());
-
-			parent.refeshSwingLayout();
 		});
 
 		this.add(addressBarPanel);

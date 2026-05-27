@@ -5,7 +5,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
-import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import org.cef.OS;
@@ -15,7 +14,7 @@ import org.glavo.monetfx.beans.property.SimpleColorSchemeProperty;
 
 import dev.ingstudios.turtlebrowse.db.NitriteDatabase;
 import dev.ingstudios.turtlebrowse.db.NitriteDatabase.ProfileStructure;
-import dev.ingstudios.turtlebrowse.windows.MainWindow;
+import dev.ingstudios.turtlebrowse.windows.ProfilePickerWindow;
 import dev.ingstudios.turtlebrowse.windows.SetupWindow;
 import dev.ingstudios.turtlebrowse.wizard.WizardData;
 import javafx.application.Platform;
@@ -27,7 +26,6 @@ public class Main {
 	public static ColorSchemeProperty mainMaterialColorScheme = new SimpleColorSchemeProperty(
 			ColorScheme.fromSeed(Color.web("#BDCF47")));
 	public final static NitriteDatabase db = NitriteDatabase.getInstance();
-	private static int numProfiles;
 
 	public static void main(String[] args) {
 		Platform.startup(() -> {
@@ -37,7 +35,6 @@ public class Main {
 		setMaterialColorSchemeFromSystem();
 
 		final List<ProfileStructure> profiles = db.getAllProfiles();
-		numProfiles = profiles.size();
 		final boolean noProfile = profiles.isEmpty();
 
 		SwingUtilities.invokeLater(() -> {
@@ -60,34 +57,20 @@ public class Main {
 								String.valueOf(wizardData.enableAI));
 
 						wizardData.saveData();
-
-						SwingUtilities.invokeLater(() -> initBrowser());
 					}
 				}
 			});
 
-			if (!noProfile)
-				initBrowser();
+			createProfilePicker();
 		});
 	}
 
-	private static void initBrowser() {
-		ProfileStructure profile;
+	private static void createProfilePicker() {
+		Platform.runLater(() -> {
+			final ProfilePickerWindow profilePickerWindow = new ProfilePickerWindow();
+			profilePickerWindow.showProfilePickerWindow();
+		});
 
-		if (numProfiles <= 1) {
-			profile = db.getFirstProfile();
-		} else {
-			// TODO(developer): Implement profile switching
-			// Placeholder until multiple profile implementation
-			profile = db.getFirstProfile();
-		}
-
-		final MainWindow mainWindow = new MainWindow(profile);
-
-		mainWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
-		mainWindow.setUndecorated(false);
-
-		mainWindow.setVisible(true);
 	}
 
 	private static void setMaterialColorSchemeFromSystem() {
