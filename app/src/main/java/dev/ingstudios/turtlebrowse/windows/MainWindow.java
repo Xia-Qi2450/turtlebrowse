@@ -62,7 +62,6 @@ public class MainWindow extends JFrame {
 	public final String START_URL = "turtlebrowse://newtab";
 	public final String DEFAULT_SEARCH_PROVIDER = "https://google.com/search?q=";
 	private final boolean USE_OSR = false;
-	private final String USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.1.0 Safari/537.36";
 
 	private CefApp cefApp;
 	private CefClient cefClient;
@@ -82,7 +81,8 @@ public class MainWindow extends JFrame {
 	public final TurtlebrowseRequestHandler requestHandler = new TurtlebrowseRequestHandler(this);
 	public final ProfileStructure currentProfile;
 	public ColorSchemeProperty profileMaterialColorScheme = new SimpleColorSchemeProperty(
-			ColorScheme.fromSeed(Color.web("#BDCF47")));;
+			ColorScheme.fromSeed(Color.web("#BDCF47")));
+	private String userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.1.0 Safari/537.36";
 
 	public MainWindow(ProfileStructure profile) {
 		currentProfile = profile;
@@ -109,6 +109,7 @@ public class MainWindow extends JFrame {
 		setSize(1200, 800);
 		setLocationRelativeTo(null);
 
+		setUserAgent();
 		setMaterialColorSchemeFromProfile();
 
 		browserContainer = new JPanel(new BorderLayout());
@@ -161,7 +162,7 @@ public class MainWindow extends JFrame {
 		cefClient.addRequestHandler(requestHandler);
 
 		try {
-			ollamaSession = new OllamaChat(USER_AGENT, this);
+			ollamaSession = new OllamaChat(userAgent, this);
 		} catch (OllamaException e) {
 			e.printStackTrace();
 		}
@@ -196,7 +197,7 @@ public class MainWindow extends JFrame {
 		cefSettings.windowless_rendering_enabled = USE_OSR;
 		cefSettings.remote_debugging_port = 6767;
 
-		cefSettings.user_agent = USER_AGENT;
+		cefSettings.user_agent = userAgent;
 
 		try {
 			String cachePath = getCachePath();
@@ -448,6 +449,16 @@ public class MainWindow extends JFrame {
 		} else {
 			profileMaterialColorScheme
 					.set(ColorScheme.fromSeed(accentColor));
+		}
+	}
+
+	private void setUserAgent() {
+		if (OS.isLinux()) {
+			userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.1.0 Safari/537.36";
+		} else if (OS.isWindows()) {
+			userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.1.0 Safari/537.36";
+		} else if (OS.isMacintosh()) {
+			userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_7_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.1.0 Safari/537.36";
 		}
 	}
 }
