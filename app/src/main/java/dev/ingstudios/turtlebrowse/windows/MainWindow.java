@@ -37,7 +37,7 @@ import dev.ingstudios.turtlebrowse.Main;
 import dev.ingstudios.turtlebrowse.components.AISidebar;
 import dev.ingstudios.turtlebrowse.components.AddressBar;
 import dev.ingstudios.turtlebrowse.components.TabBar;
-import dev.ingstudios.turtlebrowse.db.NitriteDatabase.ProfileStructure;
+import dev.ingstudios.turtlebrowse.db.NitriteDatabase.ProfileStructureWithId;
 import dev.ingstudios.turtlebrowse.handlers.CefKeyboardHandler;
 import dev.ingstudios.turtlebrowse.handlers.SwingKeyboardHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseContextMenuHandler;
@@ -78,12 +78,12 @@ public class MainWindow extends JFrame {
 	private final Gson gson = new Gson();
 	public final TurtlebrowseLoadHandler loadHandler = new TurtlebrowseLoadHandler();
 	public final TurtlebrowseRequestHandler requestHandler = new TurtlebrowseRequestHandler(this);
-	public final ProfileStructure currentProfile;
+	public final ProfileStructureWithId currentProfile;
 	public ColorSchemeProperty profileMaterialColorScheme = new SimpleColorSchemeProperty(
 			ColorScheme.fromSeed(Color.web("#BDCF47")));
 	private String userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.1.0 Safari/537.36";
 
-	public MainWindow(ProfileStructure profile) {
+	public MainWindow(ProfileStructureWithId profile) {
 		currentProfile = profile;
 
 		super("Turtlebrowse");

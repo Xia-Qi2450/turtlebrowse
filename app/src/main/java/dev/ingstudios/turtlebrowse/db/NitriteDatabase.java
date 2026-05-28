@@ -77,11 +77,11 @@ public class NitriteDatabase {
 		profileCollection.insert(profileDocument);
 	}
 
-	public List<ProfileStructure> getAllProfiles() {
+	public List<ProfileStructureWithId> getAllProfiles() {
 		final DocumentCursor cursor = profileCollection.find();
 		final List<Document> profileList = cursor.toList();
 
-		final List<ProfileStructure> profileStructures = new ArrayList<>();
+		final List<ProfileStructureWithId> profileStructures = new ArrayList<>();
 
 		for (final Document document : profileList) {
 			profileStructures.add(parseProfile(document));
@@ -90,20 +90,20 @@ public class NitriteDatabase {
 		return profileStructures;
 	}
 
-	public ProfileStructure getFirstProfile() {
+	public ProfileStructureWithId getFirstProfile() {
 		final Document profileDocument = profileCollection.find().firstOrNull();
 		return parseProfile(profileDocument);
 	}
 
-	public ProfileStructure getProfile(NitriteId id) {
+	public ProfileStructureWithId getProfile(NitriteId id) {
 		final Document profileDocument = profileCollection.getById(id);
 		return parseProfile(profileDocument);
 	}
 
-	private ProfileStructure parseProfile(Document document) {
+	private ProfileStructureWithId parseProfile(Document document) {
 		final @Nullable String colorHex = document.get("seedColor", String.class);
-		final ProfileStructure profileStructure = new ProfileStructure(document.get("name", String.class),
-				colorHex != null ? Color.valueOf(colorHex) : null);
+		final ProfileStructureWithId profileStructure = new ProfileStructureWithId(document.get("name", String.class),
+				colorHex != null ? Color.valueOf(colorHex) : null, document.getId());
 		return profileStructure;
 	}
 
@@ -132,6 +132,8 @@ public class NitriteDatabase {
 	}
 
 	public record ProfileStructure(String name, Color seedColor) {
+	}
 
+	public record ProfileStructureWithId(String name, Color seedColor, NitriteId id) {
 	}
 }

@@ -6,12 +6,15 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import org.dizitart.no2.collection.NitriteId;
+
 import dev.ingstudios.turtlebrowse.Main;
 import dev.ingstudios.turtlebrowse.db.NitriteDatabase;
-import dev.ingstudios.turtlebrowse.db.NitriteDatabase.ProfileStructure;
+import dev.ingstudios.turtlebrowse.db.NitriteDatabase.ProfileStructureWithId;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
@@ -28,7 +31,7 @@ import javafx.stage.Stage;
 
 public class ProfilePickerWindow extends Stage {
 	private final NitriteDatabase db = NitriteDatabase.getInstance();
-	private final List<ProfileStructure> profiles;
+	private final List<ProfileStructureWithId> profiles;
 
 	public ProfilePickerWindow() {
 		setTitle("Turtlebrowse");
@@ -36,10 +39,11 @@ public class ProfilePickerWindow extends Stage {
 		// profiles = db.getAllProfiles();
 
 		// Test profiles
-		final List<ProfileStructure> testProfiles = new ArrayList<>();
+		final List<ProfileStructureWithId> testProfiles = new ArrayList<>();
 
 		for (int i = 0; i < 3; i++) {
-			testProfiles.add(new ProfileStructure("Profile %s".formatted(i), Color.web("#11bedd")));
+			testProfiles.add(
+					new ProfileStructureWithId("Profile %s".formatted(i), Color.web("#11bedd"), NitriteId.newId()));
 		}
 
 		profiles = testProfiles;
@@ -60,7 +64,7 @@ public class ProfilePickerWindow extends Stage {
 		profilesBox.setAlignment(Pos.CENTER);
 		profilesBox.setFillHeight(false);
 
-		for (final ProfileStructure profile : profiles) {
+		for (final ProfileStructureWithId profile : profiles) {
 			final VBox profileBox = new VBox();
 			profileBox.setStyle("-fx-padding: 10px;");
 			profileBox.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
@@ -68,6 +72,16 @@ public class ProfilePickerWindow extends Stage {
 				return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
 			}, Main.mainMaterialColorScheme.getSurfaceContainer()));
 			profileBox.setAlignment(Pos.CENTER);
+			profileBox.setOnMouseEntered(event -> {
+				profileBox.setCursor(Cursor.HAND);
+			});
+			profileBox.setOnMouseDragExited(event -> {
+				profileBox.setCursor(Cursor.DEFAULT);
+			});
+			profileBox.setOnMouseClicked(event -> {
+				event.consume();
+				createMainWindow(profile);
+			});
 
 			final Label profileName = new Label(profile.name());
 			profileName.setFont(Font.font("Google Sans Flex", FontWeight.BOLD, 25));
@@ -89,7 +103,7 @@ public class ProfilePickerWindow extends Stage {
 
 	public void showProfilePickerWindow() {
 		if (profiles.size() <= 1) {
-			final ProfileStructure profile = db.getFirstProfile();
+			final ProfileStructureWithId profile = db.getFirstProfile();
 			createMainWindow(profile);
 			return;
 		}
@@ -97,12 +111,14 @@ public class ProfilePickerWindow extends Stage {
 		show();
 	}
 
-	private void createMainWindow(ProfileStructure profile) {
+	private void createMainWindow(ProfileStructureWithId profile) {
 		SwingUtilities.invokeLater(() -> {
 			final MainWindow mainWindow = new MainWindow(profile);
 			mainWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			mainWindow.setUndecorated(false);
 			mainWindow.setVisible(true);
 		});
+
+		hide();
 	}
 }

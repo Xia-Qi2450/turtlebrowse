@@ -13,7 +13,7 @@ import org.glavo.monetfx.beans.property.ColorSchemeProperty;
 import org.glavo.monetfx.beans.property.SimpleColorSchemeProperty;
 
 import dev.ingstudios.turtlebrowse.db.NitriteDatabase;
-import dev.ingstudios.turtlebrowse.db.NitriteDatabase.ProfileStructure;
+import dev.ingstudios.turtlebrowse.db.NitriteDatabase.ProfileStructureWithId;
 import dev.ingstudios.turtlebrowse.windows.ProfilePickerWindow;
 import dev.ingstudios.turtlebrowse.windows.SetupWindow;
 import dev.ingstudios.turtlebrowse.wizard.WizardData;
@@ -34,7 +34,7 @@ public class Main {
 
 		setMaterialColorSchemeFromSystem();
 
-		final List<ProfileStructure> profiles = db.getAllProfiles();
+		final List<ProfileStructureWithId> profiles = db.getAllProfiles();
 		final boolean noProfile = profiles.isEmpty();
 
 		SwingUtilities.invokeLater(() -> {
