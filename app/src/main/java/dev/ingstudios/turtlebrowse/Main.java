@@ -26,6 +26,7 @@ public class Main {
 	public static ColorSchemeProperty mainMaterialColorScheme = new SimpleColorSchemeProperty(
 			ColorScheme.fromSeed(Color.web("#BDCF47")));
 	public final static NitriteDatabase db = NitriteDatabase.getInstance();
+	public static ProfilePickerWindow profilePickerWindow;
 
 	public static void main(String[] args) {
 		Platform.startup(() -> {
@@ -63,14 +64,18 @@ public class Main {
 
 			createProfilePicker();
 		});
+
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			NitriteDatabase.getInstance().closeDb();
+		}));
 	}
 
 	private static void createProfilePicker() {
 		Platform.runLater(() -> {
-			final ProfilePickerWindow profilePickerWindow = new ProfilePickerWindow();
+			if (profilePickerWindow == null)
+				profilePickerWindow = new ProfilePickerWindow();
 			profilePickerWindow.showProfilePickerWindow();
 		});
-
 	}
 
 	private static void setMaterialColorSchemeFromSystem() {

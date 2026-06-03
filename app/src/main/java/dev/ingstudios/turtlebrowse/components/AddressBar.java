@@ -27,6 +27,7 @@ import org.kordamp.ikonli.material2.Material2OutlinedMZ;
 
 import com.jfoenix.controls.JFXButton;
 
+import dev.ingstudios.turtlebrowse.Main;
 import dev.ingstudios.turtlebrowse.windows.MainWindow;
 
 public class AddressBar extends JPanel {
@@ -188,12 +189,32 @@ public class AddressBar extends JPanel {
 				parent.aiSidebar.toggleSidebar();
 			});
 
-			root.getChildren().addAll(backButton, forwardButton, reloadButton, addressField, aiButton);
+			final JFXButton profileButton = new JFXButton("👱");
+			profileButton.setGraphic(new FontIcon(Material2OutlinedAL.ASSISTANT));
+			profileButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+			profileButton.setStyle("-fx-padding: 10px;");
+			profileButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
+				final Paint backgroundColor = parent.profileMaterialColorScheme.getSurfaceContainer().get();
+				return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
+			}, parent.profileMaterialColorScheme.getSurfaceContainer()));
+			profileButton.setOnMouseEntered(event -> {
+				profileButton.setCursor(Cursor.HAND);
+			});
+			profileButton.setOnMouseDragExited(event -> {
+				profileButton.setCursor(Cursor.DEFAULT);
+			});
+			profileButton.setOnAction(event -> {
+				System.out.println("Profile button clicked.");
+				Main.profilePickerWindow.showProfilePickerWindow();
+			});
+
+			root.getChildren().addAll(backButton, forwardButton, reloadButton, addressField, aiButton, profileButton);
 
 			backButton.prefWidthProperty().bind(backButton.heightProperty());
 			forwardButton.prefWidthProperty().bind(forwardButton.heightProperty());
 			reloadButton.prefWidthProperty().bind(reloadButton.heightProperty());
 			aiButton.prefWidthProperty().bind(aiButton.prefHeightProperty());
+			profileButton.prefWidthProperty().bind(profileButton.prefHeightProperty());
 
 			HBox.setHgrow(addressField, Priority.ALWAYS);
 			addressField.setMaxWidth(Double.MAX_VALUE);

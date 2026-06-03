@@ -37,6 +37,7 @@ import dev.ingstudios.turtlebrowse.Main;
 import dev.ingstudios.turtlebrowse.components.AISidebar;
 import dev.ingstudios.turtlebrowse.components.AddressBar;
 import dev.ingstudios.turtlebrowse.components.TabBar;
+import dev.ingstudios.turtlebrowse.db.NitriteDatabase;
 import dev.ingstudios.turtlebrowse.db.NitriteDatabase.ProfileStructureWithId;
 import dev.ingstudios.turtlebrowse.handlers.CefKeyboardHandler;
 import dev.ingstudios.turtlebrowse.handlers.SwingKeyboardHandler;
@@ -49,6 +50,8 @@ import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseLifeSpanHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseLoadHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseRequestHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseSchemeHandlerFactory;
+import dev.ingstudios.turtlebrowse.managers.WindowsManager;
+import dev.ingstudios.turtlebrowse.managers.WindowsManager.WindowItem;
 import dev.ingstudios.turtlebrowse.ollama.OllamaChat;
 import io.github.ollama4j.exceptions.OllamaException;
 import javafx.application.Platform;
@@ -82,11 +85,16 @@ public class MainWindow extends JFrame {
 	public ColorSchemeProperty profileMaterialColorScheme = new SimpleColorSchemeProperty(
 			ColorScheme.fromSeed(Color.web("#BDCF47")));
 	private String userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.1.0 Safari/537.36";
+	private final String windowId;
 
 	public MainWindow(ProfileStructureWithId profile) {
+		super("Turtlebrowse");
+
 		currentProfile = profile;
 
-		super("Turtlebrowse");
+		windowId = "%s_main_window".formatted(String.valueOf(profile.id().getIdValue()));
+		WindowsManager.getInstance()
+				.addWindow(new WindowItem(windowId, MainWindow.class));
 
 		System.out.println("AWT Toolkit: " + java.awt.Toolkit.getDefaultToolkit().getClass().getName());
 		System.out.println("DISPLAY: " + System.getenv("DISPLAY"));
@@ -205,8 +213,10 @@ public class MainWindow extends JFrame {
 		builder.setAppHandler(new MavenCefAppHandlerAdapter() {
 			@Override
 			public void stateHasChanged(CefAppState state) {
-				if (state == CefAppState.TERMINATED)
+				if (state == CefAppState.TERMINATED) {
+					NitriteDatabase.getInstance().closeDb();
 					System.exit(0);
+				}
 			}
 
 			@Override
@@ -359,6 +369,8 @@ public class MainWindow extends JFrame {
 	public void dispose() {
 		System.out.println("Closing...");
 
+		WindowsManager.getInstance().removeWindow(windowId);
+
 		for (final CefBrowser browser : openedBrowserTabs) {
 			if (browser != null)
 				browser.close(true);
@@ -372,8 +384,11 @@ public class MainWindow extends JFrame {
 
 		System.out.println("Successfully closed browser.");
 
-		Platform.exit();
-		System.exit(0);
+		if (WindowsManager.getInstance().getWindows().size() == 0) {
+			Platform.exit();
+			NitriteDatabase.getInstance().closeDb();
+			System.exit(0);
+		}
 	}
 
 	public String formatURL(String url, Boolean isSearching) {

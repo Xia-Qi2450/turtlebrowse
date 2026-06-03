@@ -18,143 +18,159 @@ import org.cef.network.CefResponse;
 import dev.ingstudios.turtlebrowse.windows.MainWindow;
 
 public class TurtlebrowseSchemeResourceHandler extends CefResourceHandlerAdapter {
-    private byte[] data;
-    private int offset = 0;
-    private String mimeType = "text/html";
-    private MainWindow parent;
+	private byte[] data;
+	private int offset = 0;
+	private String mimeType = "text/html";
+	private MainWindow parent;
 
-    public TurtlebrowseSchemeResourceHandler(MainWindow parent) {
-        this.parent = parent;
-    }
+	public TurtlebrowseSchemeResourceHandler(MainWindow parent) {
+		this.parent = parent;
+	}
 
-    private void loadResource(String resourcePath) {
-        try (var inputStream = getClass().getResourceAsStream(resourcePath)) {
-            if (inputStream != null) {
-                this.data = inputStream.readAllBytes();
+	private void loadResource(String resourcePath) {
+		try (var inputStream = getClass().getResourceAsStream(resourcePath)) {
+			if (inputStream != null) {
+				this.data = inputStream.readAllBytes();
 
-                if (resourcePath.endsWith(".js"))
-                    mimeType = "application/javascript";
-                else if (resourcePath.endsWith(".css"))
-                    mimeType = "text/css";
-                else if (resourcePath.endsWith(".svg"))
-                    mimeType = "image/svg+xml";
-                else if (resourcePath.endsWith(".png"))
-                    mimeType = "image/png";
-                else if (resourcePath.endsWith(".jpeg") || resourcePath.endsWith(".jpg"))
-                    mimeType = "image/jpeg";
-                else
-                    mimeType = "text/html";
-            } else {
-                this.data = "<html><body>404 Resource Not Found</body></html>".getBytes(StandardCharsets.UTF_8);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+				if (resourcePath.endsWith(".js"))
+					mimeType = "application/javascript";
+				else if (resourcePath.endsWith(".css"))
+					mimeType = "text/css";
+				else if (resourcePath.endsWith(".svg"))
+					mimeType = "image/svg+xml";
+				else if (resourcePath.endsWith(".png"))
+					mimeType = "image/png";
+				else if (resourcePath.endsWith(".jpeg") || resourcePath.endsWith(".jpg"))
+					mimeType = "image/jpeg";
+				else
+					mimeType = "text/html";
+			} else {
+				this.data = "<html><body>404 Resource Not Found</body></html>".getBytes(StandardCharsets.UTF_8);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
-    @Override
-    public boolean open(CefRequest request, BoolRef handleRequest, CefCallback callback) {
-        final String url = request.getURL();
-        System.out.println("Scheme handler open() called with URL: " + url);
+	@Override
+	public boolean open(CefRequest request, BoolRef handleRequest, CefCallback callback) {
+		final String url = request.getURL();
+		System.out.println("Scheme handler open() called with URL: " + url);
 
-        if (url.startsWith("turtlebrowse://newtab")) {
-            final String path = url.substring("turtlebrowse://newtab".length());
-            System.out.println("Parsed path: '" + path + "'");
+		if (url.startsWith("turtlebrowse://newtab")) {
+			final String path = url.substring("turtlebrowse://newtab".length());
+			System.out.println("Parsed path: '" + path + "'");
 
-            if (path.isEmpty() || path.equals("/")) {
-                loadResource("/web/newtab.html");
-            } else {
-                loadResource("/web" + path);
-            }
+			if (path.isEmpty() || path.equals("/")) {
+				loadResource("/web/newtab.html");
+			} else {
+				loadResource("/web" + path);
+			}
 
-            System.out.println("Data loaded, length: " + (data != null ? data.length : "NULL"));
-            System.out.println("MIME type: " + mimeType);
+			System.out.println("Data loaded, length: " + (data != null ? data.length : "NULL"));
+			System.out.println("MIME type: " + mimeType);
 
-            handleRequest.set(true);
-            callback.Continue();
-            return true;
-        } else if (url.startsWith("turtlebrowse://chat")) {
-            final String path = url.substring("turtlebrowse://chat".length());
-            System.out.println("Parsed path: '" + path + "'");
+			handleRequest.set(true);
+			callback.Continue();
+			return true;
+		} else if (url.startsWith("turtlebrowse://chat")) {
+			final String path = url.substring("turtlebrowse://chat".length());
+			System.out.println("Parsed path: '" + path + "'");
 
-            if (path.isEmpty() || path.equals("/")) {
-                loadResource("/web/chat.html");
-            } else {
-                loadResource("/web" + path);
-            }
+			if (path.isEmpty() || path.equals("/")) {
+				loadResource("/web/chat.html");
+			} else {
+				loadResource("/web" + path);
+			}
 
-            System.out.println("Data loaded, length: " + (data != null ? data.length : "NULL"));
-            System.out.println("MIME type: " + mimeType);
+			System.out.println("Data loaded, length: " + (data != null ? data.length : "NULL"));
+			System.out.println("MIME type: " + mimeType);
 
-            handleRequest.set(true);
-            callback.Continue();
-            return true;
-        } else if (url.startsWith("turtlebrowse://api")) {
-            final String action = url.replace("turtlebrowse://api/", "");
+			handleRequest.set(true);
+			callback.Continue();
+			return true;
+		} else if (url.startsWith("turtlebrowse://dino")) {
+			final String path = url.substring("turtlebrowse://dino".length());
+			System.out.println("Parsed path: '" + path + "'");
 
-            System.out.printf("Action: %s URL: %s", action, url);
+			if (path.isEmpty() || path.equals("/")) {
+				loadResource("/dino/index.html");
+			} else {
+				loadResource("/dino" + path);
+			}
 
-            final CefPostData postData = request.getPostData();
-            String body = "{}";
+			System.out.println("Data loaded, length: " + (data != null ? data.length : "NULL"));
+			System.out.println("MIME type: " + mimeType);
 
-            if (postData != null) {
-                final Vector<CefPostDataElement> elements = new Vector<>();
-                postData.getElements(elements);
-                if (elements != null && elements.size() > 0) {
-                    final CefPostDataElement element = elements.firstElement();
-                    final int elementSize = (int) element.getBytesCount();
-                    final byte[] buffer = new byte[elementSize];
-                    element.getBytes(elementSize, buffer);
-                    body = new String(buffer, StandardCharsets.UTF_8);
-                }
-            }
+			handleRequest.set(true);
+			callback.Continue();
+			return true;
+		} else if (url.startsWith("turtlebrowse://api")) {
+			final String action = url.replace("turtlebrowse://api/", "");
 
-            String result = parent.handleApiFromClient(action, body);
-            this.data = result.getBytes(StandardCharsets.UTF_8);
-            this.mimeType = "application/json";
-            handleRequest.set(true);
-            callback.Continue();
-            return true;
-        }
+			System.out.printf("Action: %s URL: %s", action, url);
 
-        return false;
-    }
+			final CefPostData postData = request.getPostData();
+			String body = "{}";
 
-    @Override
-    public void getResponseHeaders(CefResponse response, IntRef responseLength, StringRef redirectUrl) {
-        if (data == null) {
-            data = "<html><body>500 Internal Error</body></html>".getBytes(StandardCharsets.UTF_8);
-            mimeType = "text/html";
-            response.setStatus(500);
-        } else {
-            response.setStatus(200);
-        }
-        response.setMimeType(mimeType);
-        response.setHeaderByName("Access-Control-Allow-Origin", "*", true);
-        response.setHeaderByName("Access-Control-Allow-Methods", "GET, OPTIONS", true);
-        response.setHeaderByName("Access-Control-Allow-Headers", "*", true);
-        responseLength.set(data.length);
-    }
+			if (postData != null) {
+				final Vector<CefPostDataElement> elements = new Vector<>();
+				postData.getElements(elements);
+				if (elements != null && elements.size() > 0) {
+					final CefPostDataElement element = elements.firstElement();
+					final int elementSize = (int) element.getBytesCount();
+					final byte[] buffer = new byte[elementSize];
+					element.getBytes(elementSize, buffer);
+					body = new String(buffer, StandardCharsets.UTF_8);
+				}
+			}
 
-    @Override
-    public boolean read(byte[] dataOut, int bytesToRead, IntRef bytesRead, CefResourceReadCallback callback) {
-        if (offset >= data.length) {
-            bytesRead.set(0);
-            return false;
-        }
+			String result = parent.handleApiFromClient(action, body);
+			this.data = result.getBytes(StandardCharsets.UTF_8);
+			this.mimeType = "application/json";
+			handleRequest.set(true);
+			callback.Continue();
+			return true;
+		}
 
-        int available = data.length - offset;
-        int toCopy = Math.min(available, bytesToRead);
+		return false;
+	}
 
-        System.arraycopy(data, offset, dataOut, 0, toCopy);
-        offset += toCopy;
+	@Override
+	public void getResponseHeaders(CefResponse response, IntRef responseLength, StringRef redirectUrl) {
+		if (data == null) {
+			data = "<html><body>500 Internal Error</body></html>".getBytes(StandardCharsets.UTF_8);
+			mimeType = "text/html";
+			response.setStatus(500);
+		} else {
+			response.setStatus(200);
+		}
+		response.setMimeType(mimeType);
+		response.setHeaderByName("Access-Control-Allow-Origin", "*", true);
+		response.setHeaderByName("Access-Control-Allow-Methods", "GET, OPTIONS", true);
+		response.setHeaderByName("Access-Control-Allow-Headers", "*", true);
+		responseLength.set(data.length);
+	}
 
-        bytesRead.set(toCopy);
-        return true;
-    }
+	@Override
+	public boolean read(byte[] dataOut, int bytesToRead, IntRef bytesRead, CefResourceReadCallback callback) {
+		if (offset >= data.length) {
+			bytesRead.set(0);
+			return false;
+		}
 
-    @Override
-    public void cancel() {
-        offset = 0;
-    }
+		int available = data.length - offset;
+		int toCopy = Math.min(available, bytesToRead);
+
+		System.arraycopy(data, offset, dataOut, 0, toCopy);
+		offset += toCopy;
+
+		bytesRead.set(toCopy);
+		return true;
+	}
+
+	@Override
+	public void cancel() {
+		offset = 0;
+	}
 }
