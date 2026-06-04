@@ -3,6 +3,9 @@ package dev.ingstudios.turtlebrowse.managers;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.ingstudios.turtlebrowse.db.MainDatabase;
+import javafx.application.Platform;
+
 public class WindowsManager {
 	private static WindowsManager instance;
 	private final List<WindowItem> windows;
@@ -32,6 +35,13 @@ public class WindowsManager {
 			System.out.printf("Window ID: %s\n", window.id());
 			return window.id() == id;
 		});
+		System.out.printf("Windows size: %s\n", String.valueOf(windows.size()));
+		if (windows.isEmpty()) {
+			System.out.println("Windows is empty, exiting...");
+			Platform.runLater(() -> Platform.exit());
+			MainDatabase.getInstance().closeDb();
+			System.exit(0);
+		}
 	}
 
 	public boolean hasWindows() {

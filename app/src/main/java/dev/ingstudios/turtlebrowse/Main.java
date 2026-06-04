@@ -1,10 +1,16 @@
 package dev.ingstudios.turtlebrowse;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import org.cef.OS;
@@ -12,8 +18,9 @@ import org.glavo.monetfx.ColorScheme;
 import org.glavo.monetfx.beans.property.ColorSchemeProperty;
 import org.glavo.monetfx.beans.property.SimpleColorSchemeProperty;
 
-import dev.ingstudios.turtlebrowse.db.NitriteDatabase;
-import dev.ingstudios.turtlebrowse.db.NitriteDatabase.ProfileStructureWithId;
+import dev.ingstudios.turtlebrowse.db.MainDatabase;
+import dev.ingstudios.turtlebrowse.db.MainDatabase.ProfileStructureWithId;
+import dev.ingstudios.turtlebrowse.windows.MainWindow;
 import dev.ingstudios.turtlebrowse.windows.ProfilePickerWindow;
 import dev.ingstudios.turtlebrowse.windows.SetupWindow;
 import dev.ingstudios.turtlebrowse.wizard.WizardData;
@@ -25,8 +32,9 @@ import javafx.scene.paint.Color;
 public class Main {
 	public static ColorSchemeProperty mainMaterialColorScheme = new SimpleColorSchemeProperty(
 			ColorScheme.fromSeed(Color.web("#BDCF47")));
-	public final static NitriteDatabase db = NitriteDatabase.getInstance();
+	private static final MainDatabase db = MainDatabase.getInstance();;
 	public static ProfilePickerWindow profilePickerWindow;
+	public static ProfileStructureWithId currentProfile;
 
 	public static void main(String[] args) {
 		Platform.startup(() -> {
@@ -36,38 +44,54 @@ public class Main {
 		setMaterialColorSchemeFromSystem();
 
 		final List<ProfileStructureWithId> profiles = db.getAllProfiles();
-		final boolean noProfile = profiles.isEmpty();
 
-		SwingUtilities.invokeLater(() -> {
-			new JFXPanel();
+		final String profileId = getProfileId(args);
+		System.out.printf("Profile ID: %s\n", profileId);
 
-			Platform.runLater(() -> {
-				if (noProfile) {
-					final SetupWindow setupWindow = new SetupWindow();
-					Optional<ButtonType> result = setupWindow.showAndWait();
+		currentProfile = profiles.stream().filter(p -> p.getIdAsString().equals(profileId)).findFirst().orElse(null);
 
-					final WizardData wizardData = setupWindow.wizardData;
+		if (profileId != null) {
+			db.closeDb();
+			SwingUtilities.invokeLater(() -> {
+				final MainWindow mainWindow = new MainWindow(currentProfile);
+				mainWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
+				mainWindow.setUndecorated(false);
+				mainWindow.setVisible(true);
+			});
+		} else {
+			final boolean noProfile = profiles.isEmpty();
 
-					if (result.get() == ButtonType.FINISH) {
-						System.out.printf("""
-								Finished wizard:
-								Name: %s
-								Theme: %s
-								AI enabled: %s
-								""", wizardData.name, wizardData.themeColor.toString(),
-								String.valueOf(wizardData.enableAI));
+			SwingUtilities.invokeLater(() -> {
+				new JFXPanel();
 
-						wizardData.saveData();
+				Platform.runLater(() -> {
+					if (noProfile) {
+						final SetupWindow setupWindow = new SetupWindow();
+						Optional<ButtonType> result = setupWindow.showAndWait();
+
+						final WizardData wizardData = setupWindow.wizardData;
+
+						if (result.get() == ButtonType.FINISH) {
+							System.out.printf("""
+									Finished wizard:
+									Name: %s
+									Theme: %s
+									AI enabled: %s
+									""", wizardData.name, wizardData.themeColor.toString(),
+									String.valueOf(wizardData.enableAI));
+
+							wizardData.saveData();
+						}
 					}
-				}
+				});
+
+				createProfilePicker();
 			});
 
-			createProfilePicker();
-		});
-
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			NitriteDatabase.getInstance().closeDb();
-		}));
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+				MainDatabase.getInstance().closeDb();
+			}));
+		}
 	}
 
 	private static void createProfilePicker() {
@@ -116,5 +140,75 @@ public class Main {
 		}
 
 		return dataPath;
+	}
+
+	public static String getUserAgent() {
+		String userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.1.0 Safari/537.36";
+
+		if (OS.isLinux()) {
+			userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.1.0 Safari/537.36";
+		} else if (OS.isWindows()) {
+			userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.1.0 Safari/537.36";
+		} else if (OS.isMacintosh()) {
+			userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_7_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.1.0 Safari/537.36";
+		}
+
+		return userAgent;
+	}
+
+	private static String getProfileId(String[] args) {
+		String targetProfileId = null;
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals("--profile-id") && i + 1 < args.length) {
+				targetProfileId = args[i + 1];
+				break;
+			}
+		}
+		return targetProfileId;
+	}
+
+	public static MainDatabase getDb() {
+		return db;
+	}
+
+	public static void createMainWindow(ProfileStructureWithId profile) {
+		final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+		final String classpath = System.getProperty("java.class.path");
+
+		final String profileId = profile.getIdAsString();
+
+		List<String> command = new ArrayList<>();
+		command.add(javaBin);
+
+		final RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+		List<String> vmArguments = runtimeMxBean.getInputArguments();
+		for (String arg : vmArguments) {
+			if (!arg.contains("-agentlib") && !arg.contains("-javaagent")) {
+				command.add(arg);
+			}
+		}
+
+		command.add("-cp");
+		command.add(classpath);
+		command.add("dev.ingstudios.turtlebrowse.Main");
+		command.add("--profile-id");
+		command.add(profileId);
+
+		System.out.println("Spawning Command: " + String.join(" ", command));
+
+		final ProcessBuilder builder = new ProcessBuilder(command);
+
+		try {
+			builder.inheritIO();
+			builder.start();
+			System.out.printf("Successfully spawned process for profile: %s\n", profileId);
+		} catch (IOException e) {
+			System.err.printf("Failed to spawn process for profile: %s\n", profileId);
+			e.printStackTrace();
+		}
+
+		profilePickerWindow.close();
+		db.closeDb();
+		System.exit(0);
 	}
 }

@@ -29,19 +29,19 @@ import dev.ingstudios.turtlebrowse.Main;
 import dev.ingstudios.turtlebrowse.type_adapters.ColorTypeAdapter;
 import javafx.scene.paint.Color;
 
-public class NitriteDatabase {
-	private static NitriteDatabase instance;
+public class MainDatabase {
+	private static MainDatabase instance;
 	private final Gson gson = new GsonBuilder().registerTypeAdapter(Color.class, new ColorTypeAdapter()).create();
 	private Nitrite db;
 	private NitriteCollection profileCollection;
 	private NitriteCollection featuresCollection;
 
-	private NitriteDatabase() {
+	private MainDatabase() {
 		initDb();
 	}
 
 	private void initDb() {
-		final Path dbPath = Main.getStoragePath("database", "turtlebrowse.db");
+		final Path dbPath = Main.getStoragePath("database", "main.db");
 		final Path parentDir = dbPath.getParent();
 		try {
 			if (parentDir != null && Files.notExists(parentDir)) {
@@ -63,14 +63,14 @@ public class NitriteDatabase {
 		}
 	}
 
-	public static synchronized NitriteDatabase getInstance() {
+	public static synchronized MainDatabase getInstance() {
 		if (instance == null) {
-			instance = new NitriteDatabase();
+			instance = new MainDatabase();
 		}
 		return instance;
 	}
 
-	public void createProfile(ProfileStructure profileStructure) {
+	public void createProfile(ProfileStructureWithId profileStructure) {
 		final Document profileDocument = Document
 				.createDocument(gson.fromJson(gson.toJson(profileStructure), new TypeToken<Map<String, Object>>() {
 				}.getType()));
@@ -78,6 +78,7 @@ public class NitriteDatabase {
 	}
 
 	public List<ProfileStructureWithId> getAllProfiles() {
+
 		final DocumentCursor cursor = profileCollection.find();
 		final List<Document> profileList = cursor.toList();
 
@@ -135,5 +136,8 @@ public class NitriteDatabase {
 	}
 
 	public record ProfileStructureWithId(String name, Color seedColor, NitriteId id) {
+		public String getIdAsString() {
+			return String.valueOf(id.getIdValue());
+		}
 	}
 }

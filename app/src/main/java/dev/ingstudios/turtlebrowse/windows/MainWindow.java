@@ -6,11 +6,8 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,11 +18,7 @@ import javax.swing.SwingUtilities;
 
 import org.cef.CefApp;
 import org.cef.CefClient;
-import org.cef.CefSettings;
-import org.cef.OS;
-import org.cef.CefApp.CefAppState;
 import org.cef.browser.CefBrowser;
-import org.cef.callback.CefSchemeRegistrar;
 import org.glavo.monetfx.ColorScheme;
 import org.glavo.monetfx.beans.property.ColorSchemeProperty;
 import org.glavo.monetfx.beans.property.SimpleColorSchemeProperty;
@@ -37,8 +30,7 @@ import dev.ingstudios.turtlebrowse.Main;
 import dev.ingstudios.turtlebrowse.components.AISidebar;
 import dev.ingstudios.turtlebrowse.components.AddressBar;
 import dev.ingstudios.turtlebrowse.components.TabBar;
-import dev.ingstudios.turtlebrowse.db.NitriteDatabase;
-import dev.ingstudios.turtlebrowse.db.NitriteDatabase.ProfileStructureWithId;
+import dev.ingstudios.turtlebrowse.db.MainDatabase.ProfileStructureWithId;
 import dev.ingstudios.turtlebrowse.handlers.CefKeyboardHandler;
 import dev.ingstudios.turtlebrowse.handlers.SwingKeyboardHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseContextMenuHandler;
@@ -49,7 +41,7 @@ import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseFocusHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseLifeSpanHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseLoadHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseRequestHandler;
-import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseSchemeHandlerFactory;
+import dev.ingstudios.turtlebrowse.managers.CefAppManager;
 import dev.ingstudios.turtlebrowse.managers.WindowsManager;
 import dev.ingstudios.turtlebrowse.managers.WindowsManager.WindowItem;
 import dev.ingstudios.turtlebrowse.ollama.OllamaChat;
@@ -58,16 +50,13 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.paint.Color;
-import me.friwi.jcefmaven.*;
 
 public class MainWindow extends JFrame {
 	public final String START_URL = "turtlebrowse://newtab";
 	public final String DEFAULT_SEARCH_PROVIDER = "https://google.com/search?q=";
 	private final boolean USE_OSR = false;
 
-	private CefApp cefApp;
 	private CefClient cefClient;
-	private CefSettings cefSettings;
 	public CefBrowser currentBrowser;
 	private ArrayList<CefBrowser> openedBrowserTabs = new ArrayList<>();
 	private JPanel root;
@@ -86,13 +75,15 @@ public class MainWindow extends JFrame {
 			ColorScheme.fromSeed(Color.web("#BDCF47")));
 	private String userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.1.0 Safari/537.36";
 	private final String windowId;
+	private final CefAppManager cefAppManager = CefAppManager.getInstance();
+	private final CefApp cefApp = cefAppManager.getCefApp();
 
 	public MainWindow(ProfileStructureWithId profile) {
 		super("Turtlebrowse");
 
 		currentProfile = profile;
 
-		windowId = "%s_main_window".formatted(String.valueOf(profile.id().getIdValue()));
+		windowId = "%s_main_window".formatted(profile.getIdAsString());
 		WindowsManager.getInstance()
 				.addWindow(new WindowItem(windowId, MainWindow.class));
 
@@ -119,13 +110,6 @@ public class MainWindow extends JFrame {
 
 		// Address bar
 		addressBar = new AddressBar(cefClient, this, START_URL);
-
-		// CEF browser setup
-		try {
-			cefApp = createCefApp();
-		} catch (RuntimeException error) {
-			System.exit(1);
-		}
 
 		cefClient = cefApp.createClient();
 
@@ -184,97 +168,8 @@ public class MainWindow extends JFrame {
 		});
 	}
 
-	private CefApp createCefApp() {
-		CefAppBuilder builder = new CefAppBuilder();
-		builder.addJcefArgs(
-				"--enable-media-stream",
-				"--ozone-platform=x11",
-				"--disable-gpu",
-				"--disable-gpu-compositing",
-				"--disable-software-rasterizer",
-				"--no-sandbox",
-				"--single-process");
-
-		cefSettings = builder.getCefSettings();
-		builder.setInstallDir(getInstallDir());
-		cefSettings.windowless_rendering_enabled = USE_OSR;
-		cefSettings.remote_debugging_port = 6767;
-
-		cefSettings.user_agent = userAgent;
-
-		try {
-			String cachePath = getCachePath();
-			cefSettings.cache_path = cachePath;
-		} catch (Exception error) {
-			System.out.print("Error while getting cache path, defaulting: ");
-			System.out.println(error);
-		}
-
-		builder.setAppHandler(new MavenCefAppHandlerAdapter() {
-			@Override
-			public void stateHasChanged(CefAppState state) {
-				if (state == CefAppState.TERMINATED) {
-					NitriteDatabase.getInstance().closeDb();
-					System.exit(0);
-				}
-			}
-
-			@Override
-			public void onRegisterCustomSchemes(CefSchemeRegistrar registrar) {
-				registrar.addCustomScheme("turtlebrowse", true, true, false, true, true, true, true);
-			}
-
-			@Override
-			public void onContextInitialized() {
-				CefApp.getInstance().registerSchemeHandlerFactory("turtlebrowse", "",
-						new TurtlebrowseSchemeHandlerFactory(MainWindow.this));
-			}
-		});
-
-		try {
-			CefApp cefApp = builder.build();
-			return cefApp;
-		} catch (Exception error) {
-			System.out.print("Error while building CEF app:");
-			System.out.println(error);
-			throw new RuntimeException("Error while building CEF app:", error);
-		}
-	}
-
 	public String getCachePath() {
-		return Main.getStoragePath("cef-cache").toString();
-	}
-
-	private File getInstallDir() {
-		Path installPath;
-
-		final String appName = "Turtlebrowse";
-		final String installDir = "cef-install";
-
-		final String userHome = System.getProperty("user.home");
-
-		if (OS.isWindows()) {
-			String localAppData = System.getenv("LOCALAPPDATA");
-			installPath = Paths.get(localAppData, "ingStudios", appName, installDir);
-		} else if (OS.isLinux()) {
-			String xdgDataHome = System.getenv("XDG_DATA_HOME");
-			if (xdgDataHome == null || xdgDataHome.isEmpty()) {
-				xdgDataHome = userHome + "/.local/share";
-			}
-			installPath = Paths.get(xdgDataHome, "ingStudios", appName, installDir);
-		} else if (OS.isMacintosh()) {
-			installPath = Paths.get(userHome, "Library", "Application Support", appName, installDir);
-		} else {
-			throw new RuntimeException("Unknown operating system");
-		}
-
-		final File installFile = installPath.toFile();
-
-		if (!installFile.exists()) {
-			installFile.mkdirs();
-		}
-
-		return installFile;
+		return Main.getStoragePath("cef-cache", currentProfile.getIdAsString()).toString();
 	}
 
 	public void updateWindowTitle(String pageTitle) {
@@ -283,7 +178,9 @@ public class MainWindow extends JFrame {
 
 	public void createTab(String url) {
 		CefBrowser browser = cefClient.createBrowser(url, USE_OSR, false);
+
 		openedBrowserTabs.add(browser);
+		cefAppManager.addBrowser(browser, this);
 
 		Platform.runLater(() -> {
 			tabBar.addTabToUI(browser);
@@ -299,6 +196,7 @@ public class MainWindow extends JFrame {
 
 		openedBrowserTabs.remove(browser);
 		titleMap.remove(browser);
+		cefAppManager.removeBrowser(browser);
 
 		System.out.printf("Browser is current browser: %s", browser == currentBrowser);
 
@@ -386,7 +284,6 @@ public class MainWindow extends JFrame {
 
 		if (WindowsManager.getInstance().getWindows().size() == 0) {
 			Platform.exit();
-			NitriteDatabase.getInstance().closeDb();
 			System.exit(0);
 		}
 	}
@@ -455,12 +352,6 @@ public class MainWindow extends JFrame {
 	}
 
 	private void setUserAgent() {
-		if (OS.isLinux()) {
-			userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.1.0 Safari/537.36";
-		} else if (OS.isWindows()) {
-			userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.1.0 Safari/537.36";
-		} else if (OS.isMacintosh()) {
-			userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_7_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.1.0 Safari/537.36";
-		}
+		userAgent = Main.getUserAgent();
 	}
 }
