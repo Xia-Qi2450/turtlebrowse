@@ -94,7 +94,7 @@ public class TurtlebrowseSchemeResourceHandler extends CefResourceHandlerAdapter
 			System.out.println("Parsed path: '" + path + "'");
 
 			if (path.isEmpty() || path.equals("/")) {
-				loadResource("/dino/index.html");
+				loadResource("/dino/dino.html");
 			} else {
 				loadResource("/dino" + path);
 			}

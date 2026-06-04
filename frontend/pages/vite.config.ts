@@ -24,7 +24,7 @@ export default defineConfig({
   },
   base: './',
   build: {
-	outDir: '../app/src/main/resources/web',
+	outDir: '../../app/src/main/resources/web',
 	emptyOutDir: true,
 	rollupOptions: {
 		input: {

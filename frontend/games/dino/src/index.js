@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 // extract from chromium source code by @liuwayong
+
 (function () {
     'use strict';
     /**
@@ -309,7 +310,7 @@
         /**
          * Load and decode base 64 encoded sounds.
          */
-        loadSounds: function () {
+        loadSounds: async function () {
             if (!IS_IOS) {
                 this.audioContext = new AudioContext();
 
@@ -317,13 +318,13 @@
                     document.getElementById(this.config.RESOURCE_TEMPLATE_ID).content;
 
                 for (const sound in Runner.sounds) {
-                    let soundSrc =
+                    const soundSrc =
                         resourceTemplate.getElementById(Runner.sounds[sound]).src;
-                    soundSrc = soundSrc.substr(soundSrc.indexOf(',') + 1);
-                    const buffer = decodeBase64ToArrayBuffer(soundSrc);
+                    const soundResponse = await fetch(soundSrc);
+					const soundBuffer = await soundResponse.arrayBuffer();
 
                     // Async, so no guarantee of order in array.
-                    this.audioContext.decodeAudioData(buffer, function (index, audioData) {
+                    this.audioContext.decodeAudioData(soundBuffer, function (index, audioData) {
                         this.soundFx[index] = audioData;
                     }.bind(this, sound));
                 }

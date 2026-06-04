@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no">
+    <title >Turtlebrowse Dino</title>
+  <script type="module" crossorigin src="./assets/dino-Bd__akML.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/dino-DVlVdyEz.css">
+</head>
+
+<body id="t" class="offline">
+    <div id="messageBox" class="sendmessage">
+         <h1 style="text-align: center;font-family: 'Google Sans Flex', sans-serif;">Press Space to start</h1>
+         <div class="niokbutton" onclick="okbuttonsend()"></div>
+    </div>
+    <div id="main-frame-error" class="interstitial-wrapper">
+        <div id="main-content">
+            <div class="icon icon-offline" alt=""></div>
+        </div>
+        <div id="offline-resources">
+            <img id="offline-resources-1x" src="./default_100_percent/100-offline-sprite.png">
+            <img id="offline-resources-2x" src="./default_200_percent/200-offline-sprite.png">
+            <template id="audio-resources">
+                <audio id="offline-sound-press" src="./sounds/button-press.mp3"></audio>
+                <audio id="offline-sound-hit" src="./sounds/hit.mp3"></audio>
+                <audio id="offline-sound-reached" src="./sounds/score-reached.mp3"></audio>
+            </template>
+        </div>
+    </div>
+
+</body>
+
+<script>
+    document.onkeydown = function(evt) {
+    evt = evt || window.event;
+    if (evt.keyCode == 32) {
+        var box = document.getElementById("messageBox");
+        box.style.visibility="hidden";
+    }
+};
+</script>
+    
+</html>
