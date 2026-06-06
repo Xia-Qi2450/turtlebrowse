@@ -74,7 +74,7 @@ public class ProfilePickerWindow extends Stage {
 			newProfileBox.setCursor(Cursor.DEFAULT);
 		});
 		newProfileBox.setOnMouseClicked(event -> {
-			// new NewProfileWindow();
+			new NewProfileWindow();
 		});
 
 		final Label createLabel = new Label("Add");

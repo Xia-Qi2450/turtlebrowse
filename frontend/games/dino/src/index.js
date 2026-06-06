@@ -805,6 +805,20 @@
 
             // Reset the time clock.
             this.time = getTimeStamp();
+
+			// TODO(developer): Use non blocking custom m3e dialog instead
+			/*
+			const defaultJumpVelocity = 10;
+
+			let userJumpVelocity = this.tRex.jumpVelocity;
+
+			do {
+				if (userJumpVelocity < defaultJumpVelocity) alert(`Please choose a jump velocity greater than ${defaultJumpVelocity}.`);
+				userJumpVelocity = Number(prompt("What jump velocity would you like the T Rex to jump?"));
+			} while (userJumpVelocity < defaultJumpVelocity)
+
+			this.tRex.setJumpVelocity(userJumpVelocity);
+			*/
         },
 
         stop: function () {
