@@ -66,9 +66,11 @@ public class NewProfileWindow extends Stage {
 		profileImageView.setFitHeight(200);
 		profileImageView.setPreserveRatio(false);
 		profileImageView.setSmooth(true);
+
 		final Circle imageClip = new Circle(100, 100, 100);
 		profileImageView.setClip(imageClip);
 		profileImageView.setPickOnBounds(true);
+
 		profileImageView.setOnMouseEntered(event -> {
 			profileImageView.setCursor(Cursor.HAND);
 		});

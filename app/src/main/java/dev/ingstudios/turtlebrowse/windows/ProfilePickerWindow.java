@@ -156,14 +156,17 @@ public class ProfilePickerWindow extends Stage {
 		final Path profileAvatarPath = Main.getStoragePath("profiles", profile.getIdAsString(), "avatar");
 		System.out.println("Profile avatar path: " + profileAvatarPath.toAbsolutePath());
 		final File profileAvatarFile = profileAvatarPath.toFile();
+
 		if (profileAvatarFile.exists() && profileAvatarFile.isFile()) {
 			final String profileAvatarPathString = profileAvatarPath.toUri().toString();
 			System.out.println("Avatar path string: " + profileAvatarPathString);
+
 			final ImageView profileImageView = new ImageView(profileAvatarPathString);
 			profileImageView.setFitWidth(100);
 			profileImageView.setFitHeight(100);
 			profileImageView.setPreserveRatio(false);
 			profileImageView.setSmooth(true);
+
 			final Circle imageClip = new Circle(50, 50, 50);
 			profileImageView.setClip(imageClip);
 			profileBox.getChildren().add(profileImageView);
@@ -172,6 +175,7 @@ public class ProfilePickerWindow extends Stage {
 			defualtAccountIcon.setIconSize(100);
 			profileBox.getChildren().add(defualtAccountIcon);
 		}
+
 		final Label profileName = new Label(profile.name());
 		profileName.setFont(Font.font("Google Sans Flex", FontWeight.NORMAL, 25));
 
