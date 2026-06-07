@@ -32,7 +32,7 @@ import javafx.scene.paint.Color;
 public class Main {
 	public static ColorSchemeProperty mainMaterialColorScheme = new SimpleColorSchemeProperty(
 			ColorScheme.fromSeed(Color.web("#BDCF47")));
-	private static final MainDatabase db = MainDatabase.getInstance();;
+	private static final MainDatabase db = MainDatabase.getInstance();
 	public static ProfilePickerWindow profilePickerWindow;
 	public static ProfileStructureWithId currentProfile;
 
@@ -44,21 +44,37 @@ public class Main {
 		setMaterialColorSchemeFromSystem();
 
 		final List<ProfileStructureWithId> profiles = db.getAllProfiles();
+		System.out.println("Profiles: " + profiles);
 
 		final String profileId = getProfileId(args);
-		System.out.printf("Profile ID: %s\n", profileId);
+		System.out.println("Profile ID (after getProfileId): " + profileId);
 
-		currentProfile = profiles.stream().filter(p -> p.getIdAsString().equals(profileId)).findFirst().orElse(null);
+		try {
+			currentProfile = profiles.stream().filter(p -> {
+				System.out.println("Profile (p): %s Name: %s".formatted(p.getIdAsString(), p.name()));
+				System.out.println("Target profile: " + profileId);
+				return p.getIdAsString().equals(profileId);
+			}).findFirst()
+					.orElse(null);
+			System.out.println("Current profile (after filtering profiles): " + currentProfile);
+		} catch (Throwable t) {
+			System.err.println("An exception occurred while filtering for the current profile: " + t.getMessage());
+			t.printStackTrace();
+		}
 
 		if (profileId != null) {
+			System.out.println("Profile ID is not null.");
 			db.closeDb();
 			SwingUtilities.invokeLater(() -> {
+				System.out.println("Creating main window...");
 				final MainWindow mainWindow = new MainWindow(currentProfile);
 				mainWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
 				mainWindow.setUndecorated(false);
 				mainWindow.setVisible(true);
 			});
 		} else {
+			System.out.println("Profile ID is null.");
+
 			final boolean noProfile = profiles.isEmpty();
 
 			SwingUtilities.invokeLater(() -> {
@@ -83,9 +99,9 @@ public class Main {
 							wizardData.saveData();
 						}
 					}
-				});
 
-				createProfilePicker();
+					createProfilePicker();
+				});
 			});
 
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -172,6 +188,8 @@ public class Main {
 	}
 
 	public static void createMainWindow(ProfileStructureWithId profile) {
+		db.closeDb();
+
 		final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 		final String classpath = System.getProperty("java.class.path");
 
@@ -199,16 +217,14 @@ public class Main {
 		final ProcessBuilder builder = new ProcessBuilder(command);
 
 		try {
-			builder.inheritIO();
 			builder.start();
 			System.out.printf("Successfully spawned process for profile: %s\n", profileId);
+			Platform.runLater(() -> profilePickerWindow.close());
 		} catch (IOException e) {
-			System.err.printf("Failed to spawn process for profile: %s\n", profileId);
+			System.err.printf("Failed while running process for profile: %s\n", profileId);
 			e.printStackTrace();
 		}
 
-		profilePickerWindow.close();
-		db.closeDb();
 		System.exit(0);
 	}
 }

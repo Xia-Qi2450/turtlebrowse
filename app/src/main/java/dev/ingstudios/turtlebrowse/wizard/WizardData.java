@@ -1,10 +1,8 @@
 package dev.ingstudios.turtlebrowse.wizard;
 
-import org.dizitart.no2.collection.NitriteId;
-
 import dev.ingstudios.turtlebrowse.Main;
 import dev.ingstudios.turtlebrowse.db.MainDatabase;
-import dev.ingstudios.turtlebrowse.db.MainDatabase.ProfileStructureWithId;
+import dev.ingstudios.turtlebrowse.db.MainDatabase.ProfileStructure;
 import javafx.scene.paint.Color;
 
 public class WizardData {
@@ -17,7 +15,7 @@ public class WizardData {
 	}
 
 	public void saveData() {
-		db.createProfile(new ProfileStructureWithId(name, themeColor, NitriteId.newId()));
+		db.createProfile(new ProfileStructure(name, themeColor));
 		db.setFeature("ai", enableAI);
 	}
 }

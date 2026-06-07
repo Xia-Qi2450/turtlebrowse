@@ -1,12 +1,10 @@
 package dev.ingstudios.turtlebrowse.windows;
 
-import org.dizitart.no2.collection.NitriteId;
-
 import com.jfoenix.controls.JFXButton;
 
 import dev.ingstudios.turtlebrowse.Main;
+import dev.ingstudios.turtlebrowse.db.MainDatabase.ProfileStructure;
 import dev.ingstudios.turtlebrowse.db.MainDatabase.ProfileStructureWithId;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -20,12 +18,13 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 public class NewProfileWindow extends Stage {
-	final NitriteId id = NitriteId.newId();
 	String name;
-	Color themeColor;
+	Color themeColor = Main.mainMaterialColorScheme.getPrimary().get();
 
 	public NewProfileWindow() {
 		setTitle("Turtlebrowse");
@@ -40,11 +39,12 @@ public class NewProfileWindow extends Stage {
 		newProfileScene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
 
 		final VBox profileCreationBox = new VBox();
-		profileCreationBox.setStyle("-fx-spacing: 10px; -fx-padding: 10px;");
+		profileCreationBox.setStyle("-fx-spacing: 20px; -fx-padding: 10px;");
 		profileCreationBox.setAlignment(Pos.CENTER);
 		profileCreationBox.setFillWidth(false);
 
 		final Label titleLabel = new Label("New Profile");
+		titleLabel.setFont(Font.font("Google Sans Flex", FontWeight.BOLD, 25));
 
 		final TextField nameTextField = new TextField();
 		nameTextField.setText(name);
@@ -59,6 +59,7 @@ public class NewProfileWindow extends Stage {
 		});
 
 		final Label seedColorLabel = new Label("Browser theme color");
+		seedColorLabel.setFont(Font.font("Google Sans Flex", FontWeight.NORMAL, 25));
 
 		final ColorPicker seedColorPicker = new ColorPicker(themeColor);
 		seedColorPicker.setBackground(new Background(
@@ -69,6 +70,7 @@ public class NewProfileWindow extends Stage {
 		});
 
 		final JFXButton createButton = new JFXButton("Create");
+		createButton.setFont(Font.font("Google Sans Flex", FontWeight.NORMAL, 25));
 		createButton.setTextFill(Main.mainMaterialColorScheme.getOnPrimaryContainer().get());
 		createButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
 			final Paint backgroundColor = Main.mainMaterialColorScheme.getPrimaryContainer().get();
@@ -87,16 +89,10 @@ public class NewProfileWindow extends Stage {
 	}
 
 	private void createProfile() {
-		final ProfileStructureWithId profile = new ProfileStructureWithId(name, themeColor, id);
+		final ProfileStructure profile = new ProfileStructure(name, themeColor);
 
-		Main.getDb().createProfile(profile);
+		final ProfileStructureWithId newProfile = Main.getDb().createProfile(profile);
 
-		Main.createMainWindow(profile);
-
-		close();
-
-		Platform.runLater(() -> Platform.exit());
-
-		System.exit(0);
+		Main.createMainWindow(newProfile);
 	}
 }

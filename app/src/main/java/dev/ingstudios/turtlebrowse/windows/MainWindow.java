@@ -81,6 +81,8 @@ public class MainWindow extends JFrame {
 	public MainWindow(ProfileStructureWithId profile) {
 		super("Turtlebrowse");
 
+		System.out.println("Creating main window for profile: " + profile.getIdAsString());
+
 		currentProfile = profile;
 
 		windowId = "%s_main_window".formatted(profile.getIdAsString());

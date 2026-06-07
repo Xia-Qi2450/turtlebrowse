@@ -1,5 +1,7 @@
 package dev.ingstudios.turtlebrowse.windows;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 import com.jfoenix.controls.JFXButton;
@@ -14,7 +16,10 @@ import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -29,6 +34,7 @@ import javafx.stage.Stage;
 public class ProfilePickerWindow extends Stage {
 	private final MainDatabase db = MainDatabase.getInstance();
 	private final List<ProfileStructureWithId> profiles;
+	private final HBox profilesBox;
 
 	public ProfilePickerWindow() {
 		WindowsManager.getInstance().addWindow(new WindowItem("profile_picker_window", ProfilePickerWindow.class));
@@ -37,18 +43,23 @@ public class ProfilePickerWindow extends Stage {
 
 		profiles = db.getAllProfiles();
 
-		System.out.printf("Profiles (test): %s\n", profiles.toString());
-
 		final BorderPane root = new BorderPane();
 		root.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
 			final Paint backgroundColor = Main.mainMaterialColorScheme.getSurface().get();
 			return new Background(new BackgroundFill(backgroundColor, null, null));
 		}, Main.mainMaterialColorScheme.getSurface()));
 
+		final VBox profilePickerBox = new VBox();
+		profilePickerBox.setStyle("-fx-spacing: 10px; -fx-padding: 10px;");
+		profilePickerBox.setAlignment(Pos.CENTER);
+
 		final Scene profilePickerScene = new Scene(root, 800, 600);
 		profilePickerScene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
 
-		final HBox profilesBox = new HBox();
+		final Label profilesLabel = new Label("Who's using Turtlebrowse today?");
+		profilesLabel.setFont(Font.font("Google Sans Flex", FontWeight.BOLD, 25));
+
+		profilesBox = new HBox();
 		profilesBox.setStyle("-fx-spacing: 10px; -fx-padding: 10px;");
 		profilesBox.setAlignment(Pos.CENTER);
 		profilesBox.setFillHeight(false);
@@ -78,7 +89,7 @@ public class ProfilePickerWindow extends Stage {
 		});
 
 		final Label createLabel = new Label("Add");
-		createLabel.setFont(Font.font("Google Sans Flex", FontWeight.BOLD, 25));
+		createLabel.setFont(Font.font("Google Sans Flex", FontWeight.NORMAL, 25));
 
 		newProfileBox.getChildren().add(createLabel);
 
@@ -86,7 +97,9 @@ public class ProfilePickerWindow extends Stage {
 
 		profilesBox.getChildren().add(newProfileButton);
 
-		root.setCenter(profilesBox);
+		profilePickerBox.getChildren().addAll(profilesLabel, profilesBox);
+
+		root.setCenter(profilePickerBox);
 
 		setScene(profilePickerScene);
 
@@ -113,11 +126,25 @@ public class ProfilePickerWindow extends Stage {
 		});
 		profileBox.setOnMouseClicked(event -> {
 			event.consume();
-			Main.createMainWindow(profile);
+
+			if (event.getButton() == MouseButton.PRIMARY)
+				Main.createMainWindow(profile);
+		});
+
+		final ContextMenu profileButtonMenu = new ContextMenu();
+		final MenuItem deleteMenuItem = new MenuItem("Remove");
+		deleteMenuItem.setOnAction(event -> {
+			profilesBox.getChildren().remove(profileButton);
+			MainDatabase.getInstance().removeProfile(profile.id());
+			deleteProfileData(profile);
+		});
+		profileButtonMenu.getItems().addAll(deleteMenuItem);
+		profileButton.setOnContextMenuRequested(event -> {
+			profileButtonMenu.show(profileBox, event.getScreenX(), event.getScreenY());
 		});
 
 		final Label profileName = new Label(profile.name());
-		profileName.setFont(Font.font("Google Sans Flex", FontWeight.BOLD, 25));
+		profileName.setFont(Font.font("Google Sans Flex", FontWeight.NORMAL, 25));
 
 		profileBox.getChildren().add(profileName);
 
@@ -146,5 +173,20 @@ public class ProfilePickerWindow extends Stage {
 		}
 
 		show();
+	}
+
+	private void deleteProfileData(ProfileStructureWithId profile) {
+		final String profileId = profile.getIdAsString();
+
+		final Path profileCefCachePath = Main.getStoragePath("cef-cache", profileId);
+		final Path profileStoragePath = Main.getStoragePath("profiles", profileId);
+
+		final File profileCefCacheDir = profileCefCachePath.toFile();
+		final File profileStorageDir = profileStoragePath.toFile();
+
+		if (profileCefCacheDir.exists())
+			profileCefCacheDir.delete();
+		if (profileStorageDir.exists())
+			profileStorageDir.delete();
 	}
 }

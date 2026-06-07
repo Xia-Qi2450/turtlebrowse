@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.dizitart.no2.Nitrite;
 import org.dizitart.no2.collection.Document;
 import org.dizitart.no2.collection.DocumentCursor;
 import org.dizitart.no2.collection.NitriteCollection;
-import org.dizitart.no2.collection.NitriteId;
 import org.dizitart.no2.collection.UpdateOptions;
 import org.dizitart.no2.index.IndexOptions;
 import org.dizitart.no2.index.IndexType;
@@ -21,17 +21,11 @@ import org.jspecify.annotations.Nullable;
 
 import static org.dizitart.no2.filters.FluentFilter.where;
 
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import dev.ingstudios.turtlebrowse.Main;
-import dev.ingstudios.turtlebrowse.type_adapters.ColorTypeAdapter;
 import javafx.scene.paint.Color;
 
 public class MainDatabase {
 	private static MainDatabase instance;
-	private final Gson gson = new GsonBuilder().registerTypeAdapter(Color.class, new ColorTypeAdapter()).create();
 	private Nitrite db;
 	private NitriteCollection profileCollection;
 	private NitriteCollection featuresCollection;
@@ -70,11 +64,12 @@ public class MainDatabase {
 		return instance;
 	}
 
-	public void createProfile(ProfileStructureWithId profileStructure) {
+	public ProfileStructureWithId createProfile(ProfileStructure profileStructure) {
 		final Document profileDocument = Document
-				.createDocument(gson.fromJson(gson.toJson(profileStructure), new TypeToken<Map<String, Object>>() {
-				}.getType()));
+				.createDocument(profileStructure.toMap());
+		profileDocument.put("uuid", UUID.randomUUID());
 		profileCollection.insert(profileDocument);
+		return parseProfile(profileDocument);
 	}
 
 	public List<ProfileStructureWithId> getAllProfiles() {
@@ -96,15 +91,22 @@ public class MainDatabase {
 		return parseProfile(profileDocument);
 	}
 
-	public ProfileStructureWithId getProfile(NitriteId id) {
-		final Document profileDocument = profileCollection.getById(id);
+	public ProfileStructureWithId getProfile(UUID id) {
+		final Document profileDocument = profileCollection.find(where("uuid").eq(id)).firstOrNull();
 		return parseProfile(profileDocument);
+	}
+
+	public void removeProfile(UUID id) {
+		final Document doc = profileCollection.find(where("uuid").eq(id)).firstOrNull();
+		if (doc != null) {
+			profileCollection.remove(doc);
+		}
 	}
 
 	private ProfileStructureWithId parseProfile(Document document) {
 		final @Nullable String colorHex = document.get("seedColor", String.class);
 		final ProfileStructureWithId profileStructure = new ProfileStructureWithId(document.get("name", String.class),
-				colorHex != null ? Color.valueOf(colorHex) : null, document.getId());
+				colorHex != null ? Color.valueOf(colorHex) : null, document.get("uuid", UUID.class));
 		return profileStructure;
 	}
 
@@ -133,11 +135,17 @@ public class MainDatabase {
 	}
 
 	public record ProfileStructure(String name, Color seedColor) {
+		public Map<String, Object> toMap() {
+			Map<String, Object> map = new HashMap<>();
+			map.put("name", name);
+			map.put("seedColor", seedColor.toString());
+			return map;
+		}
 	}
 
-	public record ProfileStructureWithId(String name, Color seedColor, NitriteId id) {
+	public record ProfileStructureWithId(String name, Color seedColor, UUID id) {
 		public String getIdAsString() {
-			return String.valueOf(id.getIdValue());
+			return id.toString();
 		}
 	}
 }
