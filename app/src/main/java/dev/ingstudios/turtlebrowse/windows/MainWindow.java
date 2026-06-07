@@ -58,7 +58,7 @@ public class MainWindow extends JFrame {
 
 	private CefClient cefClient;
 	public CefBrowser currentBrowser;
-	private ArrayList<CefBrowser> openedBrowserTabs = new ArrayList<>();
+	public ArrayList<CefBrowser> openedBrowserTabs = new ArrayList<>();
 	private JPanel root;
 	private JPanel browserContainer;
 	public AddressBar addressBar;

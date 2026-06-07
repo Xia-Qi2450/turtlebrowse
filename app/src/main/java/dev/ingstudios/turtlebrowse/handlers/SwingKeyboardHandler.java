@@ -45,8 +45,13 @@ public class SwingKeyboardHandler {
 								parent.currentBrowser.goForward();
 							keyEvent.consume();
 						} else if (keyCode == KeyEvent.VK_R && keyEvent.isControlDown()) { // Reloads the page (Ctrl +
-																							// R)
+							// R)
 							parent.currentBrowser.reload();
+						} else if (keyCode == KeyEvent.VK_TAB && keyEvent.isControlDown()) { // Switches to the next tab
+																								// (Ctrl + Tab)
+							final int currentIndex = parent.openedBrowserTabs.indexOf(parent.currentBrowser);
+							final int nextIndex = (currentIndex + 1) % parent.openedBrowserTabs.size();
+							parent.showTab(parent.openedBrowserTabs.get(nextIndex));
 						}
 					}
 				}

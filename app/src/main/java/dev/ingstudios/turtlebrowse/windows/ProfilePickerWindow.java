@@ -19,6 +19,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -27,6 +28,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -62,7 +64,7 @@ public class ProfilePickerWindow extends Stage {
 		profilesBox = new HBox();
 		profilesBox.setStyle("-fx-spacing: 10px; -fx-padding: 10px;");
 		profilesBox.setAlignment(Pos.CENTER);
-		profilesBox.setFillHeight(false);
+		profilesBox.setFillHeight(true);
 
 		for (final ProfileStructureWithId profile : profiles) {
 			final JFXButton profileButton = createProfileButton(profile);
@@ -94,6 +96,7 @@ public class ProfilePickerWindow extends Stage {
 		newProfileBox.getChildren().add(createLabel);
 
 		newProfileButton.setGraphic(newProfileBox);
+		newProfileButton.setMaxHeight(Double.MAX_VALUE);
 
 		profilesBox.getChildren().add(newProfileButton);
 
@@ -117,6 +120,7 @@ public class ProfilePickerWindow extends Stage {
 		}, Main.mainMaterialColorScheme.getSurfaceContainer()));
 
 		final VBox profileBox = new VBox();
+		profileBox.setStyle("-fx-spacing: 10px;");
 		profileBox.setAlignment(Pos.CENTER);
 		profileBox.setOnMouseEntered(event -> {
 			profileBox.setCursor(Cursor.HAND);
@@ -143,12 +147,32 @@ public class ProfilePickerWindow extends Stage {
 			profileButtonMenu.show(profileBox, event.getScreenX(), event.getScreenY());
 		});
 
+		final Path profileAvatarPath = Main.getStoragePath("profiles", profile.getIdAsString(), "avatar");
+		System.out.println("Profile avatar path: " + profileAvatarPath.toAbsolutePath());
+		final File profileAvatarFile = profileAvatarPath.toFile();
+		String profileAvatarPathString;
+		if (profileAvatarFile.exists() && profileAvatarFile.isFile()) {
+			profileAvatarPathString = profileAvatarPath.toUri().toString();
+		} else {
+			profileAvatarPathString = "/images/avatars/default_avatar.png";
+		}
+		System.out.println("Avatar path string: " + profileAvatarPathString);
+		final ImageView profileImageView = new ImageView(profileAvatarPathString);
+		profileImageView.setFitWidth(100);
+		profileImageView.setFitHeight(100);
+		profileImageView.setPreserveRatio(false);
+		profileImageView.setSmooth(true);
+		final Circle imageClip = new Circle(50, 50, 50);
+		profileImageView.setClip(imageClip);
+
 		final Label profileName = new Label(profile.name());
 		profileName.setFont(Font.font("Google Sans Flex", FontWeight.NORMAL, 25));
 
-		profileBox.getChildren().add(profileName);
+		profileBox.getChildren().addAll(profileImageView, profileName);
 
 		profileButton.setGraphic(profileBox);
+		profileButton.setMaxHeight(Double.MAX_VALUE);
+
 		return profileButton;
 	}
 

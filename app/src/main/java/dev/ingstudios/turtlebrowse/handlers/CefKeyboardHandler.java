@@ -48,6 +48,11 @@ public class CefKeyboardHandler extends CefKeyboardHandlerAdapter {
 				return true;
 			} else if (ctrlPressed && event.windows_key_code == KeyEvent.VK_R) { // Reloads the page (Ctrl + R)
 				parent.currentBrowser.reload();
+			} else if (ctrlPressed && event.windows_key_code == KeyEvent.VK_TAB) { // Switches to the next tab (Ctrl +
+																					// Tab)
+				final int currentIndex = parent.openedBrowserTabs.indexOf(parent.currentBrowser);
+				final int nextIndex = (currentIndex + 1) % parent.openedBrowserTabs.size();
+				parent.currentBrowser = parent.openedBrowserTabs.get(nextIndex);
 			}
 		}
 

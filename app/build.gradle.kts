@@ -50,6 +50,12 @@ dependencies {
     implementation(platform("org.dizitart:nitrite-bom:4.3.2"))
     implementation("org.dizitart:nitrite")
     implementation("org.dizitart:nitrite-mvstore-adapter:4.3.2")
+
+    // Google Guava
+    implementation("com.google.guava:guava:33.6.0-jre")
+
+    // Google Gson
+    implementation("com.google.code.gson:gson:2.14.0")
 }
 
 // Apply a specific Java toolchain. 
