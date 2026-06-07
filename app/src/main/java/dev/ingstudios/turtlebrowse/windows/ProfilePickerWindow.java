@@ -4,6 +4,9 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material2.Material2OutlinedAL;
+
 import com.jfoenix.controls.JFXButton;
 
 import dev.ingstudios.turtlebrowse.Main;
@@ -93,7 +96,10 @@ public class ProfilePickerWindow extends Stage {
 		final Label createLabel = new Label("Add");
 		createLabel.setFont(Font.font("Google Sans Flex", FontWeight.NORMAL, 25));
 
-		newProfileBox.getChildren().add(createLabel);
+		final FontIcon newIcon = new FontIcon(Material2OutlinedAL.ADD_CIRCLE_OUTLINE);
+		newIcon.setIconSize(100);
+
+		newProfileBox.getChildren().addAll(newIcon, createLabel);
 
 		newProfileButton.setGraphic(newProfileBox);
 		newProfileButton.setMaxHeight(Double.MAX_VALUE);
@@ -150,25 +156,26 @@ public class ProfilePickerWindow extends Stage {
 		final Path profileAvatarPath = Main.getStoragePath("profiles", profile.getIdAsString(), "avatar");
 		System.out.println("Profile avatar path: " + profileAvatarPath.toAbsolutePath());
 		final File profileAvatarFile = profileAvatarPath.toFile();
-		String profileAvatarPathString;
 		if (profileAvatarFile.exists() && profileAvatarFile.isFile()) {
-			profileAvatarPathString = profileAvatarPath.toUri().toString();
+			final String profileAvatarPathString = profileAvatarPath.toUri().toString();
+			System.out.println("Avatar path string: " + profileAvatarPathString);
+			final ImageView profileImageView = new ImageView(profileAvatarPathString);
+			profileImageView.setFitWidth(100);
+			profileImageView.setFitHeight(100);
+			profileImageView.setPreserveRatio(false);
+			profileImageView.setSmooth(true);
+			final Circle imageClip = new Circle(50, 50, 50);
+			profileImageView.setClip(imageClip);
+			profileBox.getChildren().add(profileImageView);
 		} else {
-			profileAvatarPathString = "/images/avatars/default_avatar.png";
+			final FontIcon defualtAccountIcon = new FontIcon(Material2OutlinedAL.ACCOUNT_CIRCLE);
+			defualtAccountIcon.setIconSize(100);
+			profileBox.getChildren().add(defualtAccountIcon);
 		}
-		System.out.println("Avatar path string: " + profileAvatarPathString);
-		final ImageView profileImageView = new ImageView(profileAvatarPathString);
-		profileImageView.setFitWidth(100);
-		profileImageView.setFitHeight(100);
-		profileImageView.setPreserveRatio(false);
-		profileImageView.setSmooth(true);
-		final Circle imageClip = new Circle(50, 50, 50);
-		profileImageView.setClip(imageClip);
-
 		final Label profileName = new Label(profile.name());
 		profileName.setFont(Font.font("Google Sans Flex", FontWeight.NORMAL, 25));
 
-		profileBox.getChildren().addAll(profileImageView, profileName);
+		profileBox.getChildren().add(profileName);
 
 		profileButton.setGraphic(profileBox);
 		profileButton.setMaxHeight(Double.MAX_VALUE);
