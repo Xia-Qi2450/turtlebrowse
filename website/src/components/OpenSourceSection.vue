@@ -72,10 +72,12 @@ import router from '@/router';
     font-size: 1.5rem;
 }
 
-.feat-list {
-    will-change: transform;
-    animation: featSlide ease-in-out both;
-    animation-timeline: view();
+@supports (animation-timeline: scroll()) {
+    .feat-list {
+        will-change: transform;
+        animation: featSlide ease-in-out both;
+        animation-timeline: view();
+    }
 }
 
 @keyframes featSlide {

@@ -57,9 +57,6 @@
     gap: 10px;
     width: 70%;
     box-sizing: border-box;
-    will-change: transform;
-    animation: browserSlideUp ease-in-out both;
-    animation-timeline: view();
 }
 
 .theme-combo {
@@ -82,6 +79,21 @@
 
 .feature-box {
     width: 30%;
+}
+
+@supports (animation-timeline: scroll()) {
+    .personalization {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        width: 70%;
+        box-sizing: border-box;
+        will-change: transform;
+        animation: browserSlideUp ease-in-out both;
+        animation-timeline: view();
+    }
 }
 
 @media (max-width: 768px) {

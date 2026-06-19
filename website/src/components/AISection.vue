@@ -63,21 +63,23 @@
     gap: 10px;
 }
 
-.ai-summary {
-    will-change: transform;
-    animation: aiSidebarSlide ease-in-out both;
-    animation-timeline: view();
-}
-
 .ai-summary-img,
 .agentic-ai-img {
-    width: 70%;
+    min-width: 70%;
 }
 
-.agentic-ai {
-    will-change: transform;
-    animation: aiSidebarSlideReverse ease-in-out both;
-    animation-timeline: view();
+@supports (animation-timeline: scroll()) {
+    .ai-summary {
+        will-change: transform;
+        animation: aiSidebarSlide ease-in-out both;
+        animation-timeline: view();
+    }
+
+    .agentic-ai {
+        will-change: transform;
+        animation: aiSidebarSlideReverse ease-in-out both;
+        animation-timeline: view();
+    }
 }
 
 @media (max-width: 768px) {
