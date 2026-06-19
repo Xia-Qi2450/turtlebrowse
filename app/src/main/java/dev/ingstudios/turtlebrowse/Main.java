@@ -187,6 +187,39 @@ public class Main {
 		return db;
 	}
 
+	public static void createProfilePickerWindow() {
+		db.closeDb();
+
+		final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+		final String classpath = System.getProperty("java.class.path");
+
+		List<String> command = new ArrayList<>();
+		command.add(javaBin);
+
+		final RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+		List<String> vmArguments = runtimeMxBean.getInputArguments();
+		for (String arg : vmArguments) {
+			if (!arg.contains("-agentlib") && !arg.contains("-javaagent")) {
+				command.add(arg);
+			}
+		}
+
+		command.add("-cp");
+		command.add(classpath);
+		command.add("dev.ingstudios.turtlebrowse.Main");
+
+		System.out.println("Spawning Command: " + String.join(" ", command));
+
+		final ProcessBuilder builder = new ProcessBuilder(command);
+
+		try {
+			builder.start();
+		} catch (IOException e) {
+			System.err.printf("Failed while running process for profile picker window.");
+			e.printStackTrace();
+		}
+	}
+
 	public static void createMainWindow(ProfileStructureWithId profile) {
 		db.closeDb();
 

@@ -190,7 +190,7 @@ public class AddressBar extends JPanel {
 			});
 
 			final JFXButton profileButton = new JFXButton("👱");
-			profileButton.setGraphic(new FontIcon(Material2OutlinedAL.ASSISTANT));
+			profileButton.setGraphic(new FontIcon(Material2OutlinedAL.ACCOUNT_CIRCLE));
 			profileButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 			profileButton.setStyle("-fx-padding: 10px;");
 			profileButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
@@ -205,7 +205,7 @@ public class AddressBar extends JPanel {
 			});
 			profileButton.setOnAction(event -> {
 				System.out.println("Profile button clicked.");
-				Main.profilePickerWindow.showProfilePickerWindow();
+				Main.createProfilePickerWindow();
 			});
 
 			root.getChildren().addAll(backButton, forwardButton, reloadButton, addressField, aiButton, profileButton);

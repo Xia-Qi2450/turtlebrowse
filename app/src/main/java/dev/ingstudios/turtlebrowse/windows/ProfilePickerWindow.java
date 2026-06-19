@@ -200,7 +200,9 @@ public class ProfilePickerWindow extends Stage {
 	}
 
 	public void showProfilePickerWindow() {
-		if (profiles.size() == 0) {
+		System.out.println("Showing profile picker window...");
+
+		if (profiles.size() <= 1) {
 			final ProfileStructureWithId profile = db.getFirstProfile();
 			Main.createMainWindow(profile);
 			closeWindow();
