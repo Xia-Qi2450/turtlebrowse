@@ -24,6 +24,7 @@ public class TurtlebrowseSchemeResourceHandler extends CefResourceHandlerAdapter
 	private MainWindow parent;
 
 	public TurtlebrowseSchemeResourceHandler(MainWindow parent) {
+		System.out.println("Setting scheme resource handler parent: " + parent);
 		this.parent = parent;
 	}
 

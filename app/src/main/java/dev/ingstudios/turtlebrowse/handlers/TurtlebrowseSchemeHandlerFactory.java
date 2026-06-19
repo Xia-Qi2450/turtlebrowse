@@ -2,8 +2,6 @@ package dev.ingstudios.turtlebrowse.handlers;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
@@ -14,16 +12,16 @@ import org.cef.network.CefRequest;
 import dev.ingstudios.turtlebrowse.windows.MainWindow;
 
 public class TurtlebrowseSchemeHandlerFactory implements CefSchemeHandlerFactory {
-	private Map<CefBrowser, MainWindow> windowsMap = new HashMap<>();
+	private MainWindow parent;
 
-	public TurtlebrowseSchemeHandlerFactory() {
+	public TurtlebrowseSchemeHandlerFactory(MainWindow parent) {
+		System.out.println("MainWindow in scheme handler factory: " + parent);
+		this.parent = parent;
 	}
 
 	@Override
 	public CefResourceHandler create(CefBrowser browser, CefFrame frame, String schemeName, CefRequest request) {
 		final String url = request.getURL();
-
-		final MainWindow parent = windowsMap.get(browser);
 
 		if (url.startsWith("turtlebrowse://api/prompt-stream")) {
 			String prompt = "";
@@ -38,13 +36,5 @@ public class TurtlebrowseSchemeHandlerFactory implements CefSchemeHandlerFactory
 		}
 
 		return new TurtlebrowseSchemeResourceHandler(parent);
-	}
-
-	public void addBrowser(CefBrowser browser, MainWindow mainWindow) {
-		windowsMap.put(browser, mainWindow);
-	}
-
-	public void removeBrowser(CefBrowser browser) {
-		windowsMap.remove(browser);
 	}
 }

@@ -75,7 +75,7 @@ public class MainWindow extends JFrame {
 			ColorScheme.fromSeed(Color.web("#BDCF47")));
 	private String userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.1.0 Safari/537.36";
 	private final String windowId;
-	private final CefAppManager cefAppManager = CefAppManager.getInstance();
+	private final CefAppManager cefAppManager = CefAppManager.getInstance(this);
 	private final CefApp cefApp = cefAppManager.getCefApp();
 
 	public MainWindow(ProfileStructureWithId profile) {
@@ -182,7 +182,6 @@ public class MainWindow extends JFrame {
 		CefBrowser browser = cefClient.createBrowser(url, USE_OSR, false);
 
 		openedBrowserTabs.add(browser);
-		cefAppManager.addBrowser(browser, this);
 
 		Platform.runLater(() -> {
 			tabBar.addTabToUI(browser);
@@ -198,7 +197,6 @@ public class MainWindow extends JFrame {
 
 		openedBrowserTabs.remove(browser);
 		titleMap.remove(browser);
-		cefAppManager.removeBrowser(browser);
 
 		System.out.printf("Browser is current browser: %s", browser == currentBrowser);
 

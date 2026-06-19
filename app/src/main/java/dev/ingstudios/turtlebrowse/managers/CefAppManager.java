@@ -8,7 +8,6 @@ import org.cef.CefApp;
 import org.cef.CefSettings;
 import org.cef.OS;
 import org.cef.CefApp.CefAppState;
-import org.cef.browser.CefBrowser;
 import org.cef.callback.CefSchemeRegistrar;
 
 import dev.ingstudios.turtlebrowse.Main;
@@ -26,18 +25,18 @@ public class CefAppManager {
 	private final CefApp cefApp;
 	private TurtlebrowseSchemeHandlerFactory turtlebrowseSchemeHandlerFactory;
 
-	private CefAppManager() {
-		cefApp = createCefApp();
+	private CefAppManager(MainWindow parent) {
+		cefApp = createCefApp(parent);
 	}
 
-	public static synchronized CefAppManager getInstance() {
+	public static synchronized CefAppManager getInstance(MainWindow parent) {
 		if (instance == null) {
-			instance = new CefAppManager();
+			instance = new CefAppManager(parent);
 		}
 		return instance;
 	}
 
-	private CefApp createCefApp() {
+	private CefApp createCefApp(MainWindow parent) {
 		CefAppBuilder builder = new CefAppBuilder();
 		builder.addJcefArgs(
 				"--enable-media-stream",
@@ -80,7 +79,7 @@ public class CefAppManager {
 
 			@Override
 			public void onContextInitialized() {
-				turtlebrowseSchemeHandlerFactory = new TurtlebrowseSchemeHandlerFactory();
+				turtlebrowseSchemeHandlerFactory = new TurtlebrowseSchemeHandlerFactory(parent);
 				cefApp.registerSchemeHandlerFactory("turtlebrowse", "",
 						turtlebrowseSchemeHandlerFactory);
 			}
@@ -130,13 +129,5 @@ public class CefAppManager {
 		}
 
 		return installFile;
-	}
-
-	public void addBrowser(CefBrowser browser, MainWindow parent) {
-		turtlebrowseSchemeHandlerFactory.addBrowser(browser, parent);
-	}
-
-	public void removeBrowser(CefBrowser browser) {
-		turtlebrowseSchemeHandlerFactory.removeBrowser(browser);
 	}
 }
