@@ -117,6 +117,10 @@ npm run build
 
 Huge thank you to the [Java Chromium Embedded Framework](https://github.com/chromiumembedded/java-cef) project for providing Java bindings to CEF and [jcefmaven](https://github.com/jcefmaven/jcefmaven) for providing pre-built binaries for Gradle. This project would not have been possible without them.
 
+**Notable mentions**
+
+- [wayou/t-rex-runner](https://github.com/wayou/t-rex-runner) for decompiling the Chromium Dino game from the [Chromium](github.com/chromium/chromium) source code (I tried doing it myself but it was a pain, huge thanks!)
+
 ## License
 
 Turtlebrowse is licensed under the Apache 2.0 License. Check [LICENSE](./LICENSE) for more details.
