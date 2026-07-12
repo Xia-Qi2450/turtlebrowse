@@ -37,6 +37,8 @@ public class Main {
 	public static ProfileStructureWithId currentProfile;
 
 	public static void main(String[] args) {
+		System.setProperty("javafx.platform", "dev.ingstudios.turtlebrowse");
+
 		Platform.startup(() -> {
 			Platform.setImplicitExit(false);
 		});
