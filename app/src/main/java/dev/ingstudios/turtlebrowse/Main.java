@@ -38,6 +38,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		System.setProperty("javafx.platform", "dev.ingstudios.turtlebrowse");
+		System.setProperty("awt.toolkit.name", "dev.ingstudios.turtlebrowse");
 
 		Platform.startup(() -> {
 			Platform.setImplicitExit(false);
