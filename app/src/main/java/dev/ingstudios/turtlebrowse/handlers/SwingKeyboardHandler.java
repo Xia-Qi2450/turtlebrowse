@@ -24,34 +24,59 @@ public class SwingKeyboardHandler {
 																												// +
 																												// Shift
 																												// + I)
-							parent.createDevTools();
 							keyEvent.consume();
+							parent.createDevTools();
 						} else if (keyCode == KeyEvent.VK_T && keyEvent.isControlDown()) { // New tab (Ctrl + T)
+							keyEvent.consume();
 							System.out.println("Ctrl + T detected, creating a new tab.");
 							parent.createTab(startUrl);
+						} else if (keyCode == KeyEvent.VK_W && keyEvent.isControlDown()) { // Close current tab (Ctrl
+																							// + W)
 							keyEvent.consume();
+							System.out.println("Ctrl + W pressed.");
+							parent.closeCurrentTab();
 						} else if (keyCode == KeyEvent.VK_L && keyEvent.isControlDown()) { // Focus address field (Ctrl
 																							// + L)
+							keyEvent.consume();
 							System.out.println("Ctrl + L pressed.");
 							parent.addressBar.focusAddressField();
-							keyEvent.consume();
 						} else if (keyCode == KeyEvent.VK_LEFT && keyEvent.isAltDown()) { // Navigates back (Alt + <)
+							keyEvent.consume();
 							if (parent.currentBrowser.canGoBack())
 								parent.currentBrowser.goBack();
-							keyEvent.consume();
 						} else if (keyCode == KeyEvent.VK_RIGHT && keyEvent.isAltDown()) { // Navigates forward (Alt +
 																							// >)
+							keyEvent.consume();
 							if (parent.currentBrowser.canGoForward())
 								parent.currentBrowser.goForward();
-							keyEvent.consume();
 						} else if (keyCode == KeyEvent.VK_R && keyEvent.isControlDown()) { // Reloads the page (Ctrl +
 							// R)
+							keyEvent.consume();
 							parent.currentBrowser.reload();
+						} else if (keyCode == KeyEvent.VK_TAB && keyEvent.isControlDown() && keyEvent.isShiftDown()) { // Switches
+																														// to
+																														// the
+																														// previous
+																														// tab
+							// (Ctrl + Shift + Tab)
+							keyEvent.consume();
+							System.out.println("Ctrl + Shift + Tab pressed.");
+							final int currentIndex = parent.openedBrowserTabs.indexOf(parent.currentBrowser);
+							final int size = parent.openedBrowserTabs.size();
+							if (size > 0) {
+								final int previousIndex = (currentIndex - 1 + size) % size;
+								parent.showTab(parent.openedBrowserTabs.get(previousIndex));
+							}
 						} else if (keyCode == KeyEvent.VK_TAB && keyEvent.isControlDown()) { // Switches to the next tab
 																								// (Ctrl + Tab)
+							keyEvent.consume();
+							System.out.println("Ctrl + Tab pressed.");
 							final int currentIndex = parent.openedBrowserTabs.indexOf(parent.currentBrowser);
-							final int nextIndex = (currentIndex + 1) % parent.openedBrowserTabs.size();
-							parent.showTab(parent.openedBrowserTabs.get(nextIndex));
+							final int size = parent.openedBrowserTabs.size();
+							if (size > 0) {
+								final int nextIndex = (currentIndex + 1) % size;
+								parent.showTab(parent.openedBrowserTabs.get(nextIndex));
+							}
 						}
 					}
 				}

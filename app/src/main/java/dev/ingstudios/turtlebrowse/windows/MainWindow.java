@@ -223,6 +223,10 @@ public class MainWindow extends JFrame {
 		}
 	}
 
+	public void closeCurrentTab() {
+		Platform.runLater(() -> tabBar.closeTab(currentBrowser));
+	}
+
 	public void showTab(CefBrowser browser) {
 		SwingUtilities.invokeLater(() -> {
 			currentBrowser = browser;

@@ -18,7 +18,6 @@ import dev.ingstudios.turtlebrowse.windows.MainWindow;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.embed.swing.JFXPanel;
-import javafx.event.Event;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -121,7 +120,10 @@ public class TabBar extends JPanel {
 			if (event.getButton() == MouseButton.PRIMARY)
 				this.parent.showTab(browser);
 			else if (event.getButton() == MouseButton.MIDDLE)
-				Platform.runLater(() -> closeTab(event, tabBox, browser));
+				Platform.runLater(() -> {
+					event.consume();
+					closeTab(tabBox, browser);
+				});
 		});
 
 		closeButton.prefHeightProperty().bind(tabBox.heightProperty().multiply(0.8));
@@ -132,7 +134,10 @@ public class TabBar extends JPanel {
 			closeButton.setCursor(Cursor.DEFAULT);
 		});
 		closeButton.setOnAction(event -> {
-			Platform.runLater(() -> closeTab(event, tabBox, browser));
+			Platform.runLater(() -> {
+				event.consume();
+				closeTab(tabBox, browser);
+			});
 		});
 
 		tabBox.getChildren().addAll(tabTitle, tabSpacer, closeButton);
@@ -142,15 +147,18 @@ public class TabBar extends JPanel {
 		root.getChildren().add(Math.max(0, root.getChildren().size() - 1), tabBox);
 	}
 
-	private void closeTab(Event event, HBox tabBox, CefBrowser browser) {
-		event.consume();
-
+	private void closeTab(HBox tabBox, CefBrowser browser) {
 		root.getChildren().remove(tabBox);
 
 		SwingUtilities.invokeLater(() -> {
 			tabMap.remove(browser);
 			this.parent.closeTab(browser);
 		});
+	}
+
+	public void closeTab(CefBrowser browser) {
+		final HBox tabBox = tabMap.get(browser);
+		closeTab(tabBox, browser);
 	}
 
 	public void setTabTitle(CefBrowser browser, String title) {

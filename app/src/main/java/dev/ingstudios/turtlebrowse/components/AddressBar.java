@@ -33,14 +33,14 @@ import dev.ingstudios.turtlebrowse.windows.MainWindow;
 public class AddressBar extends JPanel {
 	private TextField addressField;
 	private MainWindow parent;
-	private boolean addressFieldFocused = false;
+	private final JFXPanel addressBarPanel;
 
 	public AddressBar(CefClient client, MainWindow parent, String startUrl) {
 		this.parent = parent;
 
 		this.setLayout(new java.awt.BorderLayout());
 
-		final JFXPanel addressBarPanel = new JFXPanel();
+		addressBarPanel = new JFXPanel();
 		addressBarPanel.setFocusable(true);
 		addressBarPanel.setPreferredSize(new java.awt.Dimension(1200, 50));
 
@@ -145,29 +145,12 @@ public class AddressBar extends JPanel {
 			addressField.focusedProperty().addListener((observable, oldValue, newValue) -> {
 				if (!newValue) {
 					System.out.println("Address field has lost focus.");
-					addressFieldFocused = false;
 					return;
 				}
 			});
 
 			addressField.setOnMouseClicked(event -> {
-				this.parent.isUiFocused.set(true);
-
-				if (addressFieldFocused) {
-					System.out.println("Address field already focused, not selecting all.");
-					return;
-				}
-
-				addressField.requestFocus();
-				addressField.selectAll();
-
-				SwingUtilities.invokeLater(() -> {
-					CefBrowser browser = this.parent.currentBrowser;
-					if (browser != null)
-						browser.setFocus(false);
-				});
-
-				addressFieldFocused = true;
+				focusAddressField();
 			});
 
 			final JFXButton aiButton = new JFXButton("✨");
@@ -235,23 +218,22 @@ public class AddressBar extends JPanel {
 		System.out.println("Focus address field called.");
 
 		SwingUtilities.invokeLater(() -> {
-			this.parent.isUiFocused.set(true);
+			Platform.runLater(() -> {
+				this.parent.isUiFocused.set(true);
 
-			if (addressFieldFocused) {
-				System.out.println("Address field already focused, not selecting all.");
-				return;
-			}
+				Platform.runLater(() -> {
+					addressField.requestFocus();
+					addressField.selectAll();
+					System.out.println("Address field focused and selected.");
+				});
 
-			addressField.requestFocus();
-			addressField.selectAll();
-
-			SwingUtilities.invokeLater(() -> {
 				CefBrowser browser = this.parent.currentBrowser;
-				if (browser != null)
+				if (browser != null) {
 					browser.setFocus(false);
+				}
 			});
 
-			addressFieldFocused = true;
+			addressBarPanel.requestFocusInWindow();
 		});
 	}
 }
