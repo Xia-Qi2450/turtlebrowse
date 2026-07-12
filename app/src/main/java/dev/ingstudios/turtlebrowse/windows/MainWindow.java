@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -294,26 +295,37 @@ public class MainWindow extends JFrame {
 	}
 
 	public String formatURL(String url, Boolean isSearching) {
-		if (isSearching) {
-			String searchQuery = URLEncoder.encode(url, StandardCharsets.UTF_8);
-			return DEFAULT_SEARCH_PROVIDER + searchQuery;
+		if (isSearching == null || isSearching) {
+			return DEFAULT_SEARCH_PROVIDER + URLEncoder.encode(url, StandardCharsets.UTF_8);
 		}
 
-		boolean isValidUrl = false;
+		final Set<String> allowedSchemes = Set.of(
+				"http", "https", "file", "about", "turtlebrowse");
+
+		final String trimmedUrl = url.trim();
+
+		if (trimmedUrl.startsWith("about:"))
+			return trimmedUrl;
+
+		// TODO(ingStudiosOfficial): fix about: urls
 
 		try {
-			new URI(url).toURL();
-			isValidUrl = true;
+			URI uri = new URI(trimmedUrl);
+			String scheme = uri.getScheme();
+
+			if (scheme != null) {
+				if (allowedSchemes.contains(scheme.toLowerCase())) {
+					return trimmedUrl;
+				}
+			} else {
+				if (trimmedUrl.contains(".") && !trimmedUrl.contains(" ")) {
+					return "https://" + trimmedUrl;
+				}
+			}
 		} catch (Exception e) {
-			isValidUrl = false;
 		}
 
-		if (isValidUrl) {
-			String searchQuery = URLEncoder.encode(url, StandardCharsets.UTF_8);
-			return DEFAULT_SEARCH_PROVIDER + searchQuery;
-		}
-
-		return url;
+		return DEFAULT_SEARCH_PROVIDER + URLEncoder.encode(url, StandardCharsets.UTF_8);
 	}
 
 	public void searchWeb(String query) {

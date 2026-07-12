@@ -41,9 +41,6 @@ public class CefAppManager {
 		builder.addJcefArgs(
 				"--enable-media-stream",
 				"--ozone-platform=x11",
-				"--disable-gpu",
-				"--disable-gpu-compositing",
-				"--disable-software-rasterizer",
 				"--no-sandbox",
 				"--single-process");
 
