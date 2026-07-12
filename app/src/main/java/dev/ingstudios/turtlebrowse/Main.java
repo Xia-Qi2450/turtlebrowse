@@ -77,11 +77,14 @@ public class Main {
 
 			final boolean noProfile = profiles.isEmpty();
 
+			final boolean alwaysOpenPicker = checkAlwaysOpenPicker(args);
+			System.out.printf("Always open picker: %s\n", String.valueOf(alwaysOpenPicker));
+
 			SwingUtilities.invokeLater(() -> {
 				new JFXPanel();
 
 				Platform.runLater(() -> {
-					if (noProfile) {
+					if (noProfile && alwaysOpenPicker == false) {
 						final SetupWindow setupWindow = new SetupWindow();
 						Optional<ButtonType> result = setupWindow.showAndWait();
 
@@ -100,7 +103,9 @@ public class Main {
 						}
 					}
 
-					createProfilePicker();
+					System.out.println("Creating profile picker window...");
+
+					createProfilePicker(alwaysOpenPicker);
 				});
 			});
 
@@ -110,11 +115,11 @@ public class Main {
 		}
 	}
 
-	private static void createProfilePicker() {
+	private static void createProfilePicker(boolean alwaysOpen) {
 		Platform.runLater(() -> {
 			if (profilePickerWindow == null)
 				profilePickerWindow = new ProfilePickerWindow();
-			profilePickerWindow.showProfilePickerWindow();
+			profilePickerWindow.showProfilePickerWindow(alwaysOpen);
 		});
 	}
 
@@ -183,6 +188,18 @@ public class Main {
 		return targetProfileId;
 	}
 
+	private static boolean checkAlwaysOpenPicker(String[] args) {
+		boolean alwaysOpen = false;
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals("--open-picker") && i + 1 < args.length) {
+				alwaysOpen = Boolean.parseBoolean(args[i + 1]);
+				System.out.printf("Always open: %s\n", String.valueOf(alwaysOpen));
+				break;
+			}
+		}
+		return alwaysOpen;
+	}
+
 	public static MainDatabase getDb() {
 		return db;
 	}
@@ -207,6 +224,8 @@ public class Main {
 		command.add("-cp");
 		command.add(classpath);
 		command.add("dev.ingstudios.turtlebrowse.Main");
+		command.add("--open-picker");
+		command.add("true");
 
 		System.out.println("Spawning Command: " + String.join(" ", command));
 

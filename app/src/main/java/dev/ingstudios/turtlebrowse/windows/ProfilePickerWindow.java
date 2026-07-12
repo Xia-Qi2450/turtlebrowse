@@ -199,10 +199,10 @@ public class ProfilePickerWindow extends Stage {
 		}
 	}
 
-	public void showProfilePickerWindow() {
+	public void showProfilePickerWindow(boolean alwaysOpen) {
 		System.out.println("Showing profile picker window...");
 
-		if (profiles.size() <= 1) {
+		if (profiles.size() <= 1 && alwaysOpen == false) {
 			final ProfileStructureWithId profile = db.getFirstProfile();
 			Main.createMainWindow(profile);
 			closeWindow();
