@@ -39,7 +39,6 @@ public class CefKeyboardHandler extends CefKeyboardHandlerAdapter {
 				return true;
 			} else if (ctrlPressed && event.windows_key_code == KeyEvent.VK_L) { // Focus address field (Ctrl + L)
 				System.out.println("Ctrl + L pressed.");
-				parent.currentBrowser.setFocus(false);
 				parent.addressBar.focusAddressField();
 				return true;
 			} else if (altPressed && event.windows_key_code == KeyEvent.VK_LEFT) { // Navigates back (Alt + <)
