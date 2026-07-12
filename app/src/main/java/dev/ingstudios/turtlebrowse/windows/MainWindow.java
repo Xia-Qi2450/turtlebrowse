@@ -6,6 +6,7 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -298,7 +299,16 @@ public class MainWindow extends JFrame {
 			return DEFAULT_SEARCH_PROVIDER + searchQuery;
 		}
 
-		if (url.contains(" ")) {
+		boolean isValidUrl = false;
+
+		try {
+			new URI(url).toURL();
+			isValidUrl = true;
+		} catch (Exception e) {
+			isValidUrl = false;
+		}
+
+		if (isValidUrl) {
 			String searchQuery = URLEncoder.encode(url, StandardCharsets.UTF_8);
 			return DEFAULT_SEARCH_PROVIDER + searchQuery;
 		}

@@ -30,6 +30,7 @@ public class SwingKeyboardHandler {
 							keyEvent.consume();
 							System.out.println("Ctrl + T detected, creating a new tab.");
 							parent.createTab(startUrl);
+							parent.addressBar.focusAddressField();
 						} else if (keyCode == KeyEvent.VK_W && keyEvent.isControlDown()) { // Close current tab (Ctrl
 																							// + W)
 							keyEvent.consume();

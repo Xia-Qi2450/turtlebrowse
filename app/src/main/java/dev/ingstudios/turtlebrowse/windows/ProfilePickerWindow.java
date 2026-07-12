@@ -142,12 +142,22 @@ public class ProfilePickerWindow extends Stage {
 		});
 
 		final ContextMenu profileButtonMenu = new ContextMenu();
+
 		final MenuItem deleteMenuItem = new MenuItem("Remove");
 		deleteMenuItem.setOnAction(event -> {
 			profilesBox.getChildren().remove(profileButton);
 			MainDatabase.getInstance().removeProfile(profile.id());
 			deleteProfileData(profile);
 		});
+
+		// TODO(ingStudiosOfficial): implement rename with input
+		/*
+		 * final MenuItem renameMenuItem = new MenuItem("Remove");
+		 * renameMenuItem.setOnAction(event -> {
+		 * MainDatabase.getInstance().renameProfile(profile.id(), );
+		 * });
+		 */
+
 		profileButtonMenu.getItems().addAll(deleteMenuItem);
 		profileButton.setOnContextMenuRequested(event -> {
 			profileButtonMenu.show(profileBox, event.getScreenX(), event.getScreenY());

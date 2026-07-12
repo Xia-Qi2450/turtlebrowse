@@ -103,6 +103,11 @@ public class MainDatabase {
 		}
 	}
 
+	public void renameProfile(UUID id, String newName) {
+		final Document updateDoc = Document.createDocument("name", newName);
+		profileCollection.update(where("uuid").eq(id), updateDoc);
+	}
+
 	private ProfileStructureWithId parseProfile(Document document) {
 		final @Nullable String colorHex = document.get("seedColor", String.class);
 		final ProfileStructureWithId profileStructure = new ProfileStructureWithId(document.get("name", String.class),
