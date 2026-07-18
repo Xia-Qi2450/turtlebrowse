@@ -6,6 +6,7 @@ import dev.ingstudios.turtlebrowse.components.wizard_panes.AIWizardPane;
 import dev.ingstudios.turtlebrowse.components.wizard_panes.PersonalizationWizardPane;
 import dev.ingstudios.turtlebrowse.components.wizard_panes.StartWizardPane;
 import dev.ingstudios.turtlebrowse.components.wizard_panes.ThemeWizardPane;
+import dev.ingstudios.turtlebrowse.managers.DiscordPresenceManager;
 import dev.ingstudios.turtlebrowse.wizard.WizardData;
 
 public class SetupWindow extends Wizard {
@@ -21,5 +22,7 @@ public class SetupWindow extends Wizard {
 				aiWizardPane);
 
 		setFlow(flow);
+
+		DiscordPresenceManager.getInstance().updateDiscordPresence("Setting up Turtlebrowse");
 	}
 }

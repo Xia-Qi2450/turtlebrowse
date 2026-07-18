@@ -12,6 +12,7 @@ import com.jfoenix.controls.JFXButton;
 import dev.ingstudios.turtlebrowse.Main;
 import dev.ingstudios.turtlebrowse.db.MainDatabase;
 import dev.ingstudios.turtlebrowse.db.MainDatabase.ProfileStructureWithId;
+import dev.ingstudios.turtlebrowse.managers.DiscordPresenceManager;
 import dev.ingstudios.turtlebrowse.managers.WindowsManager;
 import dev.ingstudios.turtlebrowse.managers.WindowsManager.WindowItem;
 import javafx.application.Platform;
@@ -113,6 +114,8 @@ public class ProfilePickerWindow extends Stage {
 		setScene(profilePickerScene);
 
 		setOnCloseRequest(event -> closeWindow());
+
+		DiscordPresenceManager.getInstance().updateDiscordPresence("In the profile picker menu");
 
 		// setOnHidden(event -> closeWindow());
 	}

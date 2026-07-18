@@ -10,3 +10,5 @@
 # Binary files should be left untouched
 *.jar           binary
 
+app/src/main/resources/** linguist-vendored
+**/public/libs/** linguist-vendored

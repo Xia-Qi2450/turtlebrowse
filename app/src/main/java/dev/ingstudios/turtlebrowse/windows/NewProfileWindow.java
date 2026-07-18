@@ -11,6 +11,7 @@ import com.jfoenix.controls.JFXButton;
 import dev.ingstudios.turtlebrowse.Main;
 import dev.ingstudios.turtlebrowse.db.MainDatabase.ProfileStructure;
 import dev.ingstudios.turtlebrowse.db.MainDatabase.ProfileStructureWithId;
+import dev.ingstudios.turtlebrowse.managers.DiscordPresenceManager;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -134,6 +135,8 @@ public class NewProfileWindow extends Stage {
 		setScene(newProfileScene);
 
 		show();
+
+		DiscordPresenceManager.getInstance().updateDiscordPresence("Creating a new profile");
 	}
 
 	private void createProfile() {

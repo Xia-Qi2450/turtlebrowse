@@ -44,6 +44,7 @@ import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseLifeSpanHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseLoadHandler;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseRequestHandler;
 import dev.ingstudios.turtlebrowse.managers.CefAppManager;
+import dev.ingstudios.turtlebrowse.managers.DiscordPresenceManager;
 import dev.ingstudios.turtlebrowse.managers.WindowsManager;
 import dev.ingstudios.turtlebrowse.managers.WindowsManager.WindowItem;
 import dev.ingstudios.turtlebrowse.ollama.OllamaChat;
@@ -178,6 +179,7 @@ public class MainWindow extends JFrame {
 
 	public void updateWindowTitle(String pageTitle) {
 		this.setTitle(pageTitle + " - Turtlebrowse");
+		DiscordPresenceManager.getInstance().updateDiscordPresence("Browsing " + pageTitle);
 	}
 
 	public void createTab(String url) {
@@ -300,7 +302,7 @@ public class MainWindow extends JFrame {
 		}
 
 		final Set<String> allowedSchemes = Set.of(
-				"http", "https", "file", "about", "turtlebrowse");
+				"http", "https", "file", "about", "localhost", "turtlebrowse");
 
 		final String trimmedUrl = url.trim();
 

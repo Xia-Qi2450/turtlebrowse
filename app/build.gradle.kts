@@ -56,6 +56,9 @@ dependencies {
 
     // Google Gson
     implementation("com.google.code.gson:gson:2.14.0")
+
+    // Discord Rich Presence
+    implementation("io.github.CDAGaming:DiscordIPC:0.10.2")
 }
 
 // Apply a specific Java toolchain. 
@@ -108,7 +111,7 @@ tasks.jpackage {
     
     appName = "Turtlebrowse"
     vendor = "(ing) Studios"
-    appVersion = "1.1.5"
+    appVersion = "1.2.0"
     copyright = "2026 (ing) Studios and Ethan Lee"
 
     input = layout.buildDirectory.dir("libs")

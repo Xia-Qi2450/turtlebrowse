@@ -18,8 +18,11 @@ import org.glavo.monetfx.ColorScheme;
 import org.glavo.monetfx.beans.property.ColorSchemeProperty;
 import org.glavo.monetfx.beans.property.SimpleColorSchemeProperty;
 
+import com.jagrosh.discordipc.IPCClient;
+
 import dev.ingstudios.turtlebrowse.db.MainDatabase;
 import dev.ingstudios.turtlebrowse.db.MainDatabase.ProfileStructureWithId;
+import dev.ingstudios.turtlebrowse.managers.DiscordPresenceManager;
 import dev.ingstudios.turtlebrowse.windows.MainWindow;
 import dev.ingstudios.turtlebrowse.windows.ProfilePickerWindow;
 import dev.ingstudios.turtlebrowse.windows.SetupWindow;
@@ -40,6 +43,18 @@ public class Main {
 		System.setProperty("javafx.platform", "dev.ingstudios.turtlebrowse");
 		System.setProperty("awt.toolkit.name", "dev.ingstudios.turtlebrowse");
 
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			final DiscordPresenceManager presenceManager = DiscordPresenceManager.getInstance();
+
+			final IPCClient discordIpcClient = presenceManager.getClient();
+
+			try {
+				discordIpcClient.close();
+			} catch (Exception e) {
+				System.err.printf("Error while closing Discord client: %s\n", e.getMessage());
+			}
+		}));
+
 		Platform.startup(() -> {
 			Platform.setImplicitExit(false);
 		});
@@ -51,6 +66,8 @@ public class Main {
 
 		final String profileId = getProfileId(args);
 		System.out.println("Profile ID (after getProfileId): " + profileId);
+
+		DiscordPresenceManager.getInstance().init();
 
 		try {
 			currentProfile = profiles.stream().filter(p -> {
