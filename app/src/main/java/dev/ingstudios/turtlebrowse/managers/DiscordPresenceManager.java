@@ -83,13 +83,17 @@ public class DiscordPresenceManager {
 		if (discordIpcClient == null)
 			return;
 
-		RichPresence.Builder builder = new RichPresence.Builder();
-		builder.setDetails(details)
-				.setStartTimestamp(OffsetDateTime.now().toEpochSecond())
-				.setSmallImage("discord_presence_icon")
-				.setLargeImage("discord_presence_icon")
-				.setActivityType(ActivityType.Playing);
-		discordIpcClient.sendRichPresence(builder.build());
+		try {
+			RichPresence.Builder builder = new RichPresence.Builder();
+			builder.setDetails(details)
+					.setStartTimestamp(OffsetDateTime.now().toEpochSecond())
+					.setSmallImage("discord_presence_icon")
+					.setLargeImage("discord_presence_icon")
+					.setActivityType(ActivityType.Playing);
+			discordIpcClient.sendRichPresence(builder.build());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void updateDiscordPresence() {

@@ -49,9 +49,14 @@ public class Main {
 			final IPCClient discordIpcClient = presenceManager.getClient();
 
 			try {
-				discordIpcClient.close();
+				if (discordIpcClient != null)
+					discordIpcClient.close();
 			} catch (Exception e) {
 				System.err.printf("Error while closing Discord client: %s\n", e.getMessage());
+			}
+
+			if (db != null) {
+				db.closeDb();
 			}
 		}));
 

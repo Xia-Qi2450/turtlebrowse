@@ -14,6 +14,7 @@ import org.dizitart.no2.collection.Document;
 import org.dizitart.no2.collection.DocumentCursor;
 import org.dizitart.no2.collection.NitriteCollection;
 import org.dizitart.no2.collection.UpdateOptions;
+import org.dizitart.no2.exceptions.NitriteIOException;
 import org.dizitart.no2.index.IndexOptions;
 import org.dizitart.no2.index.IndexType;
 import org.dizitart.no2.mvstore.MVStoreModule;
@@ -35,6 +36,8 @@ public class MainDatabase {
 	}
 
 	private void initDb() {
+		System.out.println("Initializing database...");
+
 		final Path dbPath = Main.getStoragePath("database", "main.db");
 		final Path parentDir = dbPath.getParent();
 		try {
@@ -46,8 +49,11 @@ public class MainDatabase {
 		}
 
 		final MVStoreModule storeModule = MVStoreModule.withConfig().filePath(dbPath.toString()).build();
-
-		db = Nitrite.builder().loadModule(storeModule).openOrCreate();
+		try {
+			db = Nitrite.builder().loadModule(storeModule).openOrCreate();
+		} catch (NitriteIOException e) {
+			System.err.printf("Error while opening database: %s\n", e.getMessage());
+		}
 
 		profileCollection = db.getCollection("profile");
 
