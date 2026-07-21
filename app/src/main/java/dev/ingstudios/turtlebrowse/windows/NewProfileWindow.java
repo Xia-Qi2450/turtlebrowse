@@ -2,9 +2,11 @@ package dev.ingstudios.turtlebrowse.windows;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 import com.jfoenix.controls.JFXButton;
 
@@ -37,12 +39,25 @@ import javafx.stage.Stage;
 import javafx.stage.FileChooser.ExtensionFilter;
 
 public class NewProfileWindow extends Stage {
-	String name;
-	Color themeColor = Main.mainMaterialColorScheme.getPrimary().get();
-	String profileAvatarPath = "/images/avatars/default_avatar.png";
-	File uploadedAvatarFile = null;
+	private String name;
+	private Color themeColor = Main.mainMaterialColorScheme.getPrimary().get();
+	private String profileAvatarPath = "/images/avatars/default_avatar.png";
+	private File uploadedAvatarFile = null;
+	private UUID id = null;
 
-	public NewProfileWindow() {
+	public NewProfileWindow(boolean isEditing, ProfileStructureWithId profileStructure) {
+		if (isEditing == true && profileStructure != null) {
+			name = profileStructure.name();
+			themeColor = profileStructure.seedColor();
+			id = profileStructure.id();
+
+			final Path avatarPath = Main.getStoragePath("profiles", profileStructure.toString(), "avatar");
+			if (Files.exists(avatarPath)) {
+				profileAvatarPath = avatarPath.toString();
+				uploadedAvatarFile = avatarPath.toFile();
+			}
+		}
+
 		setTitle("Turtlebrowse");
 
 		final BorderPane root = new BorderPane();
@@ -59,7 +74,7 @@ public class NewProfileWindow extends Stage {
 		profileCreationBox.setAlignment(Pos.CENTER);
 		profileCreationBox.setFillWidth(false);
 
-		final Label titleLabel = new Label("New Profile");
+		final Label titleLabel = new Label(isEditing ? "Edit Profile" : "New Profile");
 		titleLabel.setFont(Font.font("Google Sans Flex", FontWeight.BOLD, 25));
 
 		final ImageView profileImageView = new ImageView(profileAvatarPath);
@@ -117,14 +132,20 @@ public class NewProfileWindow extends Stage {
 			themeColor = seedColorPicker.getValue();
 		});
 
-		final JFXButton createButton = new JFXButton("Create");
+		final JFXButton createButton = new JFXButton(isEditing ? "Save" : "Create");
 		createButton.setFont(Font.font("Google Sans Flex", FontWeight.NORMAL, 25));
 		createButton.setTextFill(Main.mainMaterialColorScheme.getOnPrimaryContainer().get());
 		createButton.backgroundProperty().bind(Bindings.createObjectBinding(() -> {
 			final Paint backgroundColor = Main.mainMaterialColorScheme.getPrimaryContainer().get();
 			return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
 		}, Main.mainMaterialColorScheme.getPrimaryContainer()));
-		createButton.setOnAction(event -> createProfile());
+		createButton.setOnAction(event -> {
+			if (isEditing == true) {
+				editProfile();
+			} else {
+				createProfile();
+			}
+		});
 
 		profileCreationBox.getChildren().addAll(titleLabel, profileImageView, nameTextField, seedColorLabel,
 				seedColorPicker,
@@ -139,6 +160,10 @@ public class NewProfileWindow extends Stage {
 		DiscordPresenceManager.getInstance().updateDiscordPresence("Creating a new profile");
 	}
 
+	public NewProfileWindow() {
+		this(false, null);
+	}
+
 	private void createProfile() {
 		final ProfileStructure profile = new ProfileStructure(name, themeColor);
 
@@ -147,6 +172,16 @@ public class NewProfileWindow extends Stage {
 		saveProfileImage(newProfile.getIdAsString());
 
 		Main.createMainWindow(newProfile);
+	}
+
+	private void editProfile() {
+		final ProfileStructureWithId profile = new ProfileStructureWithId(name, themeColor, id);
+
+		Main.getDb().editProfile(profile.id(), profile);
+
+		saveProfileImage(profile.getIdAsString());
+
+		Main.createMainWindow(profile);
 	}
 
 	private void saveProfileImage(String profileId) {
@@ -161,8 +196,17 @@ public class NewProfileWindow extends Stage {
 		}
 
 		try {
-			Files.copy(uploadedAvatarFile != null ? uploadedAvatarFile.toPath() : Path.of(profileAvatarPath),
-					profilePath, StandardCopyOption.REPLACE_EXISTING);
+			if (uploadedAvatarFile != null) {
+				Files.copy(uploadedAvatarFile.toPath(), profilePath, StandardCopyOption.REPLACE_EXISTING);
+			} else {
+				try (InputStream in = getClass().getResourceAsStream(profileAvatarPath)) {
+					if (in != null) {
+						Files.copy(in, profilePath, StandardCopyOption.REPLACE_EXISTING);
+					} else {
+						System.err.println("Default avatar resource not found at: " + profileAvatarPath);
+					}
+				}
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

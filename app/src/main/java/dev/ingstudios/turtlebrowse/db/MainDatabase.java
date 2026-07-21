@@ -109,8 +109,8 @@ public class MainDatabase {
 		}
 	}
 
-	public void renameProfile(UUID id, String newName) {
-		final Document updateDoc = Document.createDocument("name", newName);
+	public void editProfile(UUID id, ProfileStructureWithId profile) {
+		final Document updateDoc = Document.createDocument(profile.toMap());
 		profileCollection.update(where("uuid").eq(id), updateDoc);
 	}
 
@@ -157,6 +157,13 @@ public class MainDatabase {
 	public record ProfileStructureWithId(String name, Color seedColor, UUID id) {
 		public String getIdAsString() {
 			return id.toString();
+		}
+
+		public Map<String, Object> toMap() {
+			Map<String, Object> map = new HashMap<>();
+			map.put("name", name);
+			map.put("seedColor", seedColor.toString());
+			return map;
 		}
 	}
 }
