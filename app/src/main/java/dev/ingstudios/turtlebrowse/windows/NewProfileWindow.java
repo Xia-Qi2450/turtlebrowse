@@ -198,14 +198,6 @@ public class NewProfileWindow extends Stage {
 		try {
 			if (uploadedAvatarFile != null) {
 				Files.copy(uploadedAvatarFile.toPath(), profilePath, StandardCopyOption.REPLACE_EXISTING);
-			} else {
-				try (InputStream in = getClass().getResourceAsStream(profileAvatarPath)) {
-					if (in != null) {
-						Files.copy(in, profilePath, StandardCopyOption.REPLACE_EXISTING);
-					} else {
-						System.err.println("Default avatar resource not found at: " + profileAvatarPath);
-					}
-				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
