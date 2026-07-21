@@ -55,7 +55,7 @@ public class DiscordPresenceManager {
 			}
 		});
 
-		final Thread connectThread = Thread.ofVirtual().start(() -> {
+		Thread.ofVirtual().start(() -> {
 			try {
 				discordIpcClient.connect();
 			} catch (NoDiscordClientException e) {
@@ -64,12 +64,6 @@ public class DiscordPresenceManager {
 				System.err.printf("Error while connecting to Discord client: %s\n", e.getMessage());
 			}
 		});
-
-		try {
-			connectThread.join();
-		} catch (InterruptedException e) {
-			System.err.printf("Error while joining virtual thread: %s\n", e.getMessage());
-		}
 	}
 
 	public static synchronized DiscordPresenceManager getInstance() {

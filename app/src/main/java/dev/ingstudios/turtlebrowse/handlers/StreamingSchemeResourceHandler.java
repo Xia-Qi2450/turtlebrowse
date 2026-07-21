@@ -33,7 +33,7 @@ public class StreamingSchemeResourceHandler extends CefResourceHandlerAdapter {
 			return;
 		}
 
-		final Thread vt = Thread.ofVirtual().start(() -> {
+		new Thread(() -> {
 			final OllamaChat chat = parent.getOllamaSession();
 			chat.prompt(prompt,
 					chunk -> writeSSE("think", chunk),
@@ -47,12 +47,6 @@ public class StreamingSchemeResourceHandler extends CefResourceHandlerAdapter {
 						closeStream();
 					});
 		});
-
-		try {
-			vt.join();
-		} catch (InterruptedException e) {
-			System.err.printf("Error while joining virtual thread: %s\n", e.getMessage());
-		}
 	}
 
 	private void writeSSE(String type, String data) {
