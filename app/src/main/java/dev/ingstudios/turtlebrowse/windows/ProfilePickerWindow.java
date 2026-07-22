@@ -3,6 +3,7 @@ package dev.ingstudios.turtlebrowse.windows;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.UUID;
 
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2OutlinedAL;
@@ -91,7 +92,8 @@ public class ProfilePickerWindow extends Stage {
 			newProfileBox.setCursor(Cursor.DEFAULT);
 		});
 		newProfileBox.setOnMouseClicked(event -> {
-			new NewProfileWindow();
+			if (event.getButton() == MouseButton.PRIMARY)
+				new NewProfileWindow();
 		});
 
 		final Label createLabel = new Label("Add");
@@ -107,7 +109,39 @@ public class ProfilePickerWindow extends Stage {
 
 		profilesBox.getChildren().add(newProfileButton);
 
-		profilePickerBox.getChildren().addAll(profilesLabel, profilesBox);
+		final JFXButton guestButton = new JFXButton("Browse as guest");
+		guestButton.setOnMouseEntered(event -> {
+			guestButton.setCursor(Cursor.HAND);
+		});
+		guestButton.setOnMouseDragExited(event -> {
+			guestButton.setCursor(Cursor.DEFAULT);
+		});
+		guestButton.setOnMouseClicked(event -> {
+			event.consume();
+
+			if (event.getButton() == MouseButton.PRIMARY) {
+				final ProfileStructureWithId guestProfile = new ProfileStructureWithId("Guest",
+						Platform.getPreferences().getAccentColor(), UUID.randomUUID());
+
+				final Path profileCefCachePath = Main.getStoragePath("cef-cache", guestProfile.getIdAsString());
+				final Path profileStoragePath = Main.getStoragePath("profiles", guestProfile.getIdAsString());
+
+				final File profileCefCacheDir = profileCefCachePath.toFile();
+				final File profileStorageDir = profileStoragePath.toFile();
+
+				if (!profileCefCacheDir.exists()) {
+					profileCefCacheDir.mkdirs();
+				}
+
+				if (!profileStorageDir.exists()) {
+					profileStorageDir.mkdirs();
+				}
+
+				Main.createMainWindow(guestProfile, true);
+			}
+		});
+
+		profilePickerBox.getChildren().addAll(profilesLabel, profilesBox, guestButton);
 
 		root.setCenter(profilePickerBox);
 
@@ -116,8 +150,6 @@ public class ProfilePickerWindow extends Stage {
 		setOnCloseRequest(event -> closeWindow());
 
 		DiscordPresenceManager.getInstance().updateDiscordPresence("In the profile picker menu");
-
-		// setOnHidden(event -> closeWindow());
 	}
 
 	private JFXButton createProfileButton(ProfileStructureWithId profile) {
@@ -222,7 +254,7 @@ public class ProfilePickerWindow extends Stage {
 		show();
 	}
 
-	private void deleteProfileData(ProfileStructureWithId profile) {
+	public static void deleteProfileData(ProfileStructureWithId profile) {
 		final String profileId = profile.getIdAsString();
 
 		final Path profileCefCachePath = Main.getStoragePath("cef-cache", profileId);
@@ -231,9 +263,14 @@ public class ProfilePickerWindow extends Stage {
 		final File profileCefCacheDir = profileCefCachePath.toFile();
 		final File profileStorageDir = profileStoragePath.toFile();
 
-		if (profileCefCacheDir.exists())
+		if (profileCefCacheDir.exists()) {
+			System.out.println("Profile CEF cache dir exists, deleting...");
 			profileCefCacheDir.delete();
-		if (profileStorageDir.exists())
+		}
+
+		if (profileStorageDir.exists()) {
+			System.out.println("Profile storage dir exists, deleting...");
 			profileStorageDir.delete();
+		}
 	}
 }

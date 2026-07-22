@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -38,6 +39,7 @@ public class Main {
 	private static final MainDatabase db = MainDatabase.getInstance();
 	public static ProfilePickerWindow profilePickerWindow;
 	public static ProfileStructureWithId currentProfile;
+	public static boolean isGuest = false;
 
 	public static void main(String[] args) {
 		System.setProperty("javafx.platform", "dev.ingstudios.turtlebrowse");
@@ -58,6 +60,11 @@ public class Main {
 			if (db != null) {
 				db.closeDb();
 			}
+
+			if (isGuest) {
+				System.out.println("Deleting guest profile data...");
+				ProfilePickerWindow.deleteProfileData(currentProfile);
+			}
 		}));
 
 		Platform.startup(() -> {
@@ -74,17 +81,24 @@ public class Main {
 
 		DiscordPresenceManager.getInstance().init();
 
-		try {
-			currentProfile = profiles.stream().filter(p -> {
-				System.out.println("Profile (p): %s Name: %s".formatted(p.getIdAsString(), p.name()));
-				System.out.println("Target profile: " + profileId);
-				return p.getIdAsString().equals(profileId);
-			}).findFirst()
-					.orElse(null);
-			System.out.println("Current profile (after filtering profiles): " + currentProfile);
-		} catch (Throwable t) {
-			System.err.println("An exception occurred while filtering for the current profile: " + t.getMessage());
-			t.printStackTrace();
+		isGuest = checkIsGuest(args);
+
+		if (isGuest) {
+			currentProfile = new ProfileStructureWithId("Guest", Platform.getPreferences().getAccentColor(),
+					UUID.fromString(profileId));
+		} else {
+			try {
+				currentProfile = profiles.stream().filter(p -> {
+					System.out.println("Profile (p): %s Name: %s".formatted(p.getIdAsString(), p.name()));
+					System.out.println("Target profile: " + profileId);
+					return p.getIdAsString().equals(profileId);
+				}).findFirst()
+						.orElse(null);
+				System.out.println("Current profile (after filtering profiles): " + currentProfile);
+			} catch (Throwable t) {
+				System.err.println("An exception occurred while filtering for the current profile: " + t.getMessage());
+				t.printStackTrace();
+			}
 		}
 
 		if (profileId != null) {
@@ -225,6 +239,18 @@ public class Main {
 		return alwaysOpen;
 	}
 
+	public static boolean checkIsGuest(String[] args) {
+		boolean isGuest = false;
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals("--guest") && i + 1 < args.length) {
+				isGuest = Boolean.parseBoolean(args[i + 1]);
+				System.out.printf("Is guest: %s\n", String.valueOf(isGuest));
+				break;
+			}
+		}
+		return isGuest;
+	}
+
 	public static MainDatabase getDb() {
 		return db;
 	}
@@ -265,6 +291,10 @@ public class Main {
 	}
 
 	public static void createMainWindow(ProfileStructureWithId profile) {
+		createMainWindow(profile, false);
+	}
+
+	public static void createMainWindow(ProfileStructureWithId profile, boolean guest) {
 		db.closeDb();
 
 		final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
@@ -288,6 +318,10 @@ public class Main {
 		command.add("dev.ingstudios.turtlebrowse.Main");
 		command.add("--profile-id");
 		command.add(profileId);
+		if (guest == true) {
+			command.add("--guest");
+			command.add("true");
+		}
 
 		System.out.println("Spawning Command: " + String.join(" ", command));
 
