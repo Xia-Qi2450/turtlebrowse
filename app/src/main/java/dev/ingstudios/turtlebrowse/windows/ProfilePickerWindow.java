@@ -1,9 +1,13 @@
 package dev.ingstudios.turtlebrowse.windows;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2OutlinedAL;
@@ -265,12 +269,32 @@ public class ProfilePickerWindow extends Stage {
 
 		if (profileCefCacheDir.exists()) {
 			System.out.println("Profile CEF cache dir exists, deleting...");
-			profileCefCacheDir.delete();
+			deleteDirectoryIfExists(profileCefCachePath);
 		}
 
 		if (profileStorageDir.exists()) {
 			System.out.println("Profile storage dir exists, deleting...");
-			profileStorageDir.delete();
+			deleteDirectoryIfExists(profileStoragePath);
+		}
+	}
+
+	private static void deleteDirectoryIfExists(Path path) {
+		if (!Files.exists(path)) {
+			return;
+		}
+
+		System.out.println("Deleting directory: " + path);
+		try (Stream<Path> walk = Files.walk(path)) {
+			walk.sorted(Comparator.reverseOrder())
+					.forEach(p -> {
+						try {
+							Files.delete(p);
+						} catch (IOException e) {
+							System.err.println("Failed to delete " + p + ": " + e.getMessage());
+						}
+					});
+		} catch (IOException e) {
+			System.err.println("Failed to walk directory " + path + ": " + e.getMessage());
 		}
 	}
 }
