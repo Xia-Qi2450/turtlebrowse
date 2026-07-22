@@ -4,6 +4,7 @@ import '@m3e/web/avatar';
 import '@m3e/web/icon';
 import '@m3e/web/button';
 import router from '@/router';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 </script>
 
 <template>
@@ -21,7 +22,7 @@ import router from '@/router';
             </m3e-list-item>
             <m3e-list-item>
                 <m3e-avatar class="feat-avtr" slot="leading">
-                    <i class="devicon-chrome-plain"></i>
+                    <i class="fa-brands fa-chrome"></i>
                 </m3e-avatar>
                 <span class="feat-label">Built with the Java CEF framework</span>
             </m3e-list-item>
@@ -42,6 +43,12 @@ import router from '@/router';
                     <m3e-icon name="robot_2"></m3e-icon>
                 </m3e-avatar>
                 <span class="feat-label">Opt-in on-device agentic AI features</span>
+            </m3e-list-item>
+            <m3e-list-item>
+                <m3e-avatar class="feat-avtr" slot="leading">
+                    <i class="fa-brands fa-discord"></i>
+                </m3e-avatar>
+                <span class="feat-label">Connects to Discord Presence</span>
             </m3e-list-item>
         </m3e-list>
         <m3e-button variant="filled" size="medium" @click="router.push({ name: 'download' })">
