@@ -229,7 +229,7 @@ jobs:
 
             #### openSUSE
 
-            Run ```sudo zypper install ./turtlebrowse_fedora[arch].rpm```.
+            Run ```sudo zypper install ./turtlebrowse_fedora_[arch].rpm```.
 
             Complete the browser personalization wizard and wait for Java CEF to download. Turtlebrowse will launch once downloaded.
 

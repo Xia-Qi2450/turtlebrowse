@@ -10,6 +10,12 @@ A <b>Material You</b> themed JVM based <b>agentic</b> browser made in JCEF (Java
 <hr />
 </div>
 
+## Download
+
+The latest version of Turtlebrowse is available for download at [turtlebrowse.ingstudios.dev](https://turtlebrowse.ingstudios.dev).
+
+If you want to download a previous version of Turtlebrowse, it can be found in the [releases](https://github.com/ingStudiosOfficial/turtlebrowse) section.
+
 ## Features
 
 - Powered by the Java Chromium Embedded Framework
