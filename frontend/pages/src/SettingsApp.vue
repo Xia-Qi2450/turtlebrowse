@@ -3,6 +3,11 @@ import '@m3e/web/card';
 import '@m3e/web/list';
 import '@m3e/web/avatar';
 import '@m3e/web/icon';
+import { useDialog } from './composables/dialog';
+import PrivacyDialog from './components/settings/PrivacyDialog.vue';
+import SearchEnginesDialog from './components/settings/SearchEnginesDialog.vue';
+
+const { showDialog } = useDialog();
 </script>
 
 <template>
@@ -10,13 +15,13 @@ import '@m3e/web/icon';
 		<h1 class="settings-header">Settings</h1>
 		<m3e-card>
 			<m3e-action-list slot="content" variant="segmented">
-				<m3e-list-action>
+				<m3e-list-action @click="showDialog('privacy')">
 					<m3e-avatar slot="leading">
 						<m3e-icon optical-size="30" weight="600" name="shield"></m3e-icon>
 					</m3e-avatar>
 					<span class="settings-text">Privacy & security</span>
 				</m3e-list-action>
-				<m3e-list-action>
+				<m3e-list-action @click="showDialog('search')">
 					<m3e-avatar slot="leading">
 						<m3e-icon optical-size="30" weight="600" name="search"></m3e-icon>
 					</m3e-avatar>
@@ -24,6 +29,9 @@ import '@m3e/web/icon';
 				</m3e-list-action>
 			</m3e-action-list>
 		</m3e-card>
+
+		<PrivacyDialog></PrivacyDialog>
+		<SearchEnginesDialog></SearchEnginesDialog>
 	</div>
 </template>
 
