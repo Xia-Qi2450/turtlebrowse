@@ -30,6 +30,7 @@ export default defineConfig({
 		input: {
 			newtab: resolve(__dirname, 'newtab.html'),
 			chat: resolve(__dirname, 'chat.html'),
+			settings: resolve(__dirname, 'settings.html'),
 		}
 	},
   },

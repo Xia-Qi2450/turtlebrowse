@@ -1,0 +1,1 @@
+import{_ as s,a as t,c as a,b as n,h as c,i as o}from"./theme-CFkMCIX_.js";const p={},r={class:"settings-wrapper"};function _(f,e){return t(),a("div",r,[...e[0]||(e[0]=[n("h1",null,"Settings",-1)])])}const i=s(p,[["render",_],["__scopeId","data-v-a5950fec"]]),d=c(i);d.mount("#app");o();
