@@ -10,6 +10,10 @@ A <b>Material You</b> themed JVM based <b>agentic</b> browser made in JCEF (Java
 <hr />
 </div>
 
+## YouTube Video
+
+[![I Built My Own Agentic Browser by AITurtle](https://i.ytimg.com/vi/WzU8Cnl3kE0/hqdefault.jpg?sqp=-oaymwEnCNACELwBSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLBBvhUr7oW8u21S1WGDv09lSdd9hQ)](https://youtu.be/WzU8Cnl3kE0?si=k_mfjx7AwVNErvR7)
+
 ## Download
 
 The latest version of Turtlebrowse is available for download at [turtlebrowse.ingstudios.dev](https://turtlebrowse.ingstudios.dev).
