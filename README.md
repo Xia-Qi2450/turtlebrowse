@@ -12,8 +12,8 @@ A <b>Material You</b> themed JVM based <b>agentic</b> browser made in JCEF (Java
 
 <div align="center">
 	<h2>YouTube Video</h2>
-	<a href="https://youtu.be/WzU8Cnl3kE0?si=k_mfjx7AwVNErvR7"><img src="./.github/branding/yt_thumbnail.png" width="300" /></a>
-	<p>Watch the full video on <a href="https://youtu.be/WzU8Cnl3kE0?si=k_mfjx7AwVNErvR7">YouTube</a></p>
+	<a href="https://youtu.be/WzU8Cnl3kE0?si=k_mfjx7AwVNErvR7" target="_blank"><img src="./.github/branding/yt_thumbnail.png" width="300" /></a>
+	<p>Watch the full video on <a href="https://youtu.be/WzU8Cnl3kE0?si=k_mfjx7AwVNErvR7" target="_blank">YouTube</a></p>
 </div>
 
 ## Download
