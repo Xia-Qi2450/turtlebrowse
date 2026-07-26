@@ -20,7 +20,7 @@ A <b>Material You</b> themed JVM based <b>agentic</b> browser made in JCEF (Java
 
 The latest version of Turtlebrowse is available for download at [turtlebrowse.ingstudios.dev](https://turtlebrowse.ingstudios.dev).
 
-If you want to download a previous version of Turtlebrowse, it can be found in the [releases](https://github.com/ingStudiosOfficial/turtlebrowse) section.
+If you want to download a previous version of Turtlebrowse, it can be found in the [releases](https://github.com/ingStudiosOfficial/turtlebrowse/releases) section.
 
 ## Features
 
@@ -131,7 +131,7 @@ Huge thank you to the [Java Chromium Embedded Framework](https://github.com/chro
 
 **Notable mentions**
 
-- [wayou/t-rex-runner](https://github.com/wayou/t-rex-runner) for decompiling the Chromium Dino game from the [Chromium](github.com/chromium/chromium) source code (I tried doing it myself but it was a pain, huge thanks!)
+- [wayou/t-rex-runner](https://github.com/wayou/t-rex-runner) for decompiling the Chromium Dino game from the [Chromium](https://github.com/chromium/chromium) source code (I tried doing it myself but it was a pain, huge thanks!)
 
 ## License
 
