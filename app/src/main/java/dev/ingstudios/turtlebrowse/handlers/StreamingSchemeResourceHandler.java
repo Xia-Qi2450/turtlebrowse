@@ -25,6 +25,8 @@ public class StreamingSchemeResourceHandler extends CefResourceHandlerAdapter {
 	private final Gson gson = new Gson();
 
 	public StreamingSchemeResourceHandler(String prompt, MainWindow parent) {
+		System.out.println("New StreamingSchemeResourceHandler created.");
+
 		try {
 			pipedIn = new PipedInputStream(65536);
 			pipedOut = new PipedOutputStream(pipedIn);
@@ -33,7 +35,7 @@ public class StreamingSchemeResourceHandler extends CefResourceHandlerAdapter {
 			return;
 		}
 
-		new Thread(() -> {
+		Thread.ofVirtual().start(() -> {
 			final OllamaChat chat = parent.getOllamaSession();
 			chat.prompt(prompt,
 					chunk -> writeSSE("think", chunk),

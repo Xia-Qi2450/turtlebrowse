@@ -155,6 +155,7 @@ public class MainWindow extends JFrame {
 
 		try {
 			ollamaSession = new OllamaChat(userAgent, this);
+			System.out.println("Successfully created ollama chat session.");
 		} catch (OllamaException e) {
 			e.printStackTrace();
 		}

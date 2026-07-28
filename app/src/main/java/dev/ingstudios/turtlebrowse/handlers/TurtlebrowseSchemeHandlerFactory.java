@@ -24,6 +24,7 @@ public class TurtlebrowseSchemeHandlerFactory implements CefSchemeHandlerFactory
 		final String url = request.getURL();
 
 		if (url.startsWith("turtlebrowse://api/prompt-stream")) {
+			System.out.println("Prompt stream requested.");
 			String prompt = "";
 			String query = url.contains("?") ? url.substring(url.indexOf('?') + 1) : "";
 			for (final String param : query.split("&")) {
