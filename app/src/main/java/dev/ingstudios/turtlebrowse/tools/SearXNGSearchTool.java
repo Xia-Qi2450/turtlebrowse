@@ -36,6 +36,14 @@ public class SearXNGSearchTool {
 				request = HttpRequest.newBuilder()
 						.uri(URI.create(url))
 						.header("User-Agent", userAgent)
+						.header("Accept", "application/json, text/plain, */*")
+						.header("Accept-Language", "en-US,en;q=0.9")
+						.header("Sec-Ch-Ua", "\"Chromium\";v=\"146\", \"Not?A_Brand\";v=\"24\"")
+						.header("Sec-Ch-Ua-Mobile", "?0")
+						.header("Sec-Ch-Ua-Platform", "\"Linux\"")
+						.header("Sec-Fetch-Dest", "empty")
+						.header("Sec-Fetch-Mode", "cors")
+						.header("Sec-Fetch-Site", "same-origin")
 						.GET()
 						.build();
 			} else {
@@ -54,9 +62,11 @@ public class SearXNGSearchTool {
 			if (response != null && response.statusCode() == 200) {
 				System.out.printf("response body is null: %b\n", response.body() == null);
 				return parseWithGson(response.body());
+			} else if (response != null) {
+				System.out.printf("Response code: %d\n", response.statusCode());
 			}
 		} catch (IOException e) {
-			System.err.println("Search failed (IO Exception): " + e.getMessage());
+			System.err.println("Search failed (IO Exception): " + e.getClass().getName() + " " + e.getMessage());
 			throw new IOException("An IO exception occurred while fetching results");
 		} catch (InterruptedException e) {
 			System.err.println("Search failed (Interrupted Exception): " + e.getMessage());
