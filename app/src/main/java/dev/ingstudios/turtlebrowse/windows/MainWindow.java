@@ -310,8 +310,6 @@ public class MainWindow extends JFrame {
 		if (trimmedUrl.startsWith("about:"))
 			return trimmedUrl;
 
-		// TODO(ingStudiosOfficial): fix about: urls
-
 		try {
 			URI uri = new URI(trimmedUrl);
 			String scheme = uri.getScheme();

@@ -216,7 +216,9 @@ public class AISidebar extends JPanel {
 				}
 
 				contentElement.select("script, style, svg, canvas, iframe, noscript, img, video, audio").remove();
-				contentElement.select("*").forEach(Element::clearAttributes);
+				contentElement.select("*").forEach((el) -> {
+					el.clearAttributes();
+				});
 				final String cleanHtml = contentElement.html();
 				System.out.printf("Clean HTML: %s\n", cleanHtml);
 				System.out.println("Attempting to convert HTML to Markdown...");
