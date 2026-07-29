@@ -49,6 +49,14 @@ public class SearXNGSearchTool {
 			} else {
 				request = HttpRequest.newBuilder()
 						.uri(URI.create(url))
+						.header("Accept", "application/json, text/plain, */*")
+						.header("Accept-Language", "en-US,en;q=0.9")
+						.header("Sec-Ch-Ua", "\"Chromium\";v=\"146\", \"Not?A_Brand\";v=\"24\"")
+						.header("Sec-Ch-Ua-Mobile", "?0")
+						.header("Sec-Ch-Ua-Platform", "\"Linux\"")
+						.header("Sec-Fetch-Dest", "empty")
+						.header("Sec-Fetch-Mode", "cors")
+						.header("Sec-Fetch-Site", "same-origin")
 						.GET()
 						.build();
 			}
