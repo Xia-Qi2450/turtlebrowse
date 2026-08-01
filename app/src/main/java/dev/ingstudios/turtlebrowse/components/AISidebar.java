@@ -18,8 +18,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.jfoenix.controls.JFXButton;
 
 import javafx.application.Platform;
@@ -47,6 +46,7 @@ public class AISidebar extends JPanel {
 	private final ScheduledExecutorService summarizeScheduler = Executors.newSingleThreadScheduledExecutor();
 	private final ScheduledExecutorService rewriteScheduler = Executors.newSingleThreadScheduledExecutor();
 	private final ScheduledExecutorService summarizePageScheduler = Executors.newSingleThreadScheduledExecutor();
+	private final Gson gson = new Gson();
 
 	public AISidebar(CefClient client, MainWindow parent, boolean useOsr, BooleanProperty isUiFocused) {
 		this.setLayout(new java.awt.BorderLayout());
@@ -142,16 +142,11 @@ public class AISidebar extends JPanel {
 			SwingUtilities.invokeLater(this::openSidebar);
 
 		summarizeScheduler.schedule(() -> {
-			try {
-				final String jsonText = new ObjectMapper()
-						.writeValueAsString("Summarize this:\n:::extract\n" + text + "\n:::");
-				final JSQueueItem item = new JSQueueItem(aiBrowser.getIdentifier(),
-						"window.addPrompt(" + jsonText + ");", "turtlebrowse://chat");
+			final String jsonText = gson.toJson("Summarize this:\n:::extract\n" + text + "\n:::");
+			final JSQueueItem item = new JSQueueItem(aiBrowser.getIdentifier(),
+					"window.addPrompt(" + jsonText + ");", "turtlebrowse://chat");
 
-				aiBrowser.getMainFrame().executeJavaScript(item.code(), item.url(), 0);
-			} catch (JsonProcessingException e) {
-				System.err.println(e.getMessage());
-			}
+			aiBrowser.getMainFrame().executeJavaScript(item.code(), item.url(), 0);
 		}, 500, TimeUnit.MILLISECONDS);
 	}
 
@@ -160,16 +155,11 @@ public class AISidebar extends JPanel {
 			SwingUtilities.invokeLater(this::openSidebar);
 
 		rewriteScheduler.schedule(() -> {
-			try {
-				final String jsonText = new ObjectMapper()
-						.writeValueAsString("Rewrite\n:::extract" + text + "\n:::\nto be");
-				final JSQueueItem item = new JSQueueItem(aiBrowser.getIdentifier(),
-						"window.addPromptRewrite(" + jsonText + ");", "turtlebrowse://chat");
+			final String jsonText = gson.toJson("Rewrite\n:::extract" + text + "\n:::\nto be");
+			final JSQueueItem item = new JSQueueItem(aiBrowser.getIdentifier(),
+					"window.addPromptRewrite(" + jsonText + ");", "turtlebrowse://chat");
 
-				aiBrowser.getMainFrame().executeJavaScript(item.code(), item.url(), 0);
-			} catch (JsonProcessingException e) {
-				System.err.println(e.getMessage());
-			}
+			aiBrowser.getMainFrame().executeJavaScript(item.code(), item.url(), 0);
 		}, 1000, TimeUnit.MILLISECONDS);
 	}
 
@@ -180,59 +170,54 @@ public class AISidebar extends JPanel {
 			SwingUtilities.invokeLater(this::openSidebar);
 
 		summarizePageScheduler.schedule(() -> {
-			try {
-				if (html == null) {
-					return;
-				}
-
-				final Document doc = Jsoup.parse(html);
-
-				final String[] selectors = {
-						"article",
-						"main",
-						"#content",
-						".content",
-						"#main",
-						"#app",
-						"#root"
-				};
-
-				Element contentElement = doc.body();
-
-				for (final String selector : selectors) {
-					if (selector == null)
-						continue;
-					final Element found = doc.selectFirst(selector);
-					if (found != null && !found.text().isEmpty()) {
-						contentElement = found;
-						break;
-					}
-				}
-
-				final Elements possibleAds = contentElement
-						.select("[class*=ad], [id*=ad], [class*=advert], [id*=advert]");
-				for (final Element ad : possibleAds) {
-					ad.remove();
-				}
-
-				contentElement.select("script, style, svg, canvas, iframe, noscript, img, video, audio").remove();
-				contentElement.select("*").forEach((el) -> {
-					el.clearAttributes();
-				});
-				final String cleanHtml = contentElement.html();
-				System.out.printf("Clean HTML: %s\n", cleanHtml);
-				System.out.println("Attempting to convert HTML to Markdown...");
-				final String markdown = HtmlToMarkdown.convert(cleanHtml);
-				System.out.printf("Converted Markdown: %s\n", markdown);
-				final String jsonText = new ObjectMapper()
-						.writeValueAsString("Summarize this page:\n:::extract" + markdown + "\n:::");
-				final JSQueueItem item = new JSQueueItem(aiBrowser.getIdentifier(),
-						"window.addPrompt(" + jsonText + ");", "turtlebrowse://chat");
-
-				aiBrowser.getMainFrame().executeJavaScript(item.code(), item.url(), 0);
-			} catch (JsonProcessingException e) {
-				System.err.println(e.getMessage());
+			if (html == null) {
+				return;
 			}
+
+			final Document doc = Jsoup.parse(html);
+
+			final String[] selectors = {
+					"article",
+					"main",
+					"#content",
+					".content",
+					"#main",
+					"#app",
+					"#root"
+			};
+
+			Element contentElement = doc.body();
+
+			for (final String selector : selectors) {
+				if (selector == null)
+					continue;
+				final Element found = doc.selectFirst(selector);
+				if (found != null && !found.text().isEmpty()) {
+					contentElement = found;
+					break;
+				}
+			}
+
+			final Elements possibleAds = contentElement
+					.select("[class*=ad], [id*=ad], [class*=advert], [id*=advert]");
+			for (final Element ad : possibleAds) {
+				ad.remove();
+			}
+
+			contentElement.select("script, style, svg, canvas, iframe, noscript, img, video, audio").remove();
+			contentElement.select("*").forEach((el) -> {
+				el.clearAttributes();
+			});
+			final String cleanHtml = contentElement.html();
+			System.out.printf("Clean HTML: %s\n", cleanHtml);
+			System.out.println("Attempting to convert HTML to Markdown...");
+			final String markdown = HtmlToMarkdown.convert(cleanHtml);
+			System.out.printf("Converted Markdown: %s\n", markdown);
+			String jsonText = gson.toJson("Summarize this page:\n:::extract" + markdown + "\n:::");
+			final JSQueueItem item = new JSQueueItem(aiBrowser.getIdentifier(),
+					"window.addPrompt(" + jsonText + ");", "turtlebrowse://chat");
+
+			aiBrowser.getMainFrame().executeJavaScript(item.code(), item.url(), 0);
 		}, 500, TimeUnit.MILLISECONDS);
 	}
 }

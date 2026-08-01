@@ -86,7 +86,8 @@ val baseJvmArgs = listOf(
     "--add-opens=javafx.graphics/javafx.scene=ALL-UNNAMED",
     "--add-opens=javafx.controls/com.sun.javafx.scene.control=ALL-UNNAMED",
     "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
-    "-Dapp.dir=\$APPDIR"
+    "-Dapp.dir=\$APPDIR",
+    "--add-exports=java.desktop/sun.awt=ALL-UNNAMED"
 )
 
 val jvmArgs = if (isLinux) {
