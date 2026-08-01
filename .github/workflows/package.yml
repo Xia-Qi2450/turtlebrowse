@@ -131,6 +131,9 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
       - name: Create Work Directory
         run: |
           mkdir -p release-artifacts/final-assets
@@ -145,7 +148,7 @@ jobs:
       - name: Rename Shadow JAR
         run: |
           ANY_JAR=$(find release-artifacts/ -name "app-all.jar" | head -n 1)
-          
+
           if [ -f "$ANY_JAR" ]; then
             cp "$ANY_JAR" release-artifacts/final-assets/turtlebrowse_jar.jar
             echo "Successfully found and copied shadow JAR."
@@ -159,23 +162,23 @@ jobs:
       - name: Rename Dist Artifacts
         run: |
           cd release-artifacts/
-          
+
           for dir in turtlebrowse_*; do
             [ -d "$dir" ] || continue
-            
+
             IFS='_' read -r _ os_name arch_name <<< "$dir"
-            
+
             os_lower=$(echo "$os_name" | tr '[:upper:]' '[:lower:]')
             arch_lower=$(echo "$arch_name" | tr '[:upper:]' '[:lower:]')
-            
+
             if [ "$os_lower" = "ubuntu" ]; then
               os_lower="debian"
             fi
-            
+
             if [ -d "$dir/dist" ]; then
               find "$dir/dist" -type f | while read -r file; do
                 ext="${file##*.}"
-                
+
                 new_filename="turtlebrowse_${os_lower}_${arch_lower}.${ext}"
                 echo "Moving $file to final-assets/$new_filename"
                 cp "$file" "final-assets/$new_filename"
@@ -201,9 +204,9 @@ jobs:
           make_latest: true
           prerelease: ${{ startsWith(github.ref_name, 'v0.') }}
           fail_on_unmatched_files: false
+          generate_release_notes: true
           files: |
             release-artifacts/final-assets/*
-            generate_release_notes: true
           body: >
             # Turtlebrowse Version ${{ steps.version_parser.outputs.clean }}${{ startsWith(github.ref_name, 'v0.') && ' Beta' || '' }}
 
@@ -236,3 +239,48 @@ jobs:
             ### Executing from JAR
 
             Download the JAR file and run ```java -jar turtlebrowse_jar.jar```. Complete the browser personalization wizard and wait for Java CEF to download. Turtlebrowse will launch once downloaded.
+
+      - name: Install copr-cli
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y copr-cli rpm
+
+      - name: Configure Copr credentials
+        run: |
+          mkdir -p ~/.config
+          cat > ~/.config/copr <<'EOF'
+          [copr-cli]
+          login = ${{ secrets.COPR_LOGIN }}
+          username = ${{ secrets.COPR_USERNAME }}
+          token = ${{ secrets.COPR_TOKEN }}
+          copr_url = https://copr.fedorainfracloud.org
+          EOF
+          chmod 600 ~/.config/copr
+
+      - name: Submit RPM to Copr
+        run: |
+          VERSION="${{ steps.version_parser.outputs.clean }}"
+
+          REPO_DESC="${{ github.event.repository.description }}"
+          if [ -z "$REPO_DESC" ]; then
+            REPO_DESC="Turtlebrowse agentic browser"
+          fi
+
+          RPM_FILE=$(find release-artifacts/ -path "*Fedora_AMD64*/dist/*.rpm" | head -n 1)
+          if [ -z "$RPM_FILE" ]; then
+            echo "Error: no Fedora AMD64 RPM found under release-artifacts/"
+            ls -R release-artifacts/
+            exit 1
+          fi
+          RPM_BASE=$(basename "$RPM_FILE")
+
+          mkdir -p ~/rpmbuild/SOURCES ~/rpmbuild/SRPMS
+          cp "$RPM_FILE" ~/rpmbuild/SOURCES/
+
+          sed "s|#VERSION#|$VERSION|g" turtlebrowse.spec.template > turtlebrowse.spec
+          sed -i "s|#BINARY_RPM_NAME#|$RPM_BASE|g" turtlebrowse.spec
+          sed -i "s|#DESC#|$REPO_DESC|g" turtlebrowse.spec
+
+          rpmbuild -bs turtlebrowse.spec --define "_topdir $HOME/rpmbuild"
+
+          copr-cli build turtlebrowse ~/rpmbuild/SRPMS/turtlebrowse-$VERSION-1.src.rpm
