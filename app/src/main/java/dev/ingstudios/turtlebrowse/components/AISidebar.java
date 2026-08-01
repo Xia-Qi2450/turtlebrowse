@@ -13,10 +13,6 @@ import org.cef.CefClient;
 import org.cef.browser.CefBrowser;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2OutlinedAL;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import com.google.gson.Gson;
 import com.jfoenix.controls.JFXButton;
@@ -35,8 +31,8 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Paint;
 import dev.ingstudios.turtlebrowse.handlers.TurtlebrowseLoadHandler.JSQueueItem;
+import dev.ingstudios.turtlebrowse.tools.SummarizePageTool;
 import dev.ingstudios.turtlebrowse.windows.MainWindow;
-import dev.kreuzberg.htmltomarkdown.HtmlToMarkdown;
 
 public class AISidebar extends JPanel {
 	private final Component ui;
@@ -47,10 +43,13 @@ public class AISidebar extends JPanel {
 	private final ScheduledExecutorService rewriteScheduler = Executors.newSingleThreadScheduledExecutor();
 	private final ScheduledExecutorService summarizePageScheduler = Executors.newSingleThreadScheduledExecutor();
 	private final Gson gson = new Gson();
+	private final SummarizePageTool summarizePageTool;
 
 	public AISidebar(CefClient client, MainWindow parent, boolean useOsr, BooleanProperty isUiFocused) {
 		this.setLayout(new java.awt.BorderLayout());
 		this.setPreferredSize(preferredDim);
+
+		summarizePageTool = new SummarizePageTool(parent);
 
 		final JFXPanel actionsBarJfxPanel = new JFXPanel();
 		actionsBarJfxPanel.setFocusable(true);
@@ -174,45 +173,9 @@ public class AISidebar extends JPanel {
 				return;
 			}
 
-			final Document doc = Jsoup.parse(html);
-
-			final String[] selectors = {
-					"article",
-					"main",
-					"#content",
-					".content",
-					"#main",
-					"#app",
-					"#root"
-			};
-
-			Element contentElement = doc.body();
-
-			for (final String selector : selectors) {
-				if (selector == null)
-					continue;
-				final Element found = doc.selectFirst(selector);
-				if (found != null && !found.text().isEmpty()) {
-					contentElement = found;
-					break;
-				}
-			}
-
-			final Elements possibleAds = contentElement
-					.select("[class*=ad], [id*=ad], [class*=advert], [id*=advert]");
-			for (final Element ad : possibleAds) {
-				ad.remove();
-			}
-
-			contentElement.select("script, style, svg, canvas, iframe, noscript, img, video, audio").remove();
-			contentElement.select("*").forEach((el) -> {
-				el.clearAttributes();
-			});
-			final String cleanHtml = contentElement.html();
-			System.out.printf("Clean HTML: %s\n", cleanHtml);
-			System.out.println("Attempting to convert HTML to Markdown...");
-			final String markdown = HtmlToMarkdown.convert(cleanHtml);
+			final String markdown = summarizePageTool.summarizePage(html);
 			System.out.printf("Converted Markdown: %s\n", markdown);
+
 			String jsonText = gson.toJson("Summarize this page:\n:::extract" + markdown + "\n:::");
 			final JSQueueItem item = new JSQueueItem(aiBrowser.getIdentifier(),
 					"window.addPrompt(" + jsonText + ");", "turtlebrowse://chat");
