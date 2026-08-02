@@ -88,8 +88,11 @@ val baseJvmArgs = listOf(
     "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
     "-Dapp.dir=\$APPDIR",
     "--add-exports=java.desktop/sun.awt=ALL-UNNAMED",
+    "--add-opens=java.desktop/sun.awt=ALL-UNNAMED",
     "--add-exports=java.desktop/sun.lwawt=ALL-UNNAMED",
     "--add-opens=java.desktop/sun.lwawt=ALL-UNNAMED",
+    "--add-exports=java.desktop/sun.lwawt.macosx=ALL-UNNAMED",
+    "--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED"
 )
 
 val jvmArgs = if (isLinux) {
@@ -114,7 +117,7 @@ tasks.jpackage {
     
     appName = "Turtlebrowse"
     vendor = "(ing) Studios"
-    appVersion = "1.2.7"
+    appVersion = "1.2.8"
     copyright = "2026 (ing) Studios and Ethan Lee"
 
     input = layout.buildDirectory.dir("libs")
