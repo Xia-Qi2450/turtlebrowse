@@ -1,7 +1,5 @@
 <script setup lang="ts">
 
-import '@m3e/web/dialog'
-import '@m3e/web/tooltip';
 import '@m3e/web/list';
 import '@m3e/web/card';
 import '@m3e/web/avatar';
