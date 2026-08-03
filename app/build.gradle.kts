@@ -74,7 +74,9 @@ javafx {
     modules("javafx.controls", "javafx.graphics", "javafx.base", "javafx.swing")
 }
 
-val isLinux = System.getProperty("os.name").lowercase().contains("linux")
+val osName = System.getProperty("os.name").lowercase()
+val isLinux = osName.contains("linux")
+val isMac = osName.contains("darwin") || osName.contains("mac") || osName.contains("osx")   
 
 val baseJvmArgs = listOf(
     "--enable-native-access=ALL-UNNAMED,javafx.graphics",
@@ -95,11 +97,17 @@ val baseJvmArgs = listOf(
     "--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED"
 )
 
-val jvmArgs = if (isLinux) {
-    baseJvmArgs + "-Dglass.platform=gtk"
-} else {
-    baseJvmArgs
-}
+val jvmArgs = baseJvmArgs + 
+    if (isLinux) listOf("-Dglass.platform=gtk") 
+    else if (isMac) listOf(
+        "--add-exports=java.desktop/sun.awt=ALL-UNNAMED",
+        "--add-opens=java.desktop/sun.awt=ALL-UNNAMED",
+        "--add-exports=java.desktop/sun.lwawt=ALL-UNNAMED",
+        "--add-opens=java.desktop/sun.lwawt=ALL-UNNAMED",
+        "--add-exports=java.desktop/sun.lwawt.macosx=ALL-UNNAMED",
+        "--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED"
+    ) 
+    else emptyList()
 
 application {
     mainClass.set("dev.ingstudios.turtlebrowse.Main")

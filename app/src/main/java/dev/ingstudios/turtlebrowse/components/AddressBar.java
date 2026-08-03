@@ -147,9 +147,11 @@ public class AddressBar extends JPanel {
 				if (!newValue) {
 					System.out.println("Address field has lost focus.");
 					addressFieldFocused = false;
+					parent.isUiFocused.set(false);
 					return;
 				} else {
 					addressFieldFocused = true;
+					parent.isUiFocused.set(true);
 				}
 			});
 

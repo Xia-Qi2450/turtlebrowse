@@ -263,8 +263,6 @@ public class MainWindow extends JFrame {
 
 			browserContainer.revalidate();
 			browserContainer.repaint();
-
-			browser.setFocus(true);
 		});
 	}
 

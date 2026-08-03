@@ -38,11 +38,11 @@ public class CefAppManager {
 
 	private CefApp createCefApp(MainWindow parent) {
 		CefAppBuilder builder = new CefAppBuilder();
-		builder.addJcefArgs(
-				"--enable-media-stream",
-				"--ozone-platform=x11",
-				"--no-sandbox",
-				"--single-process");
+		builder.addJcefArgs("--enable-media-stream");
+
+		if (OS.isLinux()) {
+			builder.addJcefArgs("--single-process", "--ozone-platform=x11");
+		}
 
 		cefSettings = builder.getCefSettings();
 		builder.setInstallDir(getInstallDir());

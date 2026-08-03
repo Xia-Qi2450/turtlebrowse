@@ -26,7 +26,6 @@ public class TurtlebrowseFocusHandler extends CefFocusHandlerAdapter {
 		SwingUtilities.invokeLater(() -> {
 			if (!parent.isUiFocused.get()) {
 				KeyboardFocusManager.getCurrentKeyboardFocusManager().clearFocusOwner();
-				browser.setFocus(true);
 			} else {
 				browser.setFocus(false);
 			}
@@ -47,6 +46,7 @@ public class TurtlebrowseFocusHandler extends CefFocusHandlerAdapter {
 	public boolean onSetFocus(CefBrowser browser, FocusSource source) {
 		if (parent.isUiFocused.get()) {
 			System.out.println("Blocked browser focus attempt while UI is active.");
+			return true;
 		}
 		return false;
 	}
