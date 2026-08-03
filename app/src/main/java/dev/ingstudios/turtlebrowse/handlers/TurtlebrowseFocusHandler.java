@@ -18,6 +18,8 @@ public class TurtlebrowseFocusHandler extends CefFocusHandlerAdapter {
 
 	@Override
 	public void onGotFocus(CefBrowser browser) {
+		System.out.println("Browser got focus");
+
 		if (parent.isUiFocused.get()) {
 			browser.setFocus(false);
 			return;
@@ -48,6 +50,7 @@ public class TurtlebrowseFocusHandler extends CefFocusHandlerAdapter {
 			System.out.println("Blocked browser focus attempt while UI is active.");
 			return true;
 		}
+
 		return false;
 	}
 }

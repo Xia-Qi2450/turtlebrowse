@@ -146,6 +146,7 @@ public class AddressBar extends JPanel {
 			addressField.focusedProperty().addListener((observable, oldValue, newValue) -> {
 				if (!newValue) {
 					System.out.println("Address field has lost focus.");
+					parent.isUiFocused.set(false);
 					addressFieldFocused = false;
 					parent.isUiFocused.set(false);
 					return;
