@@ -48,7 +48,7 @@ public class TurtlebrowseFocusHandler extends CefFocusHandlerAdapter {
 	public boolean onSetFocus(CefBrowser browser, FocusSource source) {
 		if (parent.isUiFocused.get()) {
 			System.out.println("Blocked browser focus attempt while UI is active.");
-			return true; // cancel the focus request
+			return true;
 		}
 
 		return false;
