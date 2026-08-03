@@ -1,8 +1,8 @@
 <script setup lang="ts">
-
 import '@m3e/web/list';
 import '@m3e/web/card';
 import '@m3e/web/avatar';
+
 const RELEASE_VERSION = 'latest';
 
 function download(url: string) {
@@ -57,6 +57,7 @@ function download(url: string) {
                 </m3e-list-action>
             </m3e-action-list>
         </m3e-card>
+
         <p>
             Can't find your operating system? Use the
             <a
@@ -69,7 +70,6 @@ function download(url: string) {
 </template>
 
 <style scoped>
-
 .download-wrapper {
     width: 100svw;
     min-height: 100svh;
