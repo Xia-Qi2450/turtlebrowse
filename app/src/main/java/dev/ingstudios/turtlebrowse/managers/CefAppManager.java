@@ -41,8 +41,7 @@ public class CefAppManager {
 		builder.addJcefArgs(
 				"--enable-media-stream",
 				"--ozone-platform=x11",
-				"--no-sandbox",
-				"--single-process");
+				"--no-sandbox");
 
 		cefSettings = builder.getCefSettings();
 		builder.setInstallDir(getInstallDir());

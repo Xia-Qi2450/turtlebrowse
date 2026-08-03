@@ -243,7 +243,6 @@ public class MainWindow extends JFrame {
 					public void mousePressed(java.awt.event.MouseEvent event) {
 						SwingUtilities.invokeLater(() -> {
 							isUiFocused.set(false);
-							ui.requestFocusInWindow();
 							browser.setFocus(true);
 						});
 					}
@@ -263,8 +262,6 @@ public class MainWindow extends JFrame {
 
 			browserContainer.revalidate();
 			browserContainer.repaint();
-
-			browser.setFocus(true);
 		});
 	}
 
