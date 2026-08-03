@@ -53,7 +53,7 @@ function download(url: string) {
                     <m3e-avatar slot="leading">
                         <i class="devicon-apple-original"></i>
                     </m3e-avatar>
-                    macOS arm64 
+                    macOS arm64
                 </m3e-list-action>
             </m3e-action-list>
         </m3e-card>
