@@ -12,13 +12,9 @@ const dialog = useTemplateRef<M3eDialogElement>('dialog');
 
 const { searchEnginesDialog } = useDialog();
 
-type SearchEngine = 'searxng' | 'google' | 'ddg' | 'ddg-html' | 'ddg-noai' | 'startpage' | 'brave' | 'kagi' | 'yahoo' | 'vyntr' | 'bing' | 'custom';
+type SearchEngine = 'google' | 'ddg' | 'ddg-html' | 'ddg-noai' | 'startpage' | 'brave' | 'kagi' | 'yahoo' | 'vyntr' | 'bing' | 'custom';
 
 const defaultSearchEngines: { name: string; value: SearchEngine }[] = [
-	{
-		name: 'SearXNG (ing) Studios Instance',
-		value: 'searxng',
-	},
 	{
 		name: 'Google',
 		value: 'google',
@@ -27,6 +23,7 @@ const defaultSearchEngines: { name: string; value: SearchEngine }[] = [
 		name: 'DuckDuckGo',
 		value: 'ddg',
 	},
+	/*
 	{
 		name: 'DuckDuckGo (HTML)',
 		value: 'ddg-html',
@@ -39,10 +36,12 @@ const defaultSearchEngines: { name: string; value: SearchEngine }[] = [
 		name: 'Startpage',
 		value: 'startpage',
 	},
+	*/
 	{
 		name: 'Brave Search',
 		value: 'brave',
 	},
+	/*
 	{
 		name: 'Kagi',
 		value: 'kagi',
@@ -63,9 +62,10 @@ const defaultSearchEngines: { name: string; value: SearchEngine }[] = [
 		name: 'Custom',
 		value: 'custom',
 	},
+	*/
 ]
 
-const searchEngine = ref<SearchEngine>('searxng');
+const searchEngine = ref<SearchEngine>('google');
 
 async function changeSearchEngine(target: M3eSelectElement) {
 	await nextTick();

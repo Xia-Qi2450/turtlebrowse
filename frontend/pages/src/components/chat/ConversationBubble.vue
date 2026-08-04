@@ -2,6 +2,7 @@
 import '@m3e/web/expansion-panel';
 import { parseMessage } from '@/utils/parse';
 import { ref, watch } from 'vue';
+import '@m3e/web/loading-indicator';
 
 interface ComponentProps {
 	message: string;
@@ -25,7 +26,11 @@ watch(() => props.thinking, async (thinking) => {
 </script>
 
 <template>
-	<div class="conv-bubble" :class="props.sender === 'user' ? 'user-message' : ''">
+	<div class="thinking" v-if="!props.message || props.message === ''">
+		<m3e-loading-indicator variant="contained"></m3e-loading-indicator>
+		<p>Thinking</p>
+	</div>
+	<div v-else class="conv-bubble" :class="props.sender === 'user' ? 'user-message' : ''">
         <m3e-expansion-panel v-if="props.thinking && props.message" class="think-expand" toggle-position="before" toggle-direction="horizontal">
             <span slot="header">Show thinking</span>
             <div class="conv-thinking" v-html="thinkingMessage"></div>
@@ -51,6 +56,34 @@ watch(() => props.thinking, async (thinking) => {
 	background-color: v-bind("props.sender === 'user' ? 'var(--md-sys-color-primary-container)' : 'transparent'");
 	align-self: v-bind("props.sender === 'user' ? 'flex-end' : 'flex-start'");
     color: v-bind("props.sender === 'user' ? 'var(--md-sys-color-on-primary-container)' : 'var(--md-sys-color-on-surface)'");
+}
+
+.thinking {
+	box-sizing: border-box;
+	gap: 15px;
+	font-size: 1.2rem;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	background: linear-gradient(
+		to right,
+		var(--md-sys-color-primary),
+		var(--md-sys-color-primary-container),
+		var(--md-sys-color-secondary),
+		var(--md-sys-color-secondary-container),
+		var(--md-sys-color-tertiary),
+		var(--md-sys-color-tertiary-container)
+	);
+	background-size: 200% auto;
+	-webkit-background-clip: text;
+  	-webkit-text-fill-color: transparent;
+	animation: color-flow 3s linear infinite;
+}
+
+@keyframes color-flow {
+  to {
+    background-position: -200% center;
+  }
 }
 
 .conv-message, .conv-thinking {
