@@ -79,4 +79,36 @@ public class ProfileDatabase {
 		searchEngineDocument.put("engine", searchEngine);
 		settingsCollection.update(searchEngineDocument);
 	}
+
+	public boolean getDiscordPresenceSetting() {
+		final Document discordDocument = settingsCollection.find(where("setting").eq("discordPresence"))
+				.firstOrNull();
+
+		if (discordDocument == null) {
+			final Document newDiscordDocument = Document.createDocument().put("setting", "discordPresence")
+					.put("enabled", true);
+			settingsCollection.insert(newDiscordDocument);
+			return true;
+		}
+
+		return Boolean.valueOf(discordDocument.get("enabled").toString());
+	}
+
+	public void getDiscordPresenceSetting(boolean enabled) {
+		System.out.printf("Setting Discord presence setting: %s\n", enabled);
+
+		final Document discordDocument = settingsCollection.find(where("setting").eq("discordPresence"))
+				.firstOrNull();
+
+		if (discordDocument == null) {
+			System.err.println("Discord document is null.");
+			final Document newDiscordDocument = Document.createDocument().put("setting", "discordPresence")
+					.put("enabled", enabled);
+			settingsCollection.insert(newDiscordDocument);
+			return;
+		}
+
+		discordDocument.put("enabled", enabled);
+		settingsCollection.update(discordDocument);
+	}
 }
