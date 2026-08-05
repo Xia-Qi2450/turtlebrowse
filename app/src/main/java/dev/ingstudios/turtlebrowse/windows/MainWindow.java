@@ -32,6 +32,7 @@ import dev.ingstudios.turtlebrowse.Main;
 import dev.ingstudios.turtlebrowse.components.AISidebar;
 import dev.ingstudios.turtlebrowse.components.AddressBar;
 import dev.ingstudios.turtlebrowse.components.TabBar;
+import dev.ingstudios.turtlebrowse.db.ProfileDatabase;
 import dev.ingstudios.turtlebrowse.db.MainDatabase.ProfileStructureWithId;
 import dev.ingstudios.turtlebrowse.handlers.CefKeyboardHandler;
 import dev.ingstudios.turtlebrowse.handlers.SwingKeyboardHandler;
@@ -80,6 +81,7 @@ public class MainWindow extends JFrame {
 	private final String windowId;
 	private final CefAppManager cefAppManager = CefAppManager.getInstance(this);
 	private final CefApp cefApp = cefAppManager.getCefApp();
+	private final ProfileDatabase profileDatabase;
 
 	public MainWindow(ProfileStructureWithId profile) {
 		super("Turtlebrowse");
@@ -87,6 +89,8 @@ public class MainWindow extends JFrame {
 		System.out.println("Creating main window for profile: " + profile.getIdAsString());
 
 		currentProfile = profile;
+
+		profileDatabase = ProfileDatabase.getInstance(currentProfile.getIdAsString());
 
 		windowId = "%s_main_window".formatted(profile.getIdAsString());
 		WindowsManager.getInstance()
@@ -184,12 +188,17 @@ public class MainWindow extends JFrame {
 	}
 
 	public void createTab(String url) {
+		createTab(url, false);
+	}
+
+	public void createTab(String url, boolean selectAllField) {
 		CefBrowser browser = cefClient.createBrowser(url, USE_OSR, false);
 
 		openedBrowserTabs.add(browser);
 
 		Platform.runLater(() -> {
 			tabBar.addTabToUI(browser);
+			addressBar.focusAddressField(true);
 		});
 
 		showTab(browser);
@@ -354,6 +363,17 @@ public class MainWindow extends JFrame {
 						(int) (profileColor.getGreen() * 255),
 						(int) (profileColor.getBlue() * 255));
 				return hex;
+			}
+
+			case "GET_SEARCH_ENGINE": {
+				final String searchEngine = profileDatabase.getDefaultSearchEngine();
+				return searchEngine;
+			}
+
+			case "SET_SEARCH_ENGINE": {
+				final String searchEngineToSet = params.get("engine").getAsString();
+				profileDatabase.setDefaultSearchEngine(searchEngineToSet);
+				return "\"ok\"";
 			}
 
 			default:

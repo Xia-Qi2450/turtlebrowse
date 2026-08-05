@@ -32,8 +32,7 @@ public class CefKeyboardHandler extends CefKeyboardHandlerAdapter {
 				return true;
 			} else if (ctrlPressed && event.windows_key_code == KeyEvent.VK_T) { // New tab (Ctrl + T)
 				System.out.println("Ctrl + T pressed.");
-				parent.createTab(startUrl);
-				parent.addressBar.focusAddressField();
+				parent.createTab(startUrl, true);
 				return true;
 			} else if (ctrlPressed && event.windows_key_code == KeyEvent.VK_W) { // Close current tab (Ctrl + W)
 				System.out.println("Ctrl + W pressed.");

@@ -117,7 +117,8 @@ public class MainDatabase {
 	private ProfileStructureWithId parseProfile(Document document) {
 		final @Nullable String colorHex = document.get("seedColor", String.class);
 		final ProfileStructureWithId profileStructure = new ProfileStructureWithId(document.get("name", String.class),
-				colorHex != null ? Color.valueOf(colorHex) : null, document.get("uuid", UUID.class));
+				colorHex != null ? Color.valueOf(colorHex) : null,
+				document.get("uuid", UUID.class));
 		return profileStructure;
 	}
 

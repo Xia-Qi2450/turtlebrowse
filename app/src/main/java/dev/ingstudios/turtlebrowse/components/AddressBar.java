@@ -220,6 +220,10 @@ public class AddressBar extends JPanel {
 	}
 
 	public void focusAddressField() {
+		focusAddressField(false);
+	}
+
+	public void focusAddressField(boolean forceSelect) {
 		System.out.println("Focus address field called.");
 
 		SwingUtilities.invokeLater(() -> {
@@ -237,7 +241,7 @@ public class AddressBar extends JPanel {
 
 				Platform.runLater(() -> {
 					addressField.requestFocus();
-					if (addressFieldFocused == false)
+					if (addressFieldFocused == false || forceSelect == true)
 						addressField.selectAll();
 					System.out.println("Address field focused and selected.");
 				});

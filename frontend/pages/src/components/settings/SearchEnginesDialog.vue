@@ -7,12 +7,13 @@ import '@m3e/web/select';
 import '@m3e/web/option';
 import '@m3e/web/form-field';
 import type { M3eSelectElement } from '@m3e/web/select';
-
-const dialog = useTemplateRef<M3eDialogElement>('dialog');
+import type { SearchEngine } from '@/types/SearchEngine';
+import { getDefaultSearchEngine, setDefaultSearchEngine } from '@/utils/java_bridge';
 
 const { searchEnginesDialog } = useDialog();
 
-type SearchEngine = 'google' | 'ddg' | 'ddg-html' | 'ddg-noai' | 'startpage' | 'brave' | 'kagi' | 'yahoo' | 'vyntr' | 'bing' | 'custom';
+const dialog = useTemplateRef<M3eDialogElement>('dialog');
+const searchEngine = ref<SearchEngine>('google');
 
 const defaultSearchEngines: { name: string; value: SearchEngine }[] = [
 	{
@@ -63,9 +64,7 @@ const defaultSearchEngines: { name: string; value: SearchEngine }[] = [
 		value: 'custom',
 	},
 	*/
-]
-
-const searchEngine = ref<SearchEngine>('google');
+];
 
 async function changeSearchEngine(target: M3eSelectElement) {
 	await nextTick();
@@ -74,10 +73,15 @@ async function changeSearchEngine(target: M3eSelectElement) {
 	console.log('Changed search engine to:', name);
 
 	searchEngine.value = name;
+
+	await setDefaultSearchEngine(name);
 }
 
-onMounted(() => {
+onMounted(async () => {
 	searchEnginesDialog.value = dialog.value;
+
+	searchEngine.value = await getDefaultSearchEngine();
+	console.log('Default search engine:', searchEngine.value);
 });
 </script>
 
