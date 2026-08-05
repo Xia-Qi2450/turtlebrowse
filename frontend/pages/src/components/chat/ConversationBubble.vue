@@ -26,7 +26,7 @@ watch(() => props.thinking, async (thinking) => {
 </script>
 
 <template>
-	<div class="thinking" v-if="!props.message || props.message === ''">
+	<div class="thinking" v-if="!props.message && !props.thinking">
 		<m3e-loading-indicator variant="contained"></m3e-loading-indicator>
 		<p>Thinking</p>
 	</div>
