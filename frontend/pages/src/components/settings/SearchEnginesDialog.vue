@@ -24,29 +24,24 @@ const defaultSearchEngines: { name: string; value: SearchEngine }[] = [
 		name: 'DuckDuckGo',
 		value: 'ddg',
 	},
-	/*
-	{
-		name: 'DuckDuckGo (HTML)',
-		value: 'ddg-html',
-	},
 	{
 		name: 'DuckDuckGo (no AI)',
 		value: 'ddg-noai',
 	},
 	{
-		name: 'Startpage',
-		value: 'startpage',
-	},
-	*/
-	{
 		name: 'Brave Search',
 		value: 'brave',
+	},
+	{
+		name: 'Startpage',
+		value: 'startpage',
 	},
 	/*
 	{
 		name: 'Kagi',
 		value: 'kagi',
 	},
+	*/
 	{
 		name: 'Yahoo',
 		value: 'yahoo',
@@ -59,6 +54,7 @@ const defaultSearchEngines: { name: string; value: SearchEngine }[] = [
 		name: 'Microsoft Bing',
 		value: 'bing',
 	},
+	/*
 	{
 		name: 'Custom',
 		value: 'custom',
@@ -91,7 +87,7 @@ onMounted(async () => {
 		<div class="search-engine-dialog">
 			<m3e-form-field>
 				<label slot="label">Default search engine</label>
-				<m3e-select @change="changeSearchEngine($event.target)">
+				<m3e-select :key="searchEngine" @change="changeSearchEngine($event.target)">
 					<m3e-option v-for="engine in defaultSearchEngines" :key="engine.value" :value="engine.value" :selected="engine.value === searchEngine">
 						{{ engine.name }}
 					</m3e-option>

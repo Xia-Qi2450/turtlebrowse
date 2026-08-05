@@ -49,6 +49,7 @@ import dev.ingstudios.turtlebrowse.managers.DiscordPresenceManager;
 import dev.ingstudios.turtlebrowse.managers.WindowsManager;
 import dev.ingstudios.turtlebrowse.managers.WindowsManager.WindowItem;
 import dev.ingstudios.turtlebrowse.ollama.OllamaChat;
+import dev.ingstudios.turtlebrowse.search.SearchURLTemplates;
 import io.github.ollama4j.exceptions.OllamaException;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -57,7 +58,6 @@ import javafx.scene.paint.Color;
 
 public class MainWindow extends JFrame {
 	public final String START_URL = "turtlebrowse://newtab";
-	public final String DEFAULT_SEARCH_PROVIDER = "https://google.com/search?q=";
 	private final boolean USE_OSR = false;
 
 	private CefClient cefClient;
@@ -82,6 +82,7 @@ public class MainWindow extends JFrame {
 	private final CefAppManager cefAppManager = CefAppManager.getInstance(this);
 	private final CefApp cefApp = cefAppManager.getCefApp();
 	private final ProfileDatabase profileDatabase;
+	public String defaultSearchProvider = SearchURLTemplates.searchTemplates.get("google");
 
 	public MainWindow(ProfileStructureWithId profile) {
 		super("Turtlebrowse");
@@ -91,6 +92,8 @@ public class MainWindow extends JFrame {
 		currentProfile = profile;
 
 		profileDatabase = ProfileDatabase.getInstance(currentProfile.getIdAsString());
+
+		defaultSearchProvider = SearchURLTemplates.searchTemplates.get(profileDatabase.getDefaultSearchEngine());
 
 		windowId = "%s_main_window".formatted(profile.getIdAsString());
 		WindowsManager.getInstance()
@@ -305,7 +308,7 @@ public class MainWindow extends JFrame {
 
 	public String formatURL(String url, Boolean isSearching) {
 		if (isSearching == null || isSearching) {
-			return DEFAULT_SEARCH_PROVIDER + URLEncoder.encode(url, StandardCharsets.UTF_8);
+			return defaultSearchProvider.formatted(URLEncoder.encode(url, StandardCharsets.UTF_8));
 		}
 
 		final Set<String> allowedSchemes = Set.of(
@@ -332,7 +335,7 @@ public class MainWindow extends JFrame {
 		} catch (Exception e) {
 		}
 
-		return DEFAULT_SEARCH_PROVIDER + URLEncoder.encode(url, StandardCharsets.UTF_8);
+		return defaultSearchProvider.formatted(URLEncoder.encode(url, StandardCharsets.UTF_8));
 	}
 
 	public void searchWeb(String query) {
@@ -372,6 +375,7 @@ public class MainWindow extends JFrame {
 
 			case "SET_SEARCH_ENGINE": {
 				final String searchEngineToSet = params.get("engine").getAsString();
+				defaultSearchProvider = SearchURLTemplates.searchTemplates.get(searchEngineToSet);
 				profileDatabase.setDefaultSearchEngine(searchEngineToSet);
 				return "\"ok\"";
 			}
