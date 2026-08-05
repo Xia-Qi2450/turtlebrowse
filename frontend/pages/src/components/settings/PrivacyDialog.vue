@@ -2,15 +2,29 @@
 import { useDialog } from '@/composables/dialog';
 import '@m3e/web/dialog';
 import { M3eDialogElement } from '@m3e/web/dialog';
-import { onMounted, useTemplateRef } from 'vue';
+import { onMounted, ref, useTemplateRef } from 'vue';
 import '@m3e/web/switch';
+import { getDiscordPresenceSetting, setDiscordPresenceSetting } from '@/utils/java_bridge';
+import type { M3eCheckboxElement } from '@m3e/web/checkbox';
 
 const dialog = useTemplateRef<M3eDialogElement>('dialog');
+const discordPresenceEnabled = ref<boolean>(false);
 
 const { privacyDialog } = useDialog();
 
-onMounted(() => {
+async function toggleDiscordPresence(target: M3eCheckboxElement) {
+	const checked = target.checked;
+	console.log('Enabled:', checked);
+
+	discordPresenceEnabled.value = checked;
+
+	await setDiscordPresenceSetting(checked);
+}
+
+onMounted(async () => {
 	privacyDialog.value = dialog.value;
+
+	discordPresenceEnabled.value = await getDiscordPresenceSetting();
 });
 </script>
 
@@ -20,7 +34,7 @@ onMounted(() => {
 		<div class="privacy-dialog">
 			<div class="toggle-setting">
 				<p>Enable Discord Presence</p>
-				<m3e-switch icons="both"></m3e-switch>
+				<m3e-switch icons="both" :checked="discordPresenceEnabled" @change="toggleDiscordPresence($event.target)"></m3e-switch>
 			</div>
 		</div>
 	</m3e-dialog>

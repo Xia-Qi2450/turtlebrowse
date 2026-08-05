@@ -54,9 +54,9 @@ public class ProfileDatabase {
 
 		if (searchEngineDocument == null) {
 			final Document newSearchEngineDocument = Document.createDocument().put("setting", "searchEngine")
-					.put("engine", "google");
+					.put("engine", "brave");
 			settingsCollection.insert(newSearchEngineDocument);
-			return "google";
+			return "brave";
 		}
 
 		return searchEngineDocument.get("engine").toString();
@@ -86,7 +86,7 @@ public class ProfileDatabase {
 
 		if (discordDocument == null) {
 			final Document newDiscordDocument = Document.createDocument().put("setting", "discordPresence")
-					.put("enabled", true);
+					.put("enabled", false);
 			settingsCollection.insert(newDiscordDocument);
 			return true;
 		}
@@ -94,7 +94,7 @@ public class ProfileDatabase {
 		return Boolean.valueOf(discordDocument.get("enabled").toString());
 	}
 
-	public void getDiscordPresenceSetting(boolean enabled) {
+	public void setDiscordPresenceSetting(boolean enabled) {
 		System.out.printf("Setting Discord presence setting: %s\n", enabled);
 
 		final Document discordDocument = settingsCollection.find(where("setting").eq("discordPresence"))

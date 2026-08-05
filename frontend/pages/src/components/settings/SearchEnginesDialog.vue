@@ -13,12 +13,12 @@ import { getDefaultSearchEngine, setDefaultSearchEngine } from '@/utils/java_bri
 const { searchEnginesDialog } = useDialog();
 
 const dialog = useTemplateRef<M3eDialogElement>('dialog');
-const searchEngine = ref<SearchEngine>('google');
+const searchEngine = ref<SearchEngine>('brave');
 
 const defaultSearchEngines: { name: string; value: SearchEngine }[] = [
 	{
-		name: 'Google',
-		value: 'google',
+		name: 'Brave Search',
+		value: 'brave',
 	},
 	{
 		name: 'DuckDuckGo',
@@ -29,8 +29,8 @@ const defaultSearchEngines: { name: string; value: SearchEngine }[] = [
 		value: 'ddg-noai',
 	},
 	{
-		name: 'Brave Search',
-		value: 'brave',
+		name: 'Google',
+		value: 'google',
 	},
 	{
 		name: 'Startpage',

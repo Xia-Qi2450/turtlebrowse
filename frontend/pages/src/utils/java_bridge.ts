@@ -39,13 +39,13 @@ export async function getDefaultSearchEngine(): Promise<SearchEngine> {
 		const searchEngine = await fetchFromJava('GET_SEARCH_ENGINE') as SearchEngine | undefined;
 
 		if (!searchEngine) {
-			return 'google';
+			return 'brave';
 		}
 
 		return searchEngine;
 	} catch (error) {
 		console.error('Error while getting default search engine:', error);
-		return 'google';
+		return 'brave';
 	}
 }
 
@@ -54,5 +54,28 @@ export async function setDefaultSearchEngine(engine: SearchEngine) {
 		await fetchFromJava('SET_SEARCH_ENGINE', { engine: engine });
 	} catch (error) {
 		console.error('Failed to set search engine:', error);
+	}
+}
+
+export async function getDiscordPresenceSetting(): Promise<boolean> {
+	try {
+		const enabled = await fetchFromJava('GET_DISCORD_SETTING') as string | undefined;
+
+		if (enabled === undefined) {
+			return false;
+		}
+
+		return enabled.toLowerCase() === 'true';
+	} catch (error) {
+		console.error('Error while getting Discord setting:', error);
+		return false;
+	}
+}
+
+export async function setDiscordPresenceSetting(enabled: boolean) {
+	try {
+		await fetchFromJava('SET_DISCORD_SETTING', { enabled: enabled.toString() });
+	} catch (error) {
+		console.error('Failed to set Discord setting:', error);
 	}
 }

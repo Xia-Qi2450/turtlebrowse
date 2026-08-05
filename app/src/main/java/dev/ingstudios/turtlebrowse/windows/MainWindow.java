@@ -82,7 +82,8 @@ public class MainWindow extends JFrame {
 	private final CefAppManager cefAppManager = CefAppManager.getInstance(this);
 	private final CefApp cefApp = cefAppManager.getCefApp();
 	private final ProfileDatabase profileDatabase;
-	public String defaultSearchProvider = SearchURLTemplates.searchTemplates.get("google");
+	public String defaultSearchProvider = SearchURLTemplates.searchTemplates.get("brave");
+	public boolean enableDiscordPresence = false;
 
 	public MainWindow(ProfileStructureWithId profile) {
 		super("Turtlebrowse");
@@ -94,6 +95,7 @@ public class MainWindow extends JFrame {
 		profileDatabase = ProfileDatabase.getInstance(currentProfile.getIdAsString());
 
 		defaultSearchProvider = SearchURLTemplates.searchTemplates.get(profileDatabase.getDefaultSearchEngine());
+		enableDiscordPresence = profileDatabase.getDiscordPresenceSetting();
 
 		windowId = "%s_main_window".formatted(profile.getIdAsString());
 		WindowsManager.getInstance()
@@ -162,7 +164,7 @@ public class MainWindow extends JFrame {
 
 		try {
 			ollamaSession = new OllamaChat(userAgent, this);
-			System.out.println("Successfully created ollama chat session.");
+			System.out.println("Successfully created Ollama chat session.");
 		} catch (OllamaException e) {
 			e.printStackTrace();
 		}
@@ -187,7 +189,8 @@ public class MainWindow extends JFrame {
 
 	public void updateWindowTitle(String pageTitle) {
 		this.setTitle(pageTitle + " - Turtlebrowse");
-		DiscordPresenceManager.getInstance().updateDiscordPresence("Browsing " + pageTitle);
+		if (enableDiscordPresence)
+			DiscordPresenceManager.getInstance().updateDiscordPresence("Browsing " + pageTitle);
 	}
 
 	public void createTab(String url) {
@@ -377,6 +380,23 @@ public class MainWindow extends JFrame {
 				final String searchEngineToSet = params.get("engine").getAsString();
 				defaultSearchProvider = SearchURLTemplates.searchTemplates.get(searchEngineToSet);
 				profileDatabase.setDefaultSearchEngine(searchEngineToSet);
+				return "\"ok\"";
+			}
+
+			case "GET_DISCORD_SETTING": {
+				final boolean discordSetting = profileDatabase.getDiscordPresenceSetting();
+				return String.valueOf(discordSetting);
+			}
+
+			case "SET_DISCORD_SETTING": {
+				final boolean discordSettingToSet = params.get("enabled").getAsBoolean();
+				enableDiscordPresence = discordSettingToSet;
+				if (discordSettingToSet) {
+					DiscordPresenceManager.getInstance().init();
+				} else {
+					DiscordPresenceManager.getInstance().disableDiscordPresence();
+				}
+				profileDatabase.setDiscordPresenceSetting(discordSettingToSet);
 				return "\"ok\"";
 			}
 

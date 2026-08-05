@@ -100,4 +100,11 @@ public class DiscordPresenceManager {
 	public IPCClient getClient() {
 		return discordIpcClient;
 	}
+
+	public void disableDiscordPresence() {
+		if (discordIpcClient == null)
+			return;
+
+		discordIpcClient.close();
+	}
 }
