@@ -35,6 +35,7 @@ public class AddressBar extends JPanel {
 	private MainWindow parent;
 	private boolean addressFieldFocused = false;
 	private JFXPanel addressBarPanel;
+	private boolean wasFocused = false;
 
 	public AddressBar(CefClient client, MainWindow parent, String startUrl) {
 		this.parent = parent;
@@ -144,18 +145,28 @@ public class AddressBar extends JPanel {
 			});
 
 			addressField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-				if (!newValue) {
-					System.out.println("Address field has lost focus.");
-					parent.isUiFocused.set(false);
-					addressFieldFocused = false;
-					return;
+				if (newValue) {
+					CefBrowser browser = this.parent.currentBrowser;
+					if (browser != null) {
+						browser.setFocus(false);
+					}
+
+					if (!wasFocused) {
+						Platform.runLater(() -> addressField.selectAll());
+						wasFocused = true;
+					}
 				} else {
-					addressFieldFocused = true;
+					System.out.println("Address field lost focus.");
+					parent.isUiFocused.set(false);
+					wasFocused = false;
 				}
 			});
 
-			addressField.setOnMouseClicked(event -> {
-				focusAddressField();
+			addressField.setOnMousePressed(event -> {
+				if (!wasFocused) {
+					addressField.requestFocus();
+					event.consume();
+				}
 			});
 
 			final JFXButton aiButton = new JFXButton("✨");
@@ -227,26 +238,20 @@ public class AddressBar extends JPanel {
 		System.out.println("Focus address field called.");
 
 		SwingUtilities.invokeLater(() -> {
-			this.parent.requestFocus(); // IMPORTANT DO NOT REMOVE THIS ENSURES THAT THE MAIN PARENT GAINS FOCUS FIRST
+			this.parent.requestFocus();
 
 			addressBarPanel.requestFocusInWindow();
 
 			Platform.runLater(() -> {
 				this.parent.isUiFocused.set(true);
 
-				CefBrowser browser = this.parent.currentBrowser;
-				if (browser != null) {
-					browser.setFocus(false);
+				if (!addressField.isFocused()) {
+					addressField.requestFocus();
+				} else if (forceSelect) {
+					addressField.selectAll();
 				}
 
-				Platform.runLater(() -> {
-					addressField.requestFocus();
-					if (addressFieldFocused == false || forceSelect == true)
-						addressField.selectAll();
-					System.out.println("Address field focused and selected.");
-				});
-
-				addressFieldFocused = true;
+				System.out.println("Address field focused and selected.");
 			});
 		});
 	}
