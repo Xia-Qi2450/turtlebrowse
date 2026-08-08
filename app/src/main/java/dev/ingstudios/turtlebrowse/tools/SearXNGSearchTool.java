@@ -2,9 +2,11 @@ package dev.ingstudios.turtlebrowse.tools;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +25,7 @@ public class SearXNGSearchTool {
 
 	public SearchResult searchWeb(String query) throws Exception {
 		String url = "https://searxng.ingstudios.dev/search?q=" +
-				java.net.URLEncoder.encode(query, java.nio.charset.StandardCharsets.UTF_8) +
+				URLEncoder.encode(query, StandardCharsets.UTF_8) +
 				"&format=json";
 
 		System.out.printf("Navigated to: %s\n", url);

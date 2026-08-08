@@ -3,17 +3,22 @@ package dev.ingstudios.turtlebrowse.components;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.embed.swing.JFXPanel;
+import javafx.event.ActionEvent;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Paint;
+import javafx.stage.Popup;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -28,17 +33,20 @@ import org.kordamp.ikonli.material2.Material2OutlinedMZ;
 import com.jfoenix.controls.JFXButton;
 
 import dev.ingstudios.turtlebrowse.Main;
+import dev.ingstudios.turtlebrowse.search.SearchAutosuggest;
 import dev.ingstudios.turtlebrowse.windows.MainWindow;
 
 public class AddressBar extends JPanel {
 	private TextField addressField;
-	private MainWindow parent;
-	private boolean addressFieldFocused = false;
+	private final MainWindow parent;
 	private JFXPanel addressBarPanel;
 	private boolean wasFocused = false;
+	private final SearchAutosuggest autosuggester;
 
 	public AddressBar(CefClient client, MainWindow parent, String startUrl) {
 		this.parent = parent;
+
+		autosuggester = new SearchAutosuggest(this.parent.userAgent);
 
 		this.setLayout(new java.awt.BorderLayout());
 
@@ -131,35 +139,7 @@ public class AddressBar extends JPanel {
 				return new Background(new BackgroundFill(backgroundColor, new CornerRadii(25), null));
 			}, parent.profileMaterialColorScheme.getSurfaceContainer()));
 			addressField.setOnAction(event -> {
-				CefBrowser browser = this.parent.currentBrowser;
-
-				String enteredUrl = this.parent.formatURL(addressField.getText(), false);
-
-				System.out.print("Entered URL:");
-				System.out.println(enteredUrl);
-
-				if (browser != null)
-					browser.loadURL(enteredUrl);
-				else
-					System.out.println("Browser is null.");
-			});
-
-			addressField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-				if (newValue) {
-					CefBrowser browser = this.parent.currentBrowser;
-					if (browser != null) {
-						browser.setFocus(false);
-					}
-
-					if (!wasFocused) {
-						Platform.runLater(() -> addressField.selectAll());
-						wasFocused = true;
-					}
-				} else {
-					System.out.println("Address field lost focus.");
-					parent.isUiFocused.set(false);
-					wasFocused = false;
-				}
+				onAddressEnter();
 			});
 
 			addressField.setOnMousePressed(event -> {
@@ -218,6 +198,103 @@ public class AddressBar extends JPanel {
 			HBox.setHgrow(addressField, Priority.ALWAYS);
 			addressField.setMaxWidth(Double.MAX_VALUE);
 
+			final ListView<String> autoSuggestList = new ListView<>();
+
+			final Popup autoSuggestPopup = new Popup();
+			autoSuggestPopup.getContent().add(autoSuggestList);
+			autoSuggestPopup.setAutoHide(true);
+
+			final Runnable showAutoSuggest = () -> {
+				System.out.println("Show auto suggest called.");
+
+				if (!addressField.isFocused() || autoSuggestList.getItems().isEmpty()) {
+					autoSuggestPopup.hide();
+					return;
+				}
+
+				System.out.println("Showing auto suggest...");
+
+				autoSuggestList.getSelectionModel().clearSelection();
+				autoSuggestList.getFocusModel().focus(-1);
+
+				final Point2D screenPos = addressField.localToScreen(0, addressField.getHeight());
+				System.out.printf("Screen position: %f, %f\n", screenPos.getX(), screenPos.getY());
+
+				if (screenPos != null) {
+					autoSuggestPopup.setX(screenPos.getX());
+					autoSuggestPopup.setY(screenPos.getY() + 10);
+					autoSuggestList.setPrefWidth(addressField.getWidth());
+					autoSuggestList.prefHeightProperty().bind(
+							Bindings.size(autoSuggestList.getItems()).multiply(25));
+
+					if (!autoSuggestPopup.isShowing()) {
+						System.out.println("Auto suggest popup is not showing.");
+						autoSuggestPopup.show(addressBarScene.getWindow());
+					}
+				}
+			};
+
+			addressField.textProperty().addListener((obs, oldText, newText) -> {
+				if (newText.isEmpty()) {
+					autoSuggestPopup.hide();
+				} else {
+					System.out.println("Getting autosuggestions...");
+					autosuggester.getSuggestion(newText, results -> {
+						Platform.runLater(() -> {
+							autoSuggestList.getItems().setAll(results);
+							System.out.printf("Auto suggest list items: %s\n", autoSuggestList.getItems().toString());
+							showAutoSuggest.run();
+						});
+					});
+				}
+			});
+
+			addressField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+				if (newValue) {
+					CefBrowser browser = this.parent.currentBrowser;
+					if (browser != null) {
+						browser.setFocus(false);
+					}
+
+					if (!wasFocused) {
+						Platform.runLater(() -> addressField.selectAll());
+						wasFocused = true;
+					}
+				} else {
+					System.out.println("Address field lost focus.");
+					Platform.runLater(() -> autoSuggestPopup.hide());
+					parent.isUiFocused.set(false);
+					wasFocused = false;
+				}
+			});
+
+			final Runnable searchSuggestedResult = () -> {
+				final String selected = autoSuggestList.getSelectionModel().getSelectedItem();
+				if (selected != null) {
+					addressField.setText(selected);
+					autoSuggestPopup.hide();
+					addressField.fireEvent(new ActionEvent());
+				}
+			};
+
+			autoSuggestList.setOnMouseClicked(event -> {
+				searchSuggestedResult.run();
+			});
+
+			autoSuggestList.setOnKeyPressed(event -> {
+				if (event.getCode() == KeyCode.ENTER) {
+					final int focusedIndex = autoSuggestList.getFocusModel().getFocusedIndex();
+					System.out.printf("Focused index: %d\n", focusedIndex);
+					if (focusedIndex < 0) {
+						onAddressEnter();
+					} else {
+						searchSuggestedResult.run();
+					}
+				} else if (event.getCode() == KeyCode.ESCAPE) {
+					autoSuggestPopup.hide();
+				}
+			});
+
 			root.setOnMouseClicked(event -> {
 				addressField.requestFocus();
 			});
@@ -254,5 +331,19 @@ public class AddressBar extends JPanel {
 				System.out.println("Address field focused and selected.");
 			});
 		});
+	}
+
+	private void onAddressEnter() {
+		CefBrowser browser = this.parent.currentBrowser;
+
+		String enteredUrl = this.parent.formatURL(addressField.getText(), false);
+
+		System.out.print("Entered URL:");
+		System.out.println(enteredUrl);
+
+		if (browser != null)
+			browser.loadURL(enteredUrl);
+		else
+			System.out.println("Browser is null.");
 	}
 }
