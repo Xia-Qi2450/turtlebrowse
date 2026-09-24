@@ -334,11 +334,7 @@ public class MainWindow extends JFrame {
 
 			final Color bgColor = profileMaterialColorScheme.getSurface().get();
 
-			ui.setBackground(new java.awt.Color(
-					(float) bgColor.getRed(),
-					(float) bgColor.getGreen(),
-					(float) bgColor.getBlue(),
-					(float) bgColor.getOpacity()));
+			ui.setBackground(colorToAwt(bgColor));
 
 			if (ui.getMouseListeners().length == 0) {
 				ui.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -661,6 +657,14 @@ public class MainWindow extends JFrame {
 				(int) (color.getGreen() * 255),
 				(int) (color.getBlue() * 255));
 		return hex;
+	}
+
+	public java.awt.Color colorToAwt(Color color) {
+		return new java.awt.Color(
+				(float) color.getRed(),
+				(float) color.getGreen(),
+				(float) color.getBlue(),
+				(float) color.getOpacity());
 	}
 
 	public void toggleFullscreen() {

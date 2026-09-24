@@ -83,7 +83,7 @@ dependencies {
     implementation("org.jetbrains.jediterm:jediterm-core:3.76")
     implementation("org.jetbrains.jediterm:jediterm-ui:3.76")
     
-    // pty4j
+    // Pty4j
     implementation("org.jetbrains.pty4j:pty4j:0.13.13") {
         exclude(group = "net.java.dev.jna", module = "jna")
         exclude(group = "net.java.dev.jna", module = "jna-platform")

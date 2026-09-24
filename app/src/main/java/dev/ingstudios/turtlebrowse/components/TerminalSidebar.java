@@ -4,23 +4,16 @@ import java.awt.BorderLayout;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2OutlinedAL;
 
-import com.jediterm.terminal.TtyConnector;
 import com.jediterm.terminal.ui.JediTermWidget;
-import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
 import com.jfoenix.controls.JFXButton;
-import com.pty4j.PtyProcess;
-import com.pty4j.PtyProcessBuilder;
 
+import dev.ingstudios.turtlebrowse.terminal.PtyProcessTtyConnecter;
+import dev.ingstudios.turtlebrowse.terminal.TurtlebrowseTerminalSettingsProvider;
 import dev.ingstudios.turtlebrowse.windows.MainWindow;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -75,7 +68,7 @@ public class TerminalSidebar extends ToolSidebar {
 			actionsBar.getChildren().addAll(closeButton);
 		});
 
-		terminal = new JediTermWidget(new DefaultSettingsProvider());
+		terminal = new JediTermWidget(new TurtlebrowseTerminalSettingsProvider());
 		terminal.getTerminalPanel().addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -158,115 +151,5 @@ public class TerminalSidebar extends ToolSidebar {
 
 	public boolean isFocused() {
 		return focused;
-	}
-}
-
-class PtyProcessTtyConnecter implements TtyConnector {
-	private final PtyProcess process;
-	private final InputStreamReader reader;
-	private final OutputStreamWriter writer;
-	private final String sessionName;
-
-	public PtyProcessTtyConnecter() throws IOException {
-		String[] command;
-
-		final boolean isWindows = System.getProperty("os.name").toLowerCase().contains("win");
-
-		if (isWindows) {
-			command = new String[] { "cmd.exe" };
-			sessionName = "Command Prompt";
-		} else {
-			final String shell = getDefaultShell();
-			System.out.println("Shell: " + shell);
-			command = new String[] { shell != null ? shell : "/bin/bash", "-l", "-i" };
-			sessionName = shell != null ? shell : "/bin/bash";
-		}
-
-		final String version = System.getProperties().getProperty("version", "1.0.0");
-		final String userHome = System.getProperty("user.home");
-
-		final Map<String, String> env = new HashMap<>(System.getenv());
-		env.put("TERM", "xterm-256color");
-		env.put("TERM_PROGRAM", "turtlebrowse");
-		env.put("TERM_PROGRAM_VERSION", version);
-		env.put("LC_TERMINAL", "turtlebrowse");
-		env.put("LC_TERMINAL_VERSION", version);
-
-		process = new PtyProcessBuilder().setCommand(command).setEnvironment(env).setConsole(false)
-				.setDirectory(userHome).start();
-
-		reader = new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8);
-		writer = new OutputStreamWriter(process.getOutputStream(), StandardCharsets.UTF_8);
-	}
-
-	@Override
-	public int read(char[] buf, int offset, int length) throws IOException {
-		return reader.read(buf, offset, length);
-	}
-
-	@Override
-	public void write(byte[] bytes) throws IOException {
-		process.getOutputStream().write(bytes);
-		process.getOutputStream().flush();
-	}
-
-	@Override
-	public void write(String string) throws IOException {
-		writer.write(string);
-		writer.flush();
-	}
-
-	@Override
-	public boolean isConnected() {
-		return process.isAlive();
-	}
-
-	@Override
-	public int waitFor() throws InterruptedException {
-		process.waitFor();
-		return 0;
-	}
-
-	@Override
-	public boolean ready() throws IOException {
-		return reader.ready();
-	}
-
-	@Override
-	public String getName() {
-		return sessionName;
-	}
-
-	@Override
-	public void close() {
-		process.destroy();
-	}
-
-	private String getDefaultShell() {
-		boolean isWindows = System.getProperty("os.name").toLowerCase().contains("win");
-		if (isWindows) {
-			return "cmd.exe";
-		}
-
-		String shell = System.getenv("SHELL");
-		if (shell != null && !shell.isBlank()) {
-			return shell;
-		}
-
-		try {
-			String username = System.getProperty("user.name");
-			Process process = new ProcessBuilder("getent", "passwd", username).start();
-			String output = new String(process.getInputStream().readAllBytes()).trim();
-			if (!output.isEmpty()) {
-				String[] parts = output.split(":");
-				if (parts.length >= 7 && !parts[6].isBlank()) {
-					return parts[6];
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return "/bin/bash";
 	}
 }
