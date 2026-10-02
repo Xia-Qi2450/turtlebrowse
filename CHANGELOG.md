@@ -5,6 +5,7 @@ All major and minor changes, alongside with bug fixes go here. More details avai
 ## v1.10.0
 
 - Bumped JCEF from 146.0.10 to 152.0.6
+- Fixed `ikonli-materialdesign2-pack` icons not showing
 
 ## v1.9.0
 
