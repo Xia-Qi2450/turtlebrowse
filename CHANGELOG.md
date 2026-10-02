@@ -2,6 +2,10 @@
 
 All major and minor changes, alongside with bug fixes go here. More details available with each releases' full changelog.
 
+## v1.10.0
+
+- Bumped JCEF from 146.0.10 to 152.0.6
+
 ## v1.9.0
 
 **23/9/2026**

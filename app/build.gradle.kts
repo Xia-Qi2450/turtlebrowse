@@ -31,7 +31,7 @@ dependencies {
     implementation(libs.guava)
 
     // JCEF Maven for Chromium embedding
-    implementation("me.friwi:jcefmaven:146.0.10")
+    implementation("me.friwi:jcefmaven:152.0.6")
 
     // Material icons from Ikonli
     implementation("org.kordamp.ikonli:ikonli-javafx:12.4.0")

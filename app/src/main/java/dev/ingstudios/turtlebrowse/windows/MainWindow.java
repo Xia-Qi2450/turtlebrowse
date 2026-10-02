@@ -103,7 +103,7 @@ public class MainWindow extends JFrame {
 	public final ProfileStructureWithId currentProfile;
 	public ColorSchemeProperty profileMaterialColorScheme = new SimpleColorSchemeProperty(
 			ColorScheme.fromSeed(Color.web("#BDCF47")));
-	public String userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.1.0 Safari/537.36";
+	public String userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.1.0 Safari/537.36";
 	private final String windowId;
 	private final CefAppManager cefAppManager;
 	private final CefApp cefApp;
