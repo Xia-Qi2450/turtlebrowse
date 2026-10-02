@@ -26,6 +26,7 @@ import dev.ingstudios.turtlebrowse.db.MainDatabase;
 import dev.ingstudios.turtlebrowse.db.MainDatabase.ProfileStructureWithId;
 import dev.ingstudios.turtlebrowse.environment.AppImageUtils;
 import dev.ingstudios.turtlebrowse.managers.DiscordPresenceManager;
+import dev.ingstudios.turtlebrowse.managers.IkonliManager;
 import dev.ingstudios.turtlebrowse.managers.InstanceManager;
 import dev.ingstudios.turtlebrowse.windows.MainWindow;
 import dev.ingstudios.turtlebrowse.windows.ProfilePickerWindow;
@@ -73,6 +74,8 @@ public class Main {
 		Platform.startup(() -> {
 			Platform.setImplicitExit(false);
 		});
+
+		IkonliManager.getInstance().registerHandlers();
 
 		setMaterialColorSchemeFromSystem();
 
